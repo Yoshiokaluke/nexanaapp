@@ -21,7 +21,6 @@
     "@headlessui/react": "^2.2.2",
     "@heroicons/react": "2.2.0",
     "@hookform/resolvers": "^5.0.1",
-    "@next/swc-darwin-arm64": "^14.1.0",
     "@prisma/client": "^6.7.0",
     "@radix-ui/react-avatar": "^1.1.7",
     "@radix-ui/react-dialog": "^1.1.11",
