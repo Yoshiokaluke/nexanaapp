@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import Link from 'next/link';
-import { Dialog } from '@headlessui/react';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { SignOutButton } from '@clerk/nextjs';
 
 type Organization = {
@@ -413,269 +413,241 @@ export default function OrganizationsPage() {
         </div>
 
         {/* 組織編集モーダル */}
-        <Dialog
-          open={isEditOrgModalOpen}
-          onClose={() => setIsEditOrgModalOpen(false)}
-          className="relative z-50"
-        >
-          <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
-          <div className="fixed inset-0 flex items-center justify-center p-4">
-            <Dialog.Panel className="mx-auto max-w-xl w-full rounded-2xl bg-white p-8 shadow-2xl">
-              <Dialog.Title className="text-2xl font-bold mb-8">
-                組織の編集
-              </Dialog.Title>
-              <div className="space-y-6">
-                <div>
-                  <label className="block text-base font-medium text-gray-700 mb-2">
-                    組織名 *
-                  </label>
-                  <input
-                    type="text"
-                    value={editingOrg?.name || ''}
-                    onChange={(e) =>
-                      setEditingOrg(prev => prev ? { ...prev, name: e.target.value } : null)
-                    }
-                    className="block w-full h-12 text-lg rounded-lg border border-gray-300 px-4 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-400"
-                  />
-                </div>
-                <div>
-                  <label className="block text-base font-medium text-gray-700 mb-2">
-                    住所
-                  </label>
-                  <input
-                    type="text"
-                    value={editingOrg?.address || ''}
-                    onChange={(e) =>
-                      setEditingOrg(prev => prev ? { ...prev, address: e.target.value } : null)
-                    }
-                    className="block w-full h-12 text-lg rounded-lg border border-gray-300 px-4 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-400"
-                  />
-                </div>
-                <div>
-                  <label className="block text-base font-medium text-gray-700 mb-2">
-                    管理者名
-                  </label>
-                  <input
-                    type="text"
-                    value={editingOrg?.managerName || ''}
-                    onChange={(e) =>
-                      setEditingOrg(prev => prev ? { ...prev, managerName: e.target.value } : null)
-                    }
-                    className="block w-full h-12 text-lg rounded-lg border border-gray-300 px-4 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-400"
-                  />
-                </div>
+        <Dialog open={isEditOrgModalOpen} onOpenChange={setIsEditOrgModalOpen}>
+          <DialogContent className="max-w-xl">
+            <DialogTitle className="text-2xl font-bold mb-8">
+              組織の編集
+            </DialogTitle>
+            <div className="space-y-6">
+              <div>
+                <label className="block text-base font-medium text-gray-700 mb-2">
+                  組織名 *
+                </label>
+                <input
+                  type="text"
+                  value={editingOrg?.name || ''}
+                  onChange={(e) =>
+                    setEditingOrg(prev => prev ? { ...prev, name: e.target.value } : null)
+                  }
+                  className="block w-full h-12 text-lg rounded-lg border border-gray-300 px-4 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-400"
+                />
               </div>
-              <div className="mt-10 flex justify-end gap-6">
-                <button
-                  onClick={() => {
-                    setIsEditOrgModalOpen(false);
-                    setEditingOrg(null);
-                  }}
-                  className="px-6 py-3 text-base font-semibold text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-                >
-                  キャンセル
-                </button>
-                <button
-                  onClick={handleEditOrganization}
-                  disabled={isLoading || !editingOrg?.name}
-                  className="px-6 py-3 text-base font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
-                >
-                  {isLoading ? '更新中...' : '更新'}
-                </button>
+              <div>
+                <label className="block text-base font-medium text-gray-700 mb-2">
+                  住所
+                </label>
+                <input
+                  type="text"
+                  value={editingOrg?.address || ''}
+                  onChange={(e) =>
+                    setEditingOrg(prev => prev ? { ...prev, address: e.target.value } : null)
+                  }
+                  className="block w-full h-12 text-lg rounded-lg border border-gray-300 px-4 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-400"
+                />
               </div>
-            </Dialog.Panel>
-          </div>
+              <div>
+                <label className="block text-base font-medium text-gray-700 mb-2">
+                  管理者名
+                </label>
+                <input
+                  type="text"
+                  value={editingOrg?.managerName || ''}
+                  onChange={(e) =>
+                    setEditingOrg(prev => prev ? { ...prev, managerName: e.target.value } : null)
+                  }
+                  className="block w-full h-12 text-lg rounded-lg border border-gray-300 px-4 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-400"
+                />
+              </div>
+            </div>
+            <div className="mt-10 flex justify-end gap-6">
+              <button
+                onClick={() => {
+                  setIsEditOrgModalOpen(false);
+                  setEditingOrg(null);
+                }}
+                className="px-6 py-3 text-base font-semibold text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+              >
+                キャンセル
+              </button>
+              <button
+                onClick={handleEditOrganization}
+                disabled={isLoading || !editingOrg?.name}
+                className="px-6 py-3 text-base font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
+              >
+                {isLoading ? '更新中...' : '更新'}
+              </button>
+            </div>
+          </DialogContent>
         </Dialog>
 
         {/* QRスキャナー作成モーダル */}
-        <Dialog
-          open={isQrScannerModalOpen}
-          onClose={() => setIsQrScannerModalOpen(false)}
-          className="relative z-50"
-        >
-          <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
-          <div className="fixed inset-0 flex items-center justify-center p-4">
-            <Dialog.Panel className="mx-auto max-w-sm rounded bg-white p-6">
-              <Dialog.Title className="text-lg font-medium mb-4">
-                QRスキャナーの追加
-              </Dialog.Title>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    名前
-                  </label>
-                  <input
-                    type="text"
-                    value={newQrScanner.name}
-                    onChange={(e) =>
-                      setNewQrScanner({ ...newQrScanner, name: e.target.value })
-                    }
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    説明
-                  </label>
-                  <input
-                    type="text"
-                    value={newQrScanner.description}
-                    onChange={(e) =>
-                      setNewQrScanner({ ...newQrScanner, description: e.target.value })
-                    }
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    設置場所
-                  </label>
-                  <input
-                    type="text"
-                    value={newQrScanner.location}
-                    onChange={(e) =>
-                      setNewQrScanner({ ...newQrScanner, location: e.target.value })
-                    }
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                  />
-                </div>
+        <Dialog open={isQrScannerModalOpen} onOpenChange={setIsQrScannerModalOpen}>
+          <DialogContent className="max-w-sm">
+            <DialogTitle className="text-lg font-medium mb-4">
+              QRスキャナーの追加
+            </DialogTitle>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  名前
+                </label>
+                <input
+                  type="text"
+                  value={newQrScanner.name}
+                  onChange={(e) =>
+                    setNewQrScanner({ ...newQrScanner, name: e.target.value })
+                  }
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                />
               </div>
-              <div className="mt-6 flex justify-end gap-3">
-                <button
-                  onClick={() => setIsQrScannerModalOpen(false)}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
-                >
-                  キャンセル
-                </button>
-                <button
-                  onClick={handleCreateQrScanner}
-                  disabled={isLoading || !newQrScanner.name || !newQrScanner.location}
-                  className="px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-md hover:bg-blue-600 disabled:opacity-50"
-                >
-                  {isLoading ? '作成中...' : '作成'}
-                </button>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  説明
+                </label>
+                <input
+                  type="text"
+                  value={newQrScanner.description}
+                  onChange={(e) =>
+                    setNewQrScanner({ ...newQrScanner, description: e.target.value })
+                  }
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                />
               </div>
-            </Dialog.Panel>
-          </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  設置場所
+                </label>
+                <input
+                  type="text"
+                  value={newQrScanner.location}
+                  onChange={(e) =>
+                    setNewQrScanner({ ...newQrScanner, location: e.target.value })
+                  }
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                onClick={() => setIsQrScannerModalOpen(false)}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
+              >
+                キャンセル
+              </button>
+              <button
+                onClick={handleCreateQrScanner}
+                disabled={isLoading || !newQrScanner.name || !newQrScanner.location}
+                className="px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-md hover:bg-blue-600 disabled:opacity-50"
+              >
+                {isLoading ? '作成中...' : '作成'}
+              </button>
+            </div>
+          </DialogContent>
         </Dialog>
 
         {/* QRスキャナー編集モーダル */}
-        <Dialog
-          open={isEditQrScannerModalOpen}
-          onClose={() => setIsEditQrScannerModalOpen(false)}
-          className="relative z-50"
-        >
-          <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
-          <div className="fixed inset-0 flex items-center justify-center p-4">
-            <Dialog.Panel className="mx-auto max-w-sm rounded bg-white p-6">
-              <Dialog.Title className="text-lg font-medium mb-4">
-                QRスキャナーの編集
-              </Dialog.Title>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    名前
-                  </label>
-                  <input
-                    type="text"
-                    value={editingQrScanner?.name || ''}
-                    onChange={(e) =>
-                      setEditingQrScanner(prev => prev ? { ...prev, name: e.target.value } : null)
-                    }
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    説明
-                  </label>
-                  <input
-                    type="text"
-                    value={editingQrScanner?.description || ''}
-                    onChange={(e) =>
-                      setEditingQrScanner(prev => prev ? { ...prev, description: e.target.value } : null)
-                    }
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    設置場所
-                  </label>
-                  <input
-                    type="text"
-                    value={editingQrScanner?.location || ''}
-                    onChange={(e) =>
-                      setEditingQrScanner(prev => prev ? { ...prev, location: e.target.value } : null)
-                    }
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                  />
-                </div>
+        <Dialog open={isEditQrScannerModalOpen} onOpenChange={setIsEditQrScannerModalOpen}>
+          <DialogContent className="max-w-sm">
+            <DialogTitle className="text-lg font-medium mb-4">
+              QRスキャナーの編集
+            </DialogTitle>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  名前
+                </label>
+                <input
+                  type="text"
+                  value={editingQrScanner?.name || ''}
+                  onChange={(e) =>
+                    setEditingQrScanner(prev => prev ? { ...prev, name: e.target.value } : null)
+                  }
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                />
               </div>
-              <div className="mt-6 flex justify-end gap-3">
-                <button
-                  onClick={() => setIsEditQrScannerModalOpen(false)}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
-                >
-                  キャンセル
-                </button>
-                <button
-                  onClick={handleEditQrScanner}
-                  disabled={isLoading || !editingQrScanner?.name || !editingQrScanner?.location}
-                  className="px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-md hover:bg-blue-600 disabled:opacity-50"
-                >
-                  {isLoading ? '更新中...' : '更新'}
-                </button>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  説明
+                </label>
+                <input
+                  type="text"
+                  value={editingQrScanner?.description || ''}
+                  onChange={(e) =>
+                    setEditingQrScanner(prev => prev ? { ...prev, description: e.target.value } : null)
+                  }
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                />
               </div>
-            </Dialog.Panel>
-          </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  設置場所
+                </label>
+                <input
+                  type="text"
+                  value={editingQrScanner?.location || ''}
+                  onChange={(e) =>
+                    setEditingQrScanner(prev => prev ? { ...prev, location: e.target.value } : null)
+                  }
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                onClick={() => setIsEditQrScannerModalOpen(false)}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
+              >
+                キャンセル
+              </button>
+              <button
+                onClick={handleEditQrScanner}
+                disabled={isLoading || !editingQrScanner?.name || !editingQrScanner?.location}
+                className="px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-md hover:bg-blue-600 disabled:opacity-50"
+              >
+                {isLoading ? '更新中...' : '更新'}
+              </button>
+            </div>
+          </DialogContent>
         </Dialog>
 
         {/* パスワード変更モーダル */}
-        <Dialog
-          open={isPasswordModalOpen}
-          onClose={() => setIsPasswordModalOpen(false)}
-          className="relative z-50"
-        >
-          <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
-          <div className="fixed inset-0 flex items-center justify-center p-4">
-            <Dialog.Panel className="mx-auto max-w-sm rounded bg-white p-6">
-              <Dialog.Title className="text-lg font-medium mb-4">
-                パスワードの変更
-              </Dialog.Title>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    新しいパスワード
-                  </label>
-                  <input
-                    type="text"
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                  />
-                </div>
+        <Dialog open={isPasswordModalOpen} onOpenChange={setIsPasswordModalOpen}>
+          <DialogContent className="max-w-sm">
+            <DialogTitle className="text-lg font-medium mb-4">
+              パスワードの変更
+            </DialogTitle>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  新しいパスワード
+                </label>
+                <input
+                  type="text"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                />
               </div>
-              <div className="mt-6 flex justify-end gap-3">
-                <button
-                  onClick={() => {
-                    setIsPasswordModalOpen(false);
-                    setNewPassword('');
-                  }}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
-                >
-                  キャンセル
-                </button>
-                <button
-                  onClick={handleUpdatePassword}
-                  disabled={isLoading || !newPassword}
-                  className="px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-md hover:bg-blue-600 disabled:opacity-50"
-                >
-                  {isLoading ? '更新中...' : '更新'}
-                </button>
-              </div>
-            </Dialog.Panel>
-          </div>
+            </div>
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                onClick={() => {
+                  setIsPasswordModalOpen(false);
+                  setNewPassword('');
+                }}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
+              >
+                キャンセル
+              </button>
+              <button
+                onClick={handleUpdatePassword}
+                disabled={isLoading || !newPassword}
+                className="px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-md hover:bg-blue-600 disabled:opacity-50"
+              >
+                {isLoading ? '更新中...' : '更新'}
+              </button>
+            </div>
+          </DialogContent>
         </Dialog>
       </div>
     </>
