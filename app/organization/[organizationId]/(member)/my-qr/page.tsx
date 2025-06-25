@@ -5,12 +5,11 @@ import { QrCodeDisplay } from '@/components/qr-code/QrCodeDisplay';
 import { Card, CardContent } from '@/components/ui/card';
 
 interface MyQrPageProps {
-  params: {
-    organizationId: string;
-  };
+  params: Promise<{ organizationId: string }>;
 }
 
 export default async function MyQrPage({ params }: MyQrPageProps) {
+  const { organizationId } = await params;
   const { userId } = auth();
   
   if (!userId) {
@@ -31,7 +30,7 @@ export default async function MyQrPage({ params }: MyQrPageProps) {
     where: {
       clerkId_organizationId: {
         clerkId: userId,
-        organizationId: params.organizationId
+        organizationId: organizationId
       }
     },
     include: {
@@ -41,7 +40,7 @@ export default async function MyQrPage({ params }: MyQrPageProps) {
 
   // 組織情報を取得（system_teamの場合も必要）
   const organization = await prisma.organization.findUnique({
-    where: { id: params.organizationId },
+    where: { id: organizationId },
     select: { name: true }
   });
 
@@ -57,7 +56,7 @@ export default async function MyQrPage({ params }: MyQrPageProps) {
     where: {
       clerkId_organizationId: {
         clerkId: userId,
-        organizationId: params.organizationId
+        organizationId: organizationId
       }
     },
     include: {

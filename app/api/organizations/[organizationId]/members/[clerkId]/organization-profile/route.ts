@@ -6,15 +6,14 @@ import { checkOrganizationMembership } from '@/lib/auth/roles';
 // プロフィール取得
 export async function GET(
   req: Request,
-  { params }: { params: { organizationId: string; clerkId: string } }
+  { params }: { params: Promise<{ organizationId: string; clerkId: string }> }
 ) {
+  const { organizationId, clerkId } = await params;
   try {
     const { userId } = await auth();
     if (!userId) {
       return new NextResponse('Unauthorized', { status: 401 });
     }
-
-    const { organizationId, clerkId } = params;
 
     // ユーザーがその組織のメンバーかどうかを確認
     const membership = await prisma.organizationMembership.findUnique({
@@ -57,17 +56,18 @@ export async function GET(
 // プロフィール更新
 export async function PATCH(
   req: Request,
-  { params }: { params: { organizationId: string; clerkId: string } }
+  { params }: { params: Promise<{ organizationId: string; clerkId: string }> }
 ) {
+  const { organizationId, clerkId } = await params;
   try {
     console.log('=== PATCH リクエスト開始 ===');
-    console.log('パラメータ:', { organizationId: params.organizationId, clerkId: params.clerkId });
+    console.log('パラメータ:', { organizationId, clerkId });
 
     const { userId } = await auth();
     console.log('認証ユーザーID:', userId);
     
-    if (!userId || userId !== params.clerkId) {
-      console.log('認証エラー: userId !== params.clerkId');
+    if (!userId || userId !== clerkId) {
+      console.log('認証エラー: userId !== clerkId');
       return new NextResponse('Unauthorized', { status: 401 });
     }
 
@@ -81,8 +81,8 @@ export async function PATCH(
     const existingProfile = await prisma.organizationProfile.findUnique({
       where: {
         clerkId_organizationId: {
-          clerkId: params.clerkId,
-          organizationId: params.organizationId,
+          clerkId: clerkId,
+          organizationId: organizationId,
         },
       },
     });
@@ -95,8 +95,8 @@ export async function PATCH(
       updatedProfile = await prisma.organizationProfile.update({
         where: {
           clerkId_organizationId: {
-        clerkId: params.clerkId,
-        organizationId: params.organizationId,
+            clerkId: clerkId,
+            organizationId: organizationId,
           },
         },
         data: {
@@ -115,10 +115,10 @@ export async function PATCH(
       // デフォルトの部署を取得
       const defaultDepartment = await prisma.organizationDepartment.findFirst({
         where: {
-          organizationId: params.organizationId,
+          organizationId: organizationId,
           isDefault: true,
-      },
-    });
+        },
+      });
 
       if (!defaultDepartment) {
         console.log('デフォルト部署が見つかりません');
@@ -127,8 +127,8 @@ export async function PATCH(
 
       updatedProfile = await prisma.organizationProfile.create({
         data: {
-          clerkId: params.clerkId,
-          organizationId: params.organizationId,
+          clerkId: clerkId,
+          organizationId: organizationId,
           organizationDepartmentId: organizationDepartmentId || defaultDepartment.id,
           introduction: introduction || null,
           displayName: displayName || null,

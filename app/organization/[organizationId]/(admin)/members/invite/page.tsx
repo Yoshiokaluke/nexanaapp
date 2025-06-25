@@ -6,8 +6,9 @@ import InviteClient from './page.client';
 export default async function InvitePage({
   params,
 }: {
-  params: { organizationId: string };
+  params: Promise<{ organizationId: string }>;
 }) {
+  const { organizationId } = await params;
   const user = await currentUser();
 
   if (!user) {
@@ -15,11 +16,11 @@ export default async function InvitePage({
   }
 
   // 組織の管理者権限（システムチームメンバーを含む）をチェック
-  await checkOrganizationAdmin(user.id, params.organizationId);
+  await checkOrganizationAdmin(user.id, organizationId);
 
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <InviteClient organizationId={params.organizationId} />
+      <InviteClient organizationId={organizationId} />
     </Suspense>
   );
 } 

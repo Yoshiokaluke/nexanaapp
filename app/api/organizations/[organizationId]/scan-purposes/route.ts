@@ -5,8 +5,9 @@ import { prisma } from '@/lib/prisma';
 // スキャン目的一覧の取得
 export async function GET(
   request: NextRequest,
-  { params }: { params: { organizationId: string } }
+  { params }: { params: Promise<{ organizationId: string }> }
 ) {
+  const { organizationId } = await params;
   try {
     const { userId } = auth();
     
@@ -28,7 +29,7 @@ export async function GET(
       // スキャン目的一覧を取得
       const scanPurposes = await prisma.scanPurpose.findMany({
         where: {
-          organizationId: params.organizationId
+          organizationId: organizationId
         },
         orderBy: [
           { order: 'asc' },
@@ -43,7 +44,7 @@ export async function GET(
     const membership = await prisma.organizationMembership.findFirst({
       where: {
         clerkId: userId,
-        organizationId: params.organizationId,
+        organizationId: organizationId,
         role: 'admin'
       }
     });
@@ -58,7 +59,7 @@ export async function GET(
     // スキャン目的一覧を取得
     const scanPurposes = await prisma.scanPurpose.findMany({
       where: {
-        organizationId: params.organizationId
+        organizationId: organizationId
       },
       orderBy: [
         { order: 'asc' },
@@ -79,8 +80,9 @@ export async function GET(
 // スキャン目的の作成
 export async function POST(
   request: NextRequest,
-  { params }: { params: { organizationId: string } }
+  { params }: { params: Promise<{ organizationId: string }> }
 ) {
+  const { organizationId } = await params;
   try {
     const { userId } = auth();
     
@@ -107,7 +109,7 @@ export async function POST(
       const membership = await prisma.organizationMembership.findFirst({
         where: {
           clerkId: userId,
-          organizationId: params.organizationId,
+          organizationId: organizationId,
           role: 'admin'
         }
       });
@@ -134,7 +136,7 @@ export async function POST(
     // 同じ名前の目的が既に存在するかチェック
     const existingPurpose = await prisma.scanPurpose.findFirst({
       where: {
-        organizationId: params.organizationId,
+        organizationId: organizationId,
         name
       }
     });
@@ -149,7 +151,7 @@ export async function POST(
     // スキャン目的を作成
     const scanPurpose = await prisma.scanPurpose.create({
       data: {
-        organizationId: params.organizationId,
+        organizationId: organizationId,
         name,
         description,
         order: order || 0,

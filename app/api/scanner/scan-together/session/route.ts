@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getScannerSessionFromCookie } from '@/lib/scanner/session';
 import { prisma } from '@/lib/prisma';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest) {
   try {
     // スキャナーセッションを確認

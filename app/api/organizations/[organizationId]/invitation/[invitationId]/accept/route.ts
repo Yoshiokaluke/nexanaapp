@@ -4,12 +4,13 @@ import { prisma } from '@/lib/prisma';
 
 export async function GET(
   req: Request,
-  { params }: { params: { organizationId: string; invitationId: string } }
+  { params }: { params: Promise<{ organizationId: string; invitationId: string }> }
 ) {
+  const { organizationId, invitationId } = await params;
   try {
     console.log('Accept invitation request:', {
-      organizationId: params.organizationId,
-      invitationId: params.invitationId
+      organizationId,
+      invitationId
     });
 
     const { userId } = await auth();
@@ -81,20 +82,20 @@ export async function GET(
     try {
       // すべての処理を1つのトランザクションで実行
       const result = await prisma.$transaction(async (tx) => {
-        console.log('Starting transaction for invitation:', params.invitationId);
+        console.log('Starting transaction for invitation:', invitationId);
         
         // 招待の存在と有効期限を確認
         const invitation = await tx.organizationInvitation.findFirst({
           where: {
-            id: params.invitationId,
-            organizationId: params.organizationId,
+            id: invitationId,
+            organizationId,
           },
         });
 
         console.log('Invitation lookup result:', {
           found: !!invitation,
-          invitationId: params.invitationId,
-          organizationId: params.organizationId,
+          invitationId,
+          organizationId,
           hasToken: !!invitation?.token,
           providedToken: !!token,
           invitation: invitation ? {
@@ -113,7 +114,7 @@ export async function GET(
         // デフォルト部署の存在を確認
         const defaultDepartment = await tx.organizationDepartment.findFirst({
           where: {
-            organizationId: params.organizationId,
+            organizationId,
             isDefault: true,
           }
         });
@@ -137,10 +138,10 @@ export async function GET(
         }
 
         if (invitation.expiresAt < new Date()) {
-          console.log('Invitation expired, deleting:', params.invitationId);
+          console.log('Invitation expired, deleting:', invitationId);
           // 期限切れの招待を削除
           await tx.organizationInvitation.delete({
-            where: { id: params.invitationId }
+            where: { id: invitationId }
           });
           throw new Error('招待の有効期限が切れています。新しい招待をリクエストしてください。');
         }
@@ -150,7 +151,7 @@ export async function GET(
           where: {
             clerkId_organizationId: {
               clerkId: user.clerkId,
-              organizationId: params.organizationId,
+              organizationId,
             },
           },
         });
@@ -158,7 +159,7 @@ export async function GET(
         console.log('Existing membership check:', {
           found: !!existingMembership,
           clerkId: user.clerkId,
-          organizationId: params.organizationId,
+          organizationId,
           membershipDetails: existingMembership ? {
             id: existingMembership.id,
             role: existingMembership.role,
@@ -170,14 +171,14 @@ export async function GET(
           console.log('User already a member, deleting invitation');
           // 既存のメンバーシップがある場合は、招待を削除
           await tx.organizationInvitation.delete({
-            where: { id: params.invitationId }
+            where: { id: invitationId }
           });
           throw new Error('既にこの組織のメンバーです。招待は自動的に削除されました。');
         }
 
         console.log('Creating membership for user:', {
           clerkId: user.clerkId,
-          organizationId: params.organizationId,
+          organizationId,
           role: invitation.role
         });
 
@@ -185,7 +186,7 @@ export async function GET(
         await tx.organizationMembership.create({
           data: {
             clerkId: user.clerkId,
-            organizationId: params.organizationId,
+            organizationId,
             role: invitation.role
           },
         });
@@ -197,13 +198,14 @@ export async function GET(
           where: {
             clerkId_organizationId: {
               clerkId: user.clerkId,
-              organizationId: params.organizationId,
+              organizationId: organizationId,
             },
           },
           update: {},
           create: {
             clerkId: user.clerkId,
-            organizationId: params.organizationId,
+            organizationId: organizationId,
+            organizationDepartmentId: defaultDepartment.id,
           },
         });
 

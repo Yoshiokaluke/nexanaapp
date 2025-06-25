@@ -21,12 +21,11 @@ interface ScanPurpose {
 }
 
 interface ScanPurposesPageProps {
-  params: {
-    organizationId: string;
-  };
+  params: Promise<{ organizationId: string }>;
 }
 
-export default function ScanPurposesPage({ params }: ScanPurposesPageProps) {
+export default async function ScanPurposesPage({ params }: ScanPurposesPageProps) {
+  const { organizationId } = await params;
   const router = useRouter();
   const [scanPurposes, setScanPurposes] = useState<ScanPurpose[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -63,7 +62,7 @@ export default function ScanPurposesPage({ params }: ScanPurposesPageProps) {
 
   const fetchScanPurposes = async () => {
     try {
-      const response = await fetch(`/api/organizations/${params.organizationId}/scan-purposes`);
+      const response = await fetch(`/api/organizations/${organizationId}/scan-purposes`);
       if (response.ok) {
         const data = await response.json();
         setScanPurposes(data);
@@ -81,7 +80,7 @@ export default function ScanPurposesPage({ params }: ScanPurposesPageProps) {
     if (!newPurpose.name.trim()) return;
 
     try {
-      const response = await fetch(`/api/organizations/${params.organizationId}/scan-purposes`, {
+      const response = await fetch(`/api/organizations/${organizationId}/scan-purposes`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newPurpose)
@@ -106,7 +105,7 @@ export default function ScanPurposesPage({ params }: ScanPurposesPageProps) {
 
     try {
       const response = await fetch(
-        `/api/organizations/${params.organizationId}/scan-purposes/${editingPurpose.id}`,
+        `/api/organizations/${organizationId}/scan-purposes/${editingPurpose.id}`,
         {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
@@ -133,7 +132,7 @@ export default function ScanPurposesPage({ params }: ScanPurposesPageProps) {
 
     try {
       const response = await fetch(
-        `/api/organizations/${params.organizationId}/scan-purposes/${purposeId}`,
+        `/api/organizations/${organizationId}/scan-purposes/${purposeId}`,
         { method: 'DELETE' }
       );
 

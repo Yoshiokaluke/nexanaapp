@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getAuthenticatedUser, checkOrganizationAdmin } from '@/lib/auth/roles';
 
-export async function PATCH(req: NextRequest, { params }: { params: { organizationId: string, departmentId: string } }) {
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ organizationId: string, departmentId: string }> }) {
   try {
-    const { organizationId, departmentId } = params;
+    const { organizationId, departmentId } = await params;
     console.log('部署編集リクエスト - 組織ID:', organizationId, '部署ID:', departmentId);
 
     const user = await getAuthenticatedUser();
@@ -66,9 +66,9 @@ export async function PATCH(req: NextRequest, { params }: { params: { organizati
   }
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: { organizationId: string, departmentId: string } }) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ organizationId: string, departmentId: string }> }) {
   try {
-    const { organizationId, departmentId } = params;
+    const { organizationId, departmentId } = await params;
     console.log('部署削除リクエスト - 組織ID:', organizationId, '部署ID:', departmentId);
 
     const user = await getAuthenticatedUser();

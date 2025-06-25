@@ -62,8 +62,9 @@ async function MembersList({ organizationId }: { organizationId: string }) {
 export default async function OrganizationProfileListPage({
   params,
 }: {
-  params: { organizationId: string };
+  params: Promise<{ organizationId: string }>;
 }) {
+  const { organizationId } = await params;
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
       <div className="mb-8">
@@ -90,7 +91,7 @@ export default async function OrganizationProfileListPage({
           ))}
         </div>
       }>
-        {await MembersList({ organizationId: params.organizationId })}
+        {await MembersList({ organizationId: organizationId })}
       </Suspense>
     </div>
   );

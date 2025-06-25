@@ -4,15 +4,14 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET(
   req: Request,
-  { params }: { params: { organizationId: string; clerkId: string } }
+  { params }: { params: Promise<{ organizationId: string; clerkId: string }> }
 ) {
+  const { organizationId, clerkId } = await params;
   try {
     const { userId } = await auth();
     if (!userId) {
       return new NextResponse('Unauthorized', { status: 401 });
     }
-
-    const { organizationId, clerkId } = params;
 
     // ユーザーがその組織のメンバーかどうかを確認
     const membership = await prisma.organizationMembership.findUnique({

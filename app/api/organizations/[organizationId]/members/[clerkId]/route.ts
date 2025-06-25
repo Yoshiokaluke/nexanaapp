@@ -6,15 +6,15 @@ import { checkOrganizationAdmin } from '@/lib/auth/roles';
 // メンバーの削除
 export async function DELETE(
   req: Request,
-  { params }: { params: { organizationId: string; clerkId: string } }
+  { params }: { params: Promise<{ organizationId: string; clerkId: string }> }
 ) {
+  const { organizationId, clerkId } = await params;
   try {
     const { userId: clerkUserId } = await auth();
     if (!clerkUserId) {
       return new NextResponse('Unauthorized', { status: 401 });
     }
 
-    const { organizationId, clerkId } = params;
     if (!organizationId || !clerkId) {
       return new NextResponse('組織IDとメンバーIDは必須です', { status: 400 });
     }
@@ -74,15 +74,15 @@ export async function DELETE(
 // メンバー詳細の取得
 export async function GET(
   req: Request,
-  { params }: { params: { organizationId: string; clerkId: string } }
+  { params }: { params: Promise<{ organizationId: string; clerkId: string }> }
 ) {
+  const { organizationId, clerkId } = await params;
   try {
     const { userId: clerkUserId } = await auth();
     if (!clerkUserId) {
       return new NextResponse('Unauthorized', { status: 401 });
     }
 
-    const { organizationId, clerkId } = params;
     if (!organizationId || !clerkId) {
       return new NextResponse('組織IDとメンバーIDは必須です', { status: 400 });
     }
@@ -124,15 +124,15 @@ export async function GET(
 // メンバーの権限変更
 export async function PATCH(
   req: Request,
-  { params }: { params: { organizationId: string; clerkId: string } }
+  { params }: { params: Promise<{ organizationId: string; clerkId: string }> }
 ) {
+  const { organizationId, clerkId } = await params;
   try {
     const { userId: clerkUserId } = await auth();
     if (!clerkUserId) {
       return new NextResponse('Unauthorized', { status: 401 });
     }
 
-    const { organizationId, clerkId } = params;
     if (!organizationId || !clerkId) {
       return new NextResponse('組織IDとメンバーIDは必須です', { status: 400 });
     }

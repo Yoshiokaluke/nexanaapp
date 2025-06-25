@@ -6,8 +6,9 @@ import { checkOrganizationMembership } from '@/lib/auth/roles';
 // 組織詳細の取得
 export async function GET(
   request: Request,
-  { params }: { params: { organizationId: string } }
+  { params }: { params: Promise<{ organizationId: string }> }
 ) {
+  const { organizationId } = await params;
   try {
     const { userId: clerkId } = await auth();
     if (!clerkId) {
@@ -15,16 +16,16 @@ export async function GET(
     }
 
     // 統一された権限チェック
-    const hasAccess = await checkOrganizationMembership(clerkId, params.organizationId);
+    const hasAccess = await checkOrganizationMembership(clerkId, organizationId);
     if (!hasAccess) {
       return new NextResponse('この組織へのアクセス権限がありません', { status: 403 });
     }
 
     const organization = await prisma.organization.findUnique({
       where: {
-        id: params.organizationId,
+        id: organizationId,
       },
-          select: {
+      select: {
         id: true,
         name: true,
         address: true,

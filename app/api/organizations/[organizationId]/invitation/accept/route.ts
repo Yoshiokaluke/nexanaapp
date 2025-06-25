@@ -4,15 +4,15 @@ import { auth } from '@clerk/nextjs/server';
 
 export async function POST(
   req: Request,
-  { params }: { params: { organizationId: string } }
+  { params }: { params: Promise<{ organizationId: string }> }
 ) {
+  const { organizationId } = await params;
   try {
     const { userId: clerkUserId } = await auth();
     if (!clerkUserId) {
       return new NextResponse('Unauthorized', { status: 401 });
     }
 
-    const { organizationId } = params;
     if (!organizationId) {
       return new NextResponse('組織IDは必須です', { status: 400 });
     }

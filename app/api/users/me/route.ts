@@ -1,6 +1,9 @@
 import { auth, clerkClient } from "@clerk/nextjs";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { NextRequest } from 'next/server';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {

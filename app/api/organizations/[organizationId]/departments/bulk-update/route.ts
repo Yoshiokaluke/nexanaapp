@@ -4,10 +4,10 @@ import { getAuthenticatedUser, checkOrganizationAdmin } from '@/lib/auth/roles';
 
 export async function POST(
   req: Request,
-  { params }: { params: { organizationId: string } }
+  { params }: { params: Promise<{ organizationId: string }> }
 ) {
   try {
-    const { organizationId } = params;
+    const { organizationId } = await params;
     console.log('部署一括更新リクエスト - 組織ID:', organizationId);
 
     const user = await getAuthenticatedUser();

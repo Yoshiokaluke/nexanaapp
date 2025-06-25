@@ -2,6 +2,8 @@ import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import { OrganizationListHeader } from '@/components/features/organization/OrganizationListHeader'
 
+export const dynamic = 'force-dynamic';
+
 export default async function OrganizationListLayout({
   children,
 }: {

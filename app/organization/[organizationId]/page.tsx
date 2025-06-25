@@ -5,6 +5,8 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import { OrganizationHeader } from '@/components/organization/OrganizationHeader';
 
+export const dynamic = 'force-dynamic';
+
 export default function OrganizationTopPage() {
   const params = useParams();
   const organizationId = params.organizationId as string;

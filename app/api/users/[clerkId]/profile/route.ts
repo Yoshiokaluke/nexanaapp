@@ -4,8 +4,9 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET(
   req: Request,
-  { params }: { params: { clerkId: string } }
+  { params }: { params: Promise<{ clerkId: string }> }
 ) {
+  const { clerkId } = await params;
   try {
     const { userId } = await auth();
     if (!userId) {
@@ -35,7 +36,7 @@ export async function GET(
     }
 
     const user = await prisma.user.findUnique({
-      where: { clerkId: params.clerkId },
+      where: { clerkId: clerkId },
       include: {
         profile: true,
       },
@@ -54,11 +55,12 @@ export async function GET(
 
 export async function PATCH(
   request: Request,
-  { params }: { params: { clerkId: string } }
+  { params }: { params: Promise<{ clerkId: string }> }
 ) {
+  const { clerkId } = await params;
   try {
     const { userId } = auth();
-    if (!userId || userId !== params.clerkId) {
+    if (!userId || userId !== clerkId) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
@@ -129,15 +131,15 @@ export async function PATCH(
 
 export async function POST(
   req: Request,
-  { params }: { params: { clerkId: string } }
+  { params }: { params: Promise<{ clerkId: string }> }
 ) {
+  const { clerkId } = await params;
   try {
     const { userId } = auth();
-    if (!userId || userId !== params.clerkId) {
+    if (!userId || userId !== clerkId) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
-    const { clerkId } = params;
     const { birthday, gender, snsLinks, companyName, departmentName } = await req.json();
 
     const profile = await prisma.profile.upsert({

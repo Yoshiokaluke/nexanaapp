@@ -1,11 +1,12 @@
 import { AdminMenu } from '@/components/organization/AdminMenu';
 import MembersClient from './page.client';
 
-export default function MembersPage({ params }: { params: { organizationId: string } }) {
+export default async function MembersPage({ params }: { params: Promise<{ organizationId: string }> }) {
+  const { organizationId } = await params;
   return (
     <>
       <AdminMenu />
-      <MembersClient organizationId={params.organizationId} />
+      <MembersClient organizationId={organizationId} />
     </>
   );
 } 

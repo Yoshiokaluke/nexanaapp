@@ -5,16 +5,15 @@ import { organizationAuth } from '@/app/lib/middleware/organizationAuth';
 // QRコードデータの取得
 export async function GET(
   req: Request,
-  { params }: { params: { organizationId: string; clerkId: string } }
+  { params }: { params: Promise<{ organizationId: string; clerkId: string }> }
 ) {
-  const authResult = await organizationAuth(params.organizationId);
+  const { organizationId, clerkId } = await params;
+  const authResult = await organizationAuth(organizationId);
   if (authResult.error) {
     return authResult.error;
   }
 
   try {
-    const { organizationId, clerkId } = params;
-
     // ユーザーが組織のメンバーであることを確認
     const membership = await prisma.organizationMembership.findUnique({
       where: {

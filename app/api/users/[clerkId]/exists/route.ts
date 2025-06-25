@@ -4,21 +4,22 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET(
   req: Request,
-  { params }: { params: { clerkId: string } }
+  { params }: { params: Promise<{ clerkId: string }> }
 ) {
+  const { clerkId } = await params;
   try {
     const { userId } = await auth();
     if (!userId) {
       return new NextResponse('Unauthorized', { status: 401 });
     }
 
-    if (userId !== params.clerkId) {
+    if (userId !== clerkId) {
       return new NextResponse('Forbidden', { status: 403 });
     }
 
     // ユーザーの存在をチェック
     const user = await prisma.user.findUnique({
-      where: { clerkId: params.clerkId },
+      where: { clerkId: clerkId },
       select: { id: true }
     });
 

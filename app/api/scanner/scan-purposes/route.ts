@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getScannerSessionFromCookie } from '@/lib/scanner/session';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   try {
     // スキャナーセッションを確認

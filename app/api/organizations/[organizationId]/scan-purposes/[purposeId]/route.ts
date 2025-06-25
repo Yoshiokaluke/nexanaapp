@@ -5,8 +5,9 @@ import { prisma } from '@/lib/prisma';
 // スキャン目的の更新
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { organizationId: string; purposeId: string } }
+  { params }: { params: Promise<{ organizationId: string; purposeId: string }> }
 ) {
+  const { organizationId, purposeId } = await params;
   try {
     const { userId } = auth();
     
@@ -33,7 +34,7 @@ export async function PATCH(
       const membership = await prisma.organizationMembership.findFirst({
         where: {
           clerkId: userId,
-          organizationId: params.organizationId,
+          organizationId: organizationId,
           role: 'admin'
         }
       });
@@ -53,8 +54,8 @@ export async function PATCH(
     // スキャン目的が存在するかチェック
     const existingPurpose = await prisma.scanPurpose.findFirst({
       where: {
-        id: params.purposeId,
-        organizationId: params.organizationId
+        id: purposeId,
+        organizationId: organizationId
       }
     });
 
@@ -69,9 +70,9 @@ export async function PATCH(
     if (name && name !== existingPurpose.name) {
       const duplicatePurpose = await prisma.scanPurpose.findFirst({
         where: {
-          organizationId: params.organizationId,
+          organizationId: organizationId,
           name,
-          id: { not: params.purposeId }
+          id: { not: purposeId }
         }
       });
 
@@ -85,7 +86,7 @@ export async function PATCH(
 
     // スキャン目的を更新
     const updatedPurpose = await prisma.scanPurpose.update({
-      where: { id: params.purposeId },
+      where: { id: purposeId },
       data: {
         name,
         description,
@@ -107,8 +108,9 @@ export async function PATCH(
 // スキャン目的の削除
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { organizationId: string; purposeId: string } }
+  { params }: { params: Promise<{ organizationId: string; purposeId: string }> }
 ) {
+  const { organizationId, purposeId } = await params;
   try {
     const { userId } = auth();
     
@@ -135,7 +137,7 @@ export async function DELETE(
       const membership = await prisma.organizationMembership.findFirst({
         where: {
           clerkId: userId,
-          organizationId: params.organizationId,
+          organizationId: organizationId,
           role: 'admin'
         }
       });
@@ -152,8 +154,8 @@ export async function DELETE(
     // スキャン目的が存在するかチェック
     const existingPurpose = await prisma.scanPurpose.findFirst({
       where: {
-        id: params.purposeId,
-        organizationId: params.organizationId
+        id: purposeId,
+        organizationId: organizationId
       }
     });
 
@@ -166,7 +168,7 @@ export async function DELETE(
 
     // スキャン目的を削除
     await prisma.scanPurpose.delete({
-      where: { id: params.purposeId }
+      where: { id: purposeId }
     });
 
     return NextResponse.json({ message: 'スキャン目的を削除しました' });

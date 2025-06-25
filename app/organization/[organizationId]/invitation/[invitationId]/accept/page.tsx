@@ -6,13 +6,20 @@ import { useAuth } from '@clerk/nextjs';
 import { toast } from 'sonner';
 
 interface AcceptInvitationPageProps {
-  params: {
-    organizationId: string;
-    invitationId: string;
-  };
+  params: Promise<{ organizationId: string; invitationId: string }>;
 }
 
 export default function AcceptInvitationPage({ params }: AcceptInvitationPageProps) {
+  const [organizationId, setOrganizationId] = useState<string>('');
+  const [invitationId, setInvitationId] = useState<string>('');
+  useEffect(() => {
+    (async () => {
+      const p = await params;
+      setOrganizationId(p.organizationId);
+      setInvitationId(p.invitationId);
+    })();
+  }, [params]);
+
   const router = useRouter();
   const searchParams = useSearchParams();
   const { isLoaded, isSignedIn, userId, getToken } = useAuth();
@@ -22,8 +29,8 @@ export default function AcceptInvitationPage({ params }: AcceptInvitationPagePro
   const [authRetryCount, setAuthRetryCount] = useState(0);
 
   useEffect(() => {
-    if (!isLoaded) {
-      return; // 認証状態が読み込み中の場合は何もしない
+    if (!isLoaded || !organizationId || !invitationId) {
+      return; // 認証状態やparamsが読み込み中の場合は何もしない
     }
 
     console.log('Auth state:', { isLoaded, isSignedIn, userId, authRetryCount });
@@ -59,8 +66,8 @@ export default function AcceptInvitationPage({ params }: AcceptInvitationPagePro
         console.log('=== 招待受け入れ処理開始 ===');
         console.log('現在の状態:', {
           userId,
-          organizationId: params.organizationId,
-          invitationId: params.invitationId,
+          organizationId,
+          invitationId,
           token: searchParams.get('token')
         });
 
@@ -68,7 +75,7 @@ export default function AcceptInvitationPage({ params }: AcceptInvitationPagePro
         console.log('オンボーディングページに誘導');
         toast.info('プロフィール設定が必要です');
         const token = searchParams.get('token');
-        const onboardingUrl = `/onboarding?organization_id=${params.organizationId}&invitation_id=${params.invitationId}&token=${token}`;
+        const onboardingUrl = `/onboarding?organization_id=${organizationId}&invitation_id=${invitationId}&token=${token}`;
         console.log('オンボーディングURL:', onboardingUrl);
         router.push(onboardingUrl);
         return;
@@ -85,7 +92,7 @@ export default function AcceptInvitationPage({ params }: AcceptInvitationPagePro
     };
 
     redirectToOnboarding();
-  }, [isLoaded, isSignedIn, userId, authRetryCount, params.organizationId, params.invitationId, router, searchParams]);
+  }, [isLoaded, isSignedIn, userId, authRetryCount, organizationId, invitationId, router, searchParams]);
 
   // 認証状態が読み込み中の場合はローディング表示
   if (!isLoaded) {

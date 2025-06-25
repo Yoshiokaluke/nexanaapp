@@ -6,15 +6,16 @@ import { checkOrganizationAdmin } from '@/lib/auth/roles';
 // 招待URLの削除
 export async function DELETE(
   req: Request,
-  { params }: { params: { organizationId: string; invitationId: string } }
+  { params }: { params: Promise<{ organizationId: string; invitationId: string }> }
 ) {
   try {
+    const { organizationId, invitationId } = await params;
     const { userId } = await auth();
     if (!userId) {
       return new NextResponse('Unauthorized', { status: 401 });
     }
 
-    const isAdmin = await checkOrganizationAdmin(userId, params.organizationId);
+    const isAdmin = await checkOrganizationAdmin(userId, organizationId);
     if (!isAdmin) {
       return new NextResponse('Forbidden', { status: 403 });
     }
@@ -22,8 +23,8 @@ export async function DELETE(
     // 招待の存在確認
     const invitation = await prisma.organizationInvitation.findFirst({
       where: {
-        id: params.invitationId,
-        organizationId: params.organizationId,
+        id: invitationId,
+        organizationId: organizationId,
         email: null, // URL発行による招待のみ
         token: { not: null }
       }
@@ -35,7 +36,7 @@ export async function DELETE(
 
     // 招待を削除
     await prisma.organizationInvitation.delete({
-      where: { id: params.invitationId }
+      where: { id: invitationId }
     });
 
     return new NextResponse('Success', { status: 200 });

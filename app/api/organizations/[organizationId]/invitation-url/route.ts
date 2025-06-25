@@ -7,15 +7,16 @@ import { randomBytes } from 'crypto';
 // 招待URL一覧の取得
 export async function GET(
   req: Request,
-  { params }: { params: { organizationId: string } }
+  { params }: { params: Promise<{ organizationId: string }> }
 ) {
   try {
+    const { organizationId } = await params;
     const { userId } = await auth();
     if (!userId) {
       return new NextResponse('Unauthorized', { status: 401 });
     }
 
-    const isAdmin = await checkOrganizationAdmin(userId, params.organizationId);
+    const isAdmin = await checkOrganizationAdmin(userId, organizationId);
     if (!isAdmin) {
       return new NextResponse('Forbidden', { status: 403 });
     }
@@ -23,7 +24,7 @@ export async function GET(
     // 期限切れの招待を削除
     await prisma.organizationInvitation.deleteMany({
       where: { 
-        organizationId: params.organizationId,
+        organizationId: organizationId,
         email: null, // URL発行による招待
         token: { not: null },
         expiresAt: { lt: new Date() } // 期限切れ
@@ -32,7 +33,7 @@ export async function GET(
 
     const invitationUrls = await prisma.organizationInvitation.findMany({
       where: { 
-        organizationId: params.organizationId,
+        organizationId: organizationId,
         email: null, // メールアドレスがnullのもの（URL発行による招待）
         token: { not: null }
       },
@@ -58,9 +59,10 @@ export async function GET(
 // 招待URLの生成
 export async function POST(
   req: Request,
-  { params }: { params: { organizationId: string } }
+  { params }: { params: Promise<{ organizationId: string }> }
 ) {
   try {
+    const { organizationId } = await params;
     if (!process.env.NEXT_PUBLIC_APP_URL) {
       throw new Error('NEXT_PUBLIC_APP_URL is not set');
     }
@@ -70,7 +72,7 @@ export async function POST(
       return new NextResponse('Unauthorized', { status: 401 });
     }
 
-    const isAdmin = await checkOrganizationAdmin(userId, params.organizationId);
+    const isAdmin = await checkOrganizationAdmin(userId, organizationId);
     if (!isAdmin) {
       return new NextResponse('Forbidden', { status: 403 });
     }
@@ -99,7 +101,7 @@ export async function POST(
       data: {
         email: null, // URL発行による招待なのでemailはnull
         role,
-        organizationId: params.organizationId,
+        organizationId: organizationId,
         invitedBy: inviter.id,
         token,
         expiresAt,
@@ -116,7 +118,7 @@ export async function POST(
     });
 
     // 招待URLを生成
-    const inviteUrl = `${process.env.NEXT_PUBLIC_APP_URL}/organization/${params.organizationId}/invitation/${invitation.id}/accept?token=${token}`;
+    const inviteUrl = `${process.env.NEXT_PUBLIC_APP_URL}/organization/${organizationId}/invitation/${invitation.id}/accept?token=${token}`;
 
     return NextResponse.json({ 
       invitation, 

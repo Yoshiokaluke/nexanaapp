@@ -1,10 +1,11 @@
 import { redirect } from 'next/navigation';
 
-export default function GlobalProfileEditPage({
+export default async function GlobalProfileEditPage({
   params,
 }: {
-  params: { organizationId: string; clerkId: string };
+  params: Promise<{ organizationId: string; clerkId: string }>;
 }) {
+  const { clerkId } = await params;
   // 既存のグローバルプロフィールページにリダイレクト
-  redirect(`/organization-list/users/${params.clerkId}/profile`);
+  redirect(`/organization-list/users/${clerkId}/profile`);
 } 

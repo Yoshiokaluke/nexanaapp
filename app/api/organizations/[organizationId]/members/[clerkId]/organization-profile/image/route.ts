@@ -5,11 +5,12 @@ import { uploadToS3, deleteFromS3 } from '@/lib/s3';
 
 export async function POST(
   req: Request,
-  { params }: { params: { organizationId: string; clerkId: string } }
+  { params }: { params: Promise<{ organizationId: string; clerkId: string }> }
 ) {
+  const { organizationId, clerkId } = await params;
   try {
     console.log('=== 画像アップロード開始 ===');
-    console.log('パラメータ:', { organizationId: params.organizationId, clerkId: params.clerkId });
+    console.log('パラメータ:', { organizationId, clerkId });
 
     const { userId } = await auth();
     console.log('認証ユーザーID:', userId);
@@ -67,8 +68,8 @@ export async function POST(
     const existingProfile = await prisma.organizationProfile.findUnique({
       where: {
         clerkId_organizationId: {
-          clerkId: params.clerkId,
-          organizationId: params.organizationId,
+          clerkId: clerkId,
+          organizationId: organizationId,
         },
       },
     });
@@ -90,7 +91,7 @@ export async function POST(
     // S3にアップロード
     console.log('S3にアップロード開始');
     const buffer = Buffer.from(await file.arrayBuffer());
-    const key = `organizations/${params.organizationId}/members/${params.clerkId}/profile/${Date.now()}-${file.name}`;
+    const key = `organizations/${organizationId}/members/${clerkId}/profile/${Date.now()}-${file.name}`;
     console.log('S3キー:', key);
     
     let url;
@@ -110,8 +111,8 @@ export async function POST(
         updatedProfile = await prisma.organizationProfile.update({
           where: {
             clerkId_organizationId: {
-              clerkId: params.clerkId,
-              organizationId: params.organizationId,
+              clerkId: clerkId,
+              organizationId: organizationId,
             },
           },
           data: {
@@ -126,7 +127,7 @@ export async function POST(
         console.log('デフォルト部署を取得');
         const defaultDepartment = await prisma.organizationDepartment.findFirst({
           where: {
-            organizationId: params.organizationId,
+            organizationId: organizationId,
             isDefault: true,
           },
         });
@@ -140,8 +141,8 @@ export async function POST(
         console.log('新規プロフィールを作成');
         updatedProfile = await prisma.organizationProfile.create({
           data: {
-            clerkId: params.clerkId,
-            organizationId: params.organizationId,
+            clerkId: clerkId,
+            organizationId: organizationId,
             organizationDepartmentId: defaultDepartment.id,
             profileImage: url,
           },
@@ -177,11 +178,12 @@ export async function POST(
 
 export async function DELETE(
   req: Request,
-  { params }: { params: { organizationId: string; clerkId: string } }
+  { params }: { params: Promise<{ organizationId: string; clerkId: string }> }
 ) {
+  const { organizationId, clerkId } = await params;
   try {
     console.log('=== 画像削除開始 ===');
-    console.log('パラメータ:', { organizationId: params.organizationId, clerkId: params.clerkId });
+    console.log('パラメータ:', { organizationId, clerkId });
 
     const { userId } = await auth();
     console.log('認証ユーザーID:', userId);
@@ -195,8 +197,8 @@ export async function DELETE(
     const existingProfile = await prisma.organizationProfile.findUnique({
       where: {
         clerkId_organizationId: {
-          clerkId: params.clerkId,
-          organizationId: params.organizationId,
+          clerkId: clerkId,
+          organizationId: organizationId,
         },
       },
     });
@@ -219,8 +221,8 @@ export async function DELETE(
     const updatedProfile = await prisma.organizationProfile.update({
       where: {
         clerkId_organizationId: {
-          clerkId: params.clerkId,
-          organizationId: params.organizationId,
+          clerkId: clerkId,
+          organizationId: organizationId,
         },
       },
       data: {

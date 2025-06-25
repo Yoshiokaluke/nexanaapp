@@ -9,10 +9,10 @@ export default async function AdminLayout({
   params,
 }: {
   children: React.ReactNode;
-  params: { organizationId: string };
+  params: Promise<{ organizationId: string }>;
 }) {
+  const { organizationId } = await params;
   const { userId } = auth();
-  const organizationId = params.organizationId;
 
   if (!userId) {
     redirect("/sign-in");

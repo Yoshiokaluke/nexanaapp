@@ -3,9 +3,9 @@ import { prisma } from '@/lib/prisma';
 import { getAuthenticatedUser, isOrganizationMember, checkOrganizationAdmin } from '@/lib/auth/roles';
 
 // GET: 部署一覧取得
-export async function GET(req: NextRequest, { params }: { params: { organizationId: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ organizationId: string }> }) {
   try {
-    const { organizationId } = params;
+    const { organizationId } = await params;
     console.log('部署一覧取得リクエスト - 組織ID:', organizationId);
 
     const user = await getAuthenticatedUser();
@@ -37,9 +37,9 @@ export async function GET(req: NextRequest, { params }: { params: { organization
 }
 
 // POST: 部署追加
-export async function POST(req: NextRequest, { params }: { params: { organizationId: string } }) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ organizationId: string }> }) {
   try {
-    const { organizationId } = params;
+    const { organizationId } = await params;
     console.log('部署追加リクエスト - 組織ID:', organizationId);
 
     const user = await getAuthenticatedUser();

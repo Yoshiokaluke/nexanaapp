@@ -6,15 +6,16 @@ import OrganizationDetails from '@/app/organization/[organizationId]/(admin)/adm
 export default async function OrganizationPage({
   params,
 }: {
-  params: { organizationId: string };
+  params: Promise<{ organizationId: string }>;
 }) {
-  const result = await organizationAdminAuth(params.organizationId);
+  const { organizationId } = await params;
+  const result = await organizationAdminAuth(organizationId);
   if (!result.success) {
     return <div className="p-6 text-red-600">アクセス権限がありません</div>;
   }
 
   const organization = await prisma.organization.findUnique({
-    where: { id: params.organizationId },
+    where: { id: organizationId },
     include: {
       _count: {
         select: {

@@ -1,8 +1,10 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { systemTeamAuth } from '@/app/lib/middleware/systemTeamAuth';
 import { createDefaultDepartments } from '@/lib/utils';
 import { auth } from '@clerk/nextjs/server';
+
+export const dynamic = 'force-dynamic';
 
 // 組織一覧の取得
 export async function GET() {
