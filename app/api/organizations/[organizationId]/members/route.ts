@@ -5,8 +5,6 @@ import { checkOrganizationAdmin } from '@/lib/auth/roles';
 import { Resend } from 'resend';
 import { getUserRoles } from '@/lib/auth/roles';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 // メンバー一覧の取得
 export async function GET(
   req: Request,
@@ -136,6 +134,9 @@ export async function POST(
       inviteUrl,
       appUrl: process.env.NEXT_PUBLIC_APP_URL
     });
+
+    // Resendクライアントを初期化
+    const resend = new Resend(process.env.RESEND_API_KEY);
 
     // 招待メールを送信
     const { data, error } = await resend.emails.send({
