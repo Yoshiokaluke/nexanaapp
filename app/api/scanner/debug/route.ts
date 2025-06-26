@@ -12,12 +12,7 @@ export async function GET(request: NextRequest) {
     
     console.log('クッキー詳細:', {
       name: scannerSessionCookie?.name,
-      value: scannerSessionCookie?.value ? '存在' : 'なし',
-      path: scannerSessionCookie?.path,
-      domain: scannerSessionCookie?.domain,
-      secure: scannerSessionCookie?.secure,
-      httpOnly: scannerSessionCookie?.httpOnly,
-      sameSite: scannerSessionCookie?.sameSite
+      value: scannerSessionCookie?.value ? '存在' : 'なし'
     });
     
     // セッションを取得
@@ -87,12 +82,7 @@ export async function GET(request: NextRequest) {
         environment: process.env.NODE_ENV,
         cookie: {
           name: scannerSessionCookie?.name,
-          exists: !!scannerSessionCookie?.value,
-          path: scannerSessionCookie?.path,
-          domain: scannerSessionCookie?.domain,
-          secure: scannerSessionCookie?.secure,
-          httpOnly: scannerSessionCookie?.httpOnly,
-          sameSite: scannerSessionCookie?.sameSite
+          exists: !!scannerSessionCookie?.value
         },
         session: session ? {
           scannerId: session.scannerId,

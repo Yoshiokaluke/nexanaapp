@@ -69,11 +69,7 @@ export async function getScannerSessionFromCookie(): Promise<ScannerSession | nu
     console.log('クッキー名:', cookieStore.get('scanner-session')?.name);
     console.log('クッキーの詳細:', {
       name: cookieStore.get('scanner-session')?.name,
-      value: cookieStore.get('scanner-session')?.value ? '存在' : 'なし',
-      path: cookieStore.get('scanner-session')?.path,
-      domain: cookieStore.get('scanner-session')?.domain,
-      secure: cookieStore.get('scanner-session')?.secure,
-      httpOnly: cookieStore.get('scanner-session')?.httpOnly
+      value: cookieStore.get('scanner-session')?.value ? '存在' : 'なし'
     });
     
     if (!token) {

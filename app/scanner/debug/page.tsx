@@ -9,11 +9,6 @@ interface DebugInfo {
   cookie: {
     name: string;
     exists: boolean;
-    path: string;
-    domain: string;
-    secure: boolean;
-    httpOnly: boolean;
-    sameSite: string;
   };
   session: {
     scannerId: string;
@@ -129,11 +124,6 @@ export default function ScannerDebugPage() {
               <CardContent className="space-y-2">
                 <p><strong>名前:</strong> {debugInfo.cookie.name}</p>
                 <p><strong>存在:</strong> {debugInfo.cookie.exists ? '✅ はい' : '❌ いいえ'}</p>
-                <p><strong>パス:</strong> {debugInfo.cookie.path}</p>
-                <p><strong>ドメイン:</strong> {debugInfo.cookie.domain}</p>
-                <p><strong>Secure:</strong> {debugInfo.cookie.secure ? 'はい' : 'いいえ'}</p>
-                <p><strong>HttpOnly:</strong> {debugInfo.cookie.httpOnly ? 'はい' : 'いいえ'}</p>
-                <p><strong>SameSite:</strong> {debugInfo.cookie.sameSite}</p>
               </CardContent>
             </Card>
 
