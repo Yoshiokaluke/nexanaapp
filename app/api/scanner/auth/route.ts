@@ -70,12 +70,24 @@ export async function POST(request: NextRequest) {
     });
 
     // クッキーを設定
-    response.cookies.set('scanner-session', token, {
+    const cookieOptions: any = {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       maxAge: 24 * 60 * 60 // 24時間
-    });
+    };
+    
+    // 本番環境でのクッキー設定ログ
+    if (process.env.NODE_ENV === 'production') {
+      console.log('本番環境でのクッキー設定:', {
+        httpOnly: cookieOptions.httpOnly,
+        secure: cookieOptions.secure,
+        sameSite: cookieOptions.sameSite,
+        maxAge: cookieOptions.maxAge
+      });
+    }
+
+    response.cookies.set('scanner-session', token, cookieOptions);
 
     return response;
 
@@ -96,13 +108,25 @@ export async function DELETE(request: NextRequest) {
       message: 'ログアウトしました'
     });
 
-    // クッキーを削除
-    response.cookies.set('scanner-session', '', {
+    // クッキーを削除（本番環境での設定を調整）
+    const cookieOptions: any = {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       maxAge: 0
-    });
+    };
+    
+    // 本番環境ではドメインを明示的に設定しない
+    if (process.env.NODE_ENV === 'production') {
+      console.log('本番環境でのクッキー削除設定:', {
+        httpOnly: cookieOptions.httpOnly,
+        secure: cookieOptions.secure,
+        sameSite: cookieOptions.sameSite,
+        maxAge: cookieOptions.maxAge
+      });
+    }
+
+    response.cookies.set('scanner-session', '', cookieOptions);
 
     return response;
   } catch (error) {
