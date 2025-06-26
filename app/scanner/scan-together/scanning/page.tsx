@@ -96,14 +96,51 @@ function ScanningPageContent() {
     try {
       setCameraError(null);
       
-      const stream = await navigator.mediaDevices.getUserMedia({
+      // 利用可能なカメラデバイスを取得
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const videoDevices = devices.filter(device => device.kind === 'videoinput');
+      
+      console.log('利用可能なカメラデバイス:', videoDevices.map(d => ({ id: d.deviceId, label: d.label })));
+      
+      // 内カメラ（フロントカメラ）を優先的に選択
+      let preferredDeviceId = null;
+      
+      // デバイスラベルから内カメラを特定（iPadの場合）
+      const frontCamera = videoDevices.find(device => 
+        device.label.toLowerCase().includes('front') ||
+        device.label.toLowerCase().includes('user') ||
+        device.label.toLowerCase().includes('内') ||
+        device.label.toLowerCase().includes('フロント')
+      );
+      
+      if (frontCamera) {
+        preferredDeviceId = frontCamera.deviceId;
+        console.log('内カメラを検出:', frontCamera.label);
+      }
+      
+      const constraints: any = {
         video: {
-          facingMode: 'environment', // 背面カメラを優先
           width: { ideal: 1280, min: 640 },
           height: { ideal: 720, min: 480 },
           frameRate: { ideal: 30, min: 15 }
         }
-      });
+      };
+      
+      // 内カメラが見つかった場合は明示的に指定
+      if (preferredDeviceId) {
+        constraints.video = {
+          ...constraints.video,
+          deviceId: { exact: preferredDeviceId }
+        };
+      } else {
+        // 内カメラが見つからない場合はfacingModeを使用
+        constraints.video = {
+          ...constraints.video,
+          facingMode: 'user'
+        };
+      }
+      
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
       
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
@@ -115,7 +152,7 @@ function ScanningPageContent() {
           }
         });
         
-        setDebugInfo('カメラ開始完了');
+        setDebugInfo(`カメラ開始完了（内カメラ） - デバイス数: ${videoDevices.length}`);
         setIsScanning(true);
         
         // ビデオの準備が完了するまで待機
@@ -132,7 +169,7 @@ function ScanningPageContent() {
       }
     } catch (error) {
       console.error('カメラ開始エラー:', error);
-      setCameraError('カメラへのアクセスに失敗しました。カメラの権限を確認してください。');
+      setCameraError('内カメラへのアクセスに失敗しました。カメラの権限を確認してください。');
     }
   }, []);
 
@@ -550,6 +587,7 @@ function ScanningPageContent() {
           <p>フレームレート: {frameCount > 0 ? Math.round(frameCount / (Date.now() / 1000)) : 0} FPS</p>
           <p>スキャン中: {isScanning ? 'はい' : 'いいえ'}</p>
           <p>処理中: {isProcessing ? 'はい' : 'いいえ'}</p>
+          <p>カメラ: 内カメラ（フロントカメラ）</p>
           {lastDetectedData && (
             <p>最後の検出データ: {lastDetectedData.substring(0, 50)}...</p>
           )}
