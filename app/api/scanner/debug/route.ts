@@ -54,7 +54,12 @@ export async function GET(request: NextRequest) {
     } : 'なし');
     
     // スキャン目的を取得
-    let scanPurposes = [];
+    let scanPurposes: Array<{
+      id: string;
+      name: string;
+      description: string | null;
+      order: number;
+    }> = [];
     if (session) {
       scanPurposes = await prisma.scanPurpose.findMany({
         where: {
