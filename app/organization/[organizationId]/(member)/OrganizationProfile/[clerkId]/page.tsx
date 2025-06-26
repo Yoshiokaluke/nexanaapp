@@ -231,37 +231,14 @@ function ProfileDisplay({
 
 export default function OrganizationProfilePage() {
   const params = useParams();
-  const organizationId = params.organizationId as string;
-  const clerkId = params.clerkId as string;
-
+  const { organizationId, clerkId } = params as { organizationId: string; clerkId: string };
   return (
-    <div className="container mx-auto px-4 py-8 max-w-6xl">
-      {/* ヘッダー */}
+    <div className="container mx-auto px-4 py-8 max-w-4xl">
       <div className="mb-8">
-        {/* <Link 
-          href={`/organization/${organizationId}/OrganizationProfile`}
-          className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-4"
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          メンバー一覧に戻る
-        </Link> */}
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          メンバープロフィール
-        </h1>
-        <p className="text-gray-600">
-          組織内のメンバーの詳細プロフィールを表示します
-        </p>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">プロフィール</h1>
       </div>
-
-      <Suspense fallback={
-        <div className="flex items-center justify-center min-h-64">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
-        </div>
-      }>
-        <ProfileDisplay 
-          organizationId={organizationId} 
-          clerkId={clerkId} 
-        />
+      <Suspense fallback={<div>読み込み中...</div>}>
+        <ProfileDisplay organizationId={organizationId} clerkId={clerkId} />
       </Suspense>
     </div>
   );

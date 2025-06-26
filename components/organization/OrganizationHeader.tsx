@@ -28,13 +28,23 @@ export const OrganizationHeader: React.FC<OrganizationHeaderProps> = ({
   const router = useRouter();
 
   useEffect(() => {
+    console.log('OrganizationHeader: useEffect triggered with clerkId:', clerkId, 'organizationId:', organizationId);
     if (clerkId && organizationId) {
+      console.log('OrganizationHeader: Fetching profile image...');
       fetch(`/api/organizations/${organizationId}/members/${clerkId}/profile-image`).then(async (res) => {
+        console.log('OrganizationHeader: Profile image response status:', res.status);
         if (res.ok) {
           const data = await res.json();
+          console.log('OrganizationHeader: Profile image data:', data);
           setProfileImage(data.profileImage || null);
+        } else {
+          console.log('OrganizationHeader: Profile image not found');
         }
+      }).catch(err => {
+        console.error('OrganizationHeader: Error fetching profile image:', err);
       });
+    } else {
+      console.log('OrganizationHeader: Missing clerkId or organizationId, skipping profile image fetch');
     }
   }, [clerkId, organizationId]);
 
@@ -56,9 +66,9 @@ export const OrganizationHeader: React.FC<OrganizationHeaderProps> = ({
   };
 
   const navLinks = [
-    { href: `/organization/${organizationId}`, label: "トップ" },
+    { href: `/organization/${organizationId}`, label: "Top" },
     { href: `/organization/${organizationId}/my-qr`, label: "MY-QR" },
-    { href: `/organization/${organizationId}/OrganizationProfile`, label: "メンバー一覧" },
+    { href: `/organization/${organizationId}/OrganizationProfile`, label: "Member" },
     clerkId && { href: `/organization/${organizationId}/OrganizationProfile/${clerkId}`, label: "MyPage" },
   ].filter(Boolean) as { href: string; label: string }[];
 
@@ -75,6 +85,16 @@ export const OrganizationHeader: React.FC<OrganizationHeaderProps> = ({
             className="h-8 w-auto"
             priority
           />
+          {/* アイコンと組織名をロゴの右横に表示 */}
+          <span className="flex items-center ml-2">
+            {/* ビルディングアイコン */}
+            <svg className="w-5 h-5 text-indigo-600 mr-1" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 21V5a2 2 0 012-2h2a2 2 0 012 2v16m8 0V5a2 2 0 012-2h2a2 2 0 012 2v16M9 21h6" />
+            </svg>
+            <span className="text-lg font-bold text-gray-800 truncate max-w-xs md:max-w-sm lg:max-w-md">
+              {organizationName ? organizationName.slice(0, 10) : ''}
+            </span>
+          </span>
         </Link>
         {/* PCナビゲーション */}
         <nav className="hidden md:flex items-center gap-8 text-base font-semibold">
@@ -95,7 +115,7 @@ export const OrganizationHeader: React.FC<OrganizationHeaderProps> = ({
             {isSigningOut ? 'ログアウト中...' : 'ログアウト'}
           </button>
           {clerkId && (
-            <Link href={`/organization/${organizationId}/OrganizationProfile/${clerkId}`} className="ml-4">
+            <Link href={`/organization/${organizationId}/OrganizationProfile/${clerkId}/edit`} className="ml-4">
               <Avatar className="w-9 h-9 border-2 border-indigo-200">
                 <AvatarImage src={profileImage || undefined} alt="My Avatar" />
                 <AvatarFallback>Me</AvatarFallback>
@@ -105,8 +125,19 @@ export const OrganizationHeader: React.FC<OrganizationHeaderProps> = ({
         </nav>
         {/* モバイルハンバーガー＋ユーザーアイコン */}
         <div className="md:hidden flex items-center gap-2">
+          {/* My-QRアイコン */}
+          <Link 
+            href={`/organization/${organizationId}/my-qr`}
+            className="flex items-center justify-center w-10 h-10 rounded-full bg-indigo-100 hover:bg-indigo-200 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+            aria-label="My-QR"
+          >
+            <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V6a1 1 0 00-1-1H5a1 1 0 00-1 1v1a1 1 0 001 1zm12 0h2a1 1 0 001-1V6a1 1 0 00-1-1h-2a1 1 0 00-1 1v1a1 1 0 001 1zM5 20h2a1 1 0 001-1v-1a1 1 0 00-1-1H5a1 1 0 00-1 1v1a1 1 0 001 1z" />
+            </svg>
+          </Link>
+          
           {clerkId && (
-            <Link href={`/organization/${organizationId}/OrganizationProfile/${clerkId}`}>
+            <Link href={`/organization/${organizationId}/OrganizationProfile/${clerkId}/edit`}>
               <Avatar className="w-8 h-8 border-2 border-indigo-200">
                 <AvatarImage src={profileImage || undefined} alt="My Avatar" />
                 <AvatarFallback>Me</AvatarFallback>

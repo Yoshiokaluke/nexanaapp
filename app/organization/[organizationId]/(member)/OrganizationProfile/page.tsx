@@ -69,7 +69,7 @@ export default async function OrganizationProfileListPage({
     <div className="container mx-auto px-4 py-8 max-w-7xl">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          メンバー一覧
+          メンバー
         </h1>
         <p className="text-gray-600">
           組織内のメンバーのプロフィールを閲覧できます

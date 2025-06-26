@@ -17,7 +17,9 @@ const publicRoutes = [
   "/api/users/[userId]",
   "/api/organizations/[organizationId]/members/[userId]",
   "/api/test-env",
-  "/api/organizations/[organizationId]/invitation/[invitationId]/accept"
+  "/api/organizations/[organizationId]/invitation/[invitationId]/accept",
+  "/scanner/:path*",
+  "/api/scanner/:path*"
 ];
 
 // 無視するルートの定義
@@ -97,18 +99,18 @@ const checkOrganizationAccess = async (userId: string | null, req: NextRequest) 
 
 export default authMiddleware({
   publicRoutes: [
-    "/",
-    "/sign-in",
-    "/sign-up",
-    "/organization-list",
+    "/", 
+    "/sign-in", 
+    "/sign-up", 
+    "/organization-list", 
     "/scanner/login",
-    "/scanner/:path*",
     "/api/scanner/auth",
     "/api/scanner/auth/check",
-    "/api/scanner/:path*",
     "/api/test-env",
     "/organization/[organizationId]/invitation/[invitationId]/accept",
-    "/api/organizations/[organizationId]/invitation/[invitationId]/accept"
+    "/api/organizations/[organizationId]/invitation/[invitationId]/accept",
+    "/scanner/:path*",
+    "/api/scanner/:path*"
   ],
   beforeAuth: async (req) => {
     if (isScannerRoute(req.nextUrl.pathname)) {
