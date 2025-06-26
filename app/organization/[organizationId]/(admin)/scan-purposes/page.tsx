@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,12 +20,8 @@ interface ScanPurpose {
   updatedAt: string;
 }
 
-interface ScanPurposesPageProps {
-  params: Promise<{ organizationId: string }>;
-}
-
-export default async function ScanPurposesPage({ params }: ScanPurposesPageProps) {
-  const { organizationId } = await params;
+export default function ScanPurposesPage() {
+  const { organizationId } = useParams();
   const router = useRouter();
   const [scanPurposes, setScanPurposes] = useState<ScanPurpose[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -47,16 +43,23 @@ export default async function ScanPurposesPage({ params }: ScanPurposesPageProps
   const fetchUserRole = async () => {
     try {
       const response = await fetch('/api/users/me');
-      if (response.ok) {
-        const data = await response.json();
-        if (data.user.systemRole === 'system_team') {
-          setUserRole('system_team');
-        } else {
-          setUserRole('admin');
-        }
+      if (!response.ok) {
+        setUserRole('');
+        return;
+      }
+      const data = await response.json();
+      if (!data.user) {
+        setUserRole('');
+        return;
+      }
+      if (data.user.systemRole === 'system_team') {
+        setUserRole('system_team');
+      } else {
+        setUserRole('admin');
       }
     } catch (error) {
       console.error('ユーザー権限取得エラー:', error);
+      setUserRole('');
     }
   };
 
