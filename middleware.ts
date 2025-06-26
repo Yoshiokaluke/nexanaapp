@@ -97,13 +97,15 @@ const checkOrganizationAccess = async (userId: string | null, req: NextRequest) 
 
 export default authMiddleware({
   publicRoutes: [
-    "/", 
-    "/sign-in", 
-    "/sign-up", 
-    "/organization-list", 
+    "/",
+    "/sign-in",
+    "/sign-up",
+    "/organization-list",
     "/scanner/login",
+    "/scanner/:path*",
     "/api/scanner/auth",
     "/api/scanner/auth/check",
+    "/api/scanner/:path*",
     "/api/test-env",
     "/organization/[organizationId]/invitation/[invitationId]/accept",
     "/api/organizations/[organizationId]/invitation/[invitationId]/accept"
