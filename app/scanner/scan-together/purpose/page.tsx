@@ -13,6 +13,9 @@ interface ScanPurpose {
   name: string;
   description: string | null;
   order: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export default function PurposeSelector() {
@@ -75,7 +78,10 @@ export default function PurposeSelector() {
           <div className="absolute top-20 left-20 w-72 h-72 bg-gradient-to-br from-blue-200/30 to-purple-200/30 rounded-full blur-3xl"></div>
           <div className="absolute bottom-20 right-20 w-96 h-96 bg-gradient-to-br from-indigo-200/20 to-pink-200/20 rounded-full blur-3xl"></div>
         </div>
-        
+        {/* 中央上部のロゴ */}
+        <div className="absolute top-8 left-1/2 transform -translate-x-1/2 z-20 pointer-events-none">
+          <Image src="/blacklogo.svg" alt="ロゴ" width={240} height={240} priority />
+        </div>
         <div className="relative z-10 flex items-center justify-center min-h-screen">
           <div className="flex flex-col items-center">
             <div className="relative">
@@ -98,12 +104,10 @@ export default function PurposeSelector() {
           <div className="absolute top-20 left-20 w-72 h-72 bg-gradient-to-br from-blue-200/30 to-purple-200/30 rounded-full blur-3xl"></div>
           <div className="absolute bottom-20 right-20 w-96 h-96 bg-gradient-to-br from-indigo-200/20 to-pink-200/20 rounded-full blur-3xl"></div>
         </div>
-        
-        {/* 左上のロゴ */}
-        <div className="absolute top-8 left-8 z-20">
-          <Image src="/blacklogo.svg" alt="ロゴ" width={60} height={60} priority />
+        {/* 中央上部のロゴ */}
+        <div className="absolute top-8 left-1/2 transform -translate-x-1/2 z-20 pointer-events-none">
+          <Image src="/blacklogo.svg" alt="ロゴ" width={240} height={240} priority />
         </div>
-        
         <div className="relative z-10 flex items-center justify-center min-h-screen px-6">
           <Card className="w-full max-w-lg bg-white/80 backdrop-blur-sm border-0 shadow-2xl">
             <CardHeader className="text-center pb-4">
@@ -138,12 +142,10 @@ export default function PurposeSelector() {
         <div className="absolute bottom-20 right-20 w-96 h-96 bg-gradient-to-br from-indigo-200/20 to-pink-200/20 rounded-full blur-3xl"></div>
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-gradient-to-br from-cyan-200/20 to-blue-200/20 rounded-full blur-3xl"></div>
       </div>
-      
-      {/* 左上のロゴ */}
-      <div className="absolute top-8 left-8 z-20">
-        <Image src="/blacklogo.svg" alt="ロゴ" width={60} height={60} priority />
+      {/* 中央上部のロゴ */}
+      <div className="absolute top-8 left-1/2 transform -translate-x-1/2 z-20 pointer-events-none">
+        <Image src="/blacklogo.svg" alt="ロゴ" width={240} height={240} priority />
       </div>
-      
       {/* メインコンテンツ */}
       <div className="relative z-10 flex items-center justify-center min-h-screen px-6">
         <div className="w-full max-w-2xl">

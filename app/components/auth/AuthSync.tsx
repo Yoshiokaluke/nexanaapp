@@ -13,8 +13,15 @@ declare global {
 export function AuthSync() {
   const { isLoaded, userId, getToken } = useAuth();
   const hasSynced = useRef(false);
+  const isInitialized = useRef(false);
 
   useEffect(() => {
+    // 初期化フラグを設定
+    if (!isInitialized.current) {
+      isInitialized.current = true;
+      return;
+    }
+
     const syncUser = async () => {
       // AuthSyncが無効化されている場合は実行しない
       if (typeof window !== 'undefined' && window.__DISABLE_AUTHSYNC__) {
@@ -81,7 +88,7 @@ export function AuthSync() {
     };
 
     syncUser();
-  }, [isLoaded, userId]);
+  }, [isLoaded, userId, getToken]);
 
   return null;
 }

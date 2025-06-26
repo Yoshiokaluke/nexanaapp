@@ -1,7 +1,8 @@
 "use client";
 import Link from "next/link";
 import React, { useState, useEffect } from "react";
-import { SignOutButton } from "@clerk/nextjs";
+import { useClerk } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
@@ -22,6 +23,9 @@ export const OrganizationHeader: React.FC<OrganizationHeaderProps> = ({
 }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [isSigningOut, setIsSigningOut] = useState(false);
+  const { signOut } = useClerk();
+  const router = useRouter();
 
   useEffect(() => {
     if (clerkId && organizationId) {
@@ -33,6 +37,23 @@ export const OrganizationHeader: React.FC<OrganizationHeaderProps> = ({
       });
     }
   }, [clerkId, organizationId]);
+
+  const handleSignOut = async () => {
+    if (isSigningOut) return;
+    
+    setIsSigningOut(true);
+    try {
+      await signOut();
+      // サインアウト後に手動でリダイレクト
+      router.push('/');
+    } catch (error) {
+      console.error('ログアウトエラー:', error);
+      // エラーが発生した場合も手動でリダイレクト
+      router.push('/');
+    } finally {
+      setIsSigningOut(false);
+    }
+  };
 
   const navLinks = [
     { href: `/organization/${organizationId}`, label: "トップ" },
@@ -66,9 +87,13 @@ export const OrganizationHeader: React.FC<OrganizationHeaderProps> = ({
               {link.label}
             </Link>
           ))}
-          <SignOutButton>
-            <span className="ml-4 bg-indigo-600 text-white px-5 py-2 rounded-full font-semibold shadow hover:bg-indigo-700 transition-colors duration-150 cursor-pointer">ログアウト</span>
-          </SignOutButton>
+          <button
+            onClick={handleSignOut}
+            disabled={isSigningOut}
+            className="ml-4 bg-indigo-600 text-white px-5 py-2 rounded-full font-semibold shadow hover:bg-indigo-700 transition-colors duration-150 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isSigningOut ? 'ログアウト中...' : 'ログアウト'}
+          </button>
           {clerkId && (
             <Link href={`/organization/${organizationId}/OrganizationProfile/${clerkId}`} className="ml-4">
               <Avatar className="w-9 h-9 border-2 border-indigo-200">
@@ -137,11 +162,13 @@ export const OrganizationHeader: React.FC<OrganizationHeaderProps> = ({
               ))}
             </nav>
             <div className="mt-8 flex flex-col items-center gap-4">
-              <SignOutButton>
-                <span className="block w-full bg-indigo-600 text-white text-base font-bold rounded-full py-3 shadow hover:bg-indigo-700 transition-colors duration-150 cursor-pointer text-center">
-                  ログアウト
-                </span>
-              </SignOutButton>
+              <button
+                onClick={handleSignOut}
+                disabled={isSigningOut}
+                className="block w-full bg-indigo-600 text-white text-base font-bold rounded-full py-3 shadow hover:bg-indigo-700 transition-colors duration-150 cursor-pointer text-center disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSigningOut ? 'ログアウト中...' : 'ログアウト'}
+              </button>
             </div>
           </aside>
           <style jsx global>{`

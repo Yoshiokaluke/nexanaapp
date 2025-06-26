@@ -2,33 +2,32 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-async function deleteUsersByEmail() {
+async function deleteSpecificUsersByEmail() {
   const emailsToDelete = [
-    'daiki.yoshioka16@gmail.com',
     'yoshiokaluke@gmail.com',
+    'daiki.yoshioka16@gmail.com',
+    'test@example.com',
     'daiki.yoshioka@duotech.biz'
   ];
 
-  console.log('指定されたメールアドレスのユーザーを削除します...');
-  console.log('削除対象メールアドレス:', emailsToDelete);
-
   try {
+    console.log('=== 指定されたメールアドレスのユーザーを削除します ===');
+    
     for (const email of emailsToDelete) {
-      console.log(`\n${email} の削除を開始します...`);
+      console.log(`\n--- ${email} の削除処理を開始 ---`);
       
       // ユーザーを検索
       const user = await prisma.user.findUnique({
         where: { email },
         include: {
-          sentInvitations: true,
           memberships: true,
+          sentInvitations: true,
           organizationProfiles: {
             include: {
               qrCode: true
             }
           },
-          profile: true,
-          organizations: true
+          profile: true
         }
       });
 
@@ -37,89 +36,92 @@ async function deleteUsersByEmail() {
         continue;
       }
 
-      console.log(`✅ ユーザーが見つかりました: ${user.firstName} ${user.lastName} (${user.clerkId})`);
+      console.log('ユーザー情報:', {
+        id: user.id,
+        clerkId: user.clerkId,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName
+      });
 
-      // 関連データの確認
-      console.log(`- 送信した招待: ${user.sentInvitations.length}件`);
-      console.log(`- 組織メンバーシップ: ${user.memberships.length}件`);
-      console.log(`- 組織プロフィール: ${user.organizationProfiles.length}件`);
-      console.log(`- プロフィール: ${user.profile ? 'あり' : 'なし'}`);
-      console.log(`- 所属組織: ${user.organizations.length}件`);
+      console.log('関連データ:', {
+        memberships: user.memberships.length,
+        sentInvitations: user.sentInvitations.length,
+        organizationProfiles: user.organizationProfiles.length,
+        profile: user.profile ? 'あり' : 'なし'
+      });
 
-      // 削除の確認
-      const confirm = process.argv.includes('--confirm');
-      if (!confirm) {
-        console.log('⚠️  削除を実行するには --confirm フラグを追加してください');
-        continue;
-      }
-
-      // 関連データを削除（外部キー制約のため順序が重要）
+      // 関連データを削除
+      console.log('関連データを削除中...');
       
-      // 1. 送信した招待を削除
-      if (user.sentInvitations.length > 0) {
-        await prisma.organizationInvitation.deleteMany({
-          where: { invitedBy: user.id }
-        });
-        console.log(`✅ 送信した招待を削除しました`);
-      }
-
-      // 2. 組織メンバーシップを削除
-      if (user.memberships.length > 0) {
-        await prisma.organizationMembership.deleteMany({
-          where: { clerkId: user.clerkId }
-        });
-        console.log(`✅ 組織メンバーシップを削除しました`);
-      }
-
-      // 3. QRコード使用履歴を削除（OrganizationProfileQrCodeを削除する前に）
+      // Organization Profiles の QR Code 関連データを削除
       for (const orgProfile of user.organizationProfiles) {
+        // QR Code の使用履歴を削除
         if (orgProfile.qrCode) {
           await prisma.qrCodeUsageHistory.deleteMany({
             where: { qrCodeId: orgProfile.qrCode.id }
           });
-          console.log(`✅ QRコード使用履歴を削除しました (${orgProfile.organizationId})`);
-        }
-      }
-
-      // 4. 組織プロフィールのQRコードを削除
-      for (const orgProfile of user.organizationProfiles) {
-        if (orgProfile.qrCode) {
+          console.log(`✅ QR Code 使用履歴を削除: ${orgProfile.organizationId}`);
+          
+          // QR Code を削除
           await prisma.organizationProfileQrCode.delete({
             where: { organizationProfileId: orgProfile.id }
           });
-          console.log(`✅ 組織プロフィールQRコードを削除しました (${orgProfile.organizationId})`);
+          console.log(`✅ QR Code を削除: ${orgProfile.organizationId}`);
         }
+        
+        // Scan Together Records を削除
+        await prisma.scanTogetherRecord.deleteMany({
+          where: { organizationProfileId: orgProfile.id }
+        });
+        console.log(`✅ Scan Together Records を削除: ${orgProfile.organizationId}`);
       }
 
-      // 5. 組織プロフィールを削除
+      // Organization Profiles を削除
       if (user.organizationProfiles.length > 0) {
         await prisma.organizationProfile.deleteMany({
           where: { clerkId: user.clerkId }
         });
-        console.log(`✅ 組織プロフィールを削除しました`);
+        console.log(`✅ Organization Profiles を削除: ${user.organizationProfiles.length}件`);
       }
 
-      // 6. プロフィールを削除
+      // Sent Invitations を削除
+      if (user.sentInvitations.length > 0) {
+        await prisma.organizationInvitation.deleteMany({
+          where: { invitedBy: user.id }
+        });
+        console.log(`✅ Sent Invitations を削除: ${user.sentInvitations.length}件`);
+      }
+
+      // Memberships を削除
+      if (user.memberships.length > 0) {
+        await prisma.organizationMembership.deleteMany({
+          where: { clerkId: user.clerkId }
+        });
+        console.log(`✅ Memberships を削除: ${user.memberships.length}件`);
+      }
+
+      // Profile を削除
       if (user.profile) {
         await prisma.profile.delete({
           where: { clerkId: user.clerkId }
         });
-        console.log(`✅ プロフィールを削除しました`);
+        console.log(`✅ Profile を削除`);
       }
 
-      // 7. ユーザーを削除
+      // ユーザーを削除
       await prisma.user.delete({
-        where: { email }
+        where: { id: user.id }
       });
-      console.log(`✅ ユーザーを削除しました: ${email}`);
+      console.log(`✅ ユーザーを削除: ${email}`);
     }
 
-    console.log('\n🎉 すべての削除処理が完了しました');
+    console.log('\n=== 削除処理が完了しました ===');
   } catch (error) {
-    console.error('❌ エラーが発生しました:', error);
+    console.error('削除処理中にエラーが発生しました:', error);
   } finally {
     await prisma.$disconnect();
   }
 }
 
-deleteUsersByEmail(); 
+deleteSpecificUsersByEmail(); 

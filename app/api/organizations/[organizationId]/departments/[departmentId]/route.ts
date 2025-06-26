@@ -31,16 +31,16 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ or
       return NextResponse.json({ error: '部署名は必須です' }, { status: 400 });
     }
 
-    // 「その他」は編集不可
+    // デフォルト部署は編集不可
     const dept = await prisma.organizationDepartment.findUnique({ where: { id: departmentId } });
     if (!dept) {
       console.log('部署が見つかりません');
       return NextResponse.json({ error: '部署が見つかりません' }, { status: 404 });
     }
 
-    if (dept.name === 'その他') {
-      console.log('「その他」部署は編集できません');
-      return NextResponse.json({ error: 'この部署は編集できません' }, { status: 400 });
+    if (dept.isDefault) {
+      console.log('デフォルト部署は編集できません');
+      return NextResponse.json({ error: 'デフォルト部署は編集できません' }, { status: 400 });
     }
 
     // 同一組織内で重複禁止

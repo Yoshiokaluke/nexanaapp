@@ -84,18 +84,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 既に飲み物取得記録があるかチェック
-    const existingGetItemRecord = await prisma.getItemRecord.findFirst({
-      where: { sessionId }
-    });
-
-    if (existingGetItemRecord) {
-      return NextResponse.json(
-        { error: '既に飲み物取得が記録されています' },
-        { status: 400 }
-      );
-    }
-
     console.log('飲み物取得記録を作成中...');
 
     // 飲み物取得記録を作成

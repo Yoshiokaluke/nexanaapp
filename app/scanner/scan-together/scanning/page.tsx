@@ -67,6 +67,7 @@ function ScanningPageContent() {
   const streamRef = useRef<MediaStream | null>(null);
   const animationFrameRef = useRef<number | null>(null);
   const frameCountRef = useRef(0);
+  const scannedQrSet = useRef<Set<string>>(new Set());
 
   // セッション情報取得
   const fetchSession = useCallback(async () => {
@@ -194,11 +195,57 @@ function ScanningPageContent() {
     }
   }, []);
 
+  // Web Audio APIでレジのような「ぴっ」音を鳴らす関数
+  function playBeep() {
+    if (typeof window === 'undefined') return;
+    const ctx = new ((window as any).AudioContext || (window as any).webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    osc.type = 'square'; // レジのような音
+    osc.frequency.value = 1200; // 高めの音
+    osc.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.08); // 0.08秒だけ鳴らす
+    osc.onended = () => ctx.close();
+  }
+
+  // Thank you効果音（上昇アルペジオ）
+  function playThankYouSound() {
+    if (typeof window === 'undefined') return;
+    const ctx = new ((window as any).AudioContext || (window as any).webkitAudioContext)();
+    const now = ctx.currentTime;
+    [523.25, 659.25, 783.99].forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      osc.type = 'triangle';
+      osc.frequency.value = freq;
+      osc.connect(ctx.destination);
+      osc.start(now + i * 0.12);
+      osc.stop(now + i * 0.12 + 0.10);
+      osc.onended = () => osc.disconnect();
+    });
+    setTimeout(() => ctx.close(), 500);
+  }
+
   // QRコードデータ処理
   const processQRCode = useCallback(async (qrData: string) => {
-    if (isProcessing) return;
-    
+    // すでに認識済みなら何もしない
+    if (scannedQrSet.current.has(qrData)) return;
+
+    // ここで音を鳴らす
+    playBeep();
+
+    // 認識済みとして記録
+    scannedQrSet.current.add(qrData);
+
     setIsProcessing(true);
+    if (!qrData || qrData.trim() === '') {
+      setIsProcessing(false);
+      return;
+    }
+    if (qrData === lastProcessedQrData) {
+      setIsProcessing(false);
+      return;
+    }
+    setLastProcessedQrData(qrData);
     console.log('QRコード処理開始', { qrData: qrData?.substring(0, 50), sessionId });
 
     // sessionIdが存在しない場合は処理を停止
@@ -239,6 +286,7 @@ function ScanningPageContent() {
       console.log('API結果:', result);
 
       if (response.ok) {
+        // スキャン成功時に記録
         setScanResult({
           success: true,
           message: 'QRコードのスキャンが完了しました',
@@ -257,18 +305,37 @@ function ScanningPageContent() {
           });
         }
         
-        // 0.5秒後に結果をクリアして次のスキャンに備える（2秒から短縮）
+        // 0.5秒後に結果とlastProcessedQrDataをクリア
         setTimeout(() => {
           setScanResult(null);
-          setLastProcessedQrData(null); // 次のスキャンのためにリセット
+          setLastProcessedQrData(null);
         }, 500);
       } else {
+        // エラーメッセージを詳細に取得
+        let errorMessage = `飲み物取得に失敗しました (${response.status})`;
+        if (result?.error) {
+          errorMessage = result.error;
+        } else if (result?.details) {
+          errorMessage = result.details;
+        } else if (result?.message) {
+          errorMessage = result.message;
+        } else if (typeof result === 'object' && Object.keys(result).length === 0) {
+          errorMessage = 'サーバーから空のレスポンスが返されました';
+        }
+        
+        console.error('飲み物取得エラー:', { status: response.status, error: result, errorMessage });
         setScanResult({
           success: false,
-          message: result.error || 'スキャンに失敗しました',
+          message: errorMessage,
           data: result
         });
-        console.error('スキャン失敗:', result);
+        // 「既にスキャン済みです」など特定エラー時も同様に0.5秒間はlastProcessedQrDataを維持
+        if (errorMessage.includes('既にスキャン済み')) {
+          setTimeout(() => {
+            setScanResult(null);
+            setLastProcessedQrData(null);
+          }, 500);
+        }
       }
     } catch (error) {
       console.error('API呼び出しエラー:', error);
@@ -317,7 +384,6 @@ function ScanningPageContent() {
               data: code.data.substring(0, 50) + '...',
               dataLength: code.data.length
             });
-            setLastProcessedQrData(code.data);
             processQRCode(code.data);
           }
         }
@@ -327,7 +393,7 @@ function ScanningPageContent() {
     };
 
     detectQR();
-  }, [isProcessing, lastProcessedQrData, processQRCode]);
+  }, [processQRCode]);
 
   // コンポーネントマウント時にカメラ開始
   useEffect(() => {
@@ -342,10 +408,13 @@ function ScanningPageContent() {
 
   // 飲み物取得処理
   const handleGetItem = async () => {
-    if (!sessionId) return;
+    if (!sessionId || isProcessing) return;
+    setIsProcessing(true);
+
+    // カメラを停止
+    stopCamera();
 
     try {
-      setIsProcessing(true);
       const response = await fetch('/api/scanner/scan-together/get-item', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -356,28 +425,28 @@ function ScanningPageContent() {
       const result = await response.json();
       console.log('飲み物取得レスポンス:', { status: response.status, result });
 
-      if (response.ok) {
-        console.log('飲み物取得成功:', result);
-        
-        // 完了画面にリダイレクト
+      if (response.ok && result.success) {
+        playThankYouSound();
         router.push(`/scanner/scan-together/complete?sessionId=${sessionId}`);
+        return;
       } else {
-        console.error('飲み物取得エラー:', { status: response.status, error: result });
+        setIsProcessing(false);
+        let errorMessage = result?.error || result?.message || `飲み物取得に失敗しました (${response.status})`;
         setScanResult({
           success: false,
-          message: result.error || `飲み物取得に失敗しました (${response.status})`,
+          message: errorMessage,
           data: result
         });
+        console.error('飲み物取得エラー:', result);
       }
     } catch (error) {
-      console.error('飲み物取得エラー:', error);
+      setIsProcessing(false);
       setScanResult({
         success: false,
         message: 'ネットワークエラーが発生しました',
         data: { error: error instanceof Error ? error.message : 'Unknown error' }
       });
-    } finally {
-      setIsProcessing(false);
+      console.error('飲み物取得エラー:', error);
     }
   };
 
@@ -493,10 +562,10 @@ function ScanningPageContent() {
                   <div className="absolute -bottom-1 -right-1 w-6 h-6 border-b-3 border-r-3 border-blue-500 rounded-br-lg"></div>
                 </div>
               </div>
-              {/* 処理中インジケーター */}
+              {/* 処理中インジケーター（カメラを塞ぐ） */}
               {isProcessing && (
-                <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center">
-                  <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 flex items-center gap-4 shadow-2xl">
+                <div className="absolute inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
+                  <div className="bg-white/90 rounded-2xl p-6 flex items-center gap-4 shadow-2xl">
                     <div className="animate-spin rounded-full h-8 w-8 border-4 border-blue-200 border-t-blue-600"></div>
                     <span className="text-gray-800 font-semibold text-lg">処理中...</span>
                   </div>
@@ -560,13 +629,13 @@ function ScanningPageContent() {
             <div className="px-6 pb-6 pt-2 mt-auto">
               <Card className="w-full bg-white/90 backdrop-blur-sm border-0 shadow-md">
                 <CardContent className="pt-6">
-                  <Button 
+                  <Button
                     onClick={handleGetItem}
+                    disabled={isProcessing || uniqueUserCount < 2}
                     className={`w-full h-16 text-xl font-bold rounded-full shadow-2xl transition-all duration-300 flex items-center justify-center gap-3 text-white
                       bg-gradient-to-r from-emerald-400 via-green-500 to-emerald-600
                       hover:from-emerald-500 hover:via-green-600 hover:to-emerald-700
                       disabled:bg-gradient-to-r disabled:from-gray-200 disabled:to-gray-300 disabled:text-gray-400 disabled:shadow-none disabled:cursor-not-allowed`}
-                    disabled={isProcessing || uniqueUserCount < 2}
                   >
                     {isProcessing ? '処理中...' : '🍹 飲み物を取得する'}
                   </Button>

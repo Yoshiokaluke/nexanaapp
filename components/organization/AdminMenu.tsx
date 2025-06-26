@@ -1,8 +1,9 @@
 "use client";
 import Link from "next/link";
-import { usePathname, useParams } from "next/navigation";
-import { Users, Home, Building2, LogOut } from "lucide-react";
-import { SignOutButton } from "@clerk/nextjs";
+import { usePathname, useParams, useRouter } from "next/navigation";
+import { Users, Home, Building2, LogOut, Target } from "lucide-react";
+import { useClerk } from "@clerk/nextjs";
+import { useState } from "react";
 
 const menu = [
   {
@@ -23,12 +24,38 @@ const menu = [
     icon: Building2,
     desc: "部署の追加・編集"
   },
+  {
+    href: (orgId: string) => `/organization/${orgId}/scan-purposes`,
+    label: "スキャン目的管理",
+    icon: Target,
+    desc: "スキャン目的の設定"
+  },
 ];
 
 export function AdminMenu() {
   const pathname = usePathname();
   const params = useParams();
+  const router = useRouter();
+  const { signOut } = useClerk();
   const organizationId = params.organizationId as string;
+  const [isSigningOut, setIsSigningOut] = useState(false);
+
+  const handleSignOut = async () => {
+    if (isSigningOut) return;
+    
+    setIsSigningOut(true);
+    try {
+      await signOut();
+      // サインアウト後に手動でリダイレクト
+      router.push('/');
+    } catch (error) {
+      console.error('ログアウトエラー:', error);
+      // エラーが発生した場合も手動でリダイレクト
+      router.push('/');
+    } finally {
+      setIsSigningOut(false);
+    }
+  };
 
   return (
     <section className="w-full flex flex-col items-center bg-gradient-to-r from-indigo-50 to-white py-6 mb-6">
@@ -66,7 +93,8 @@ export function AdminMenu() {
           {/* ログアウトカード */}
           <div
             className="group flex-1 min-w-[140px] max-w-xs flex flex-col items-center justify-center px-3 py-3 rounded-xl transition-all duration-200 border-2 shadow-md
-              bg-white text-indigo-800 border-indigo-100 hover:bg-red-50 hover:text-red-700 hover:border-red-400 hover:shadow-lg"
+              bg-white text-indigo-800 border-indigo-100 hover:bg-red-50 hover:text-red-700 hover:border-red-400 hover:shadow-lg cursor-pointer"
+            onClick={handleSignOut}
           >
             <div className="flex items-center justify-center w-9 h-9 rounded-full mb-2 transition-all duration-200 bg-red-50 group-hover:bg-red-100">
               <LogOut className="w-5 h-5 text-red-500 group-hover:text-red-700" />
@@ -75,15 +103,14 @@ export function AdminMenu() {
               ログアウト
             </div>
             <div className="text-xs text-center text-red-500 group-hover:text-red-700">サインアウト</div>
-            <SignOutButton>
               <button
-                className="mt-2 px-4 py-1 rounded bg-red-500 text-white text-xs font-semibold hover:bg-red-600 transition-colors"
+              className="mt-2 px-4 py-1 rounded bg-red-500 text-white text-xs font-semibold hover:bg-red-600 transition-colors disabled:opacity-50"
                 aria-label="ログアウト"
                 type="button"
+              disabled={isSigningOut}
               >
-                サインアウト
+              {isSigningOut ? 'ログアウト中...' : 'サインアウト'}
               </button>
-            </SignOutButton>
           </div>
         </nav>
       </div>

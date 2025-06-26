@@ -1,14 +1,16 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useState, useEffect, useCallback } from 'react';
+import { useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Badge } from '@/components/ui/badge';
+import { toast } from 'sonner';
+import { ScanPurposeList } from './scan-purpose-list';
+import { Plus, Settings } from 'lucide-react';
+import { AdminMenu } from '@/components/organization/AdminMenu';
 
 interface ScanPurpose {
   id: string;
@@ -22,11 +24,11 @@ interface ScanPurpose {
 
 export default function ScanPurposesPage() {
   const { organizationId } = useParams();
-  const router = useRouter();
   const [scanPurposes, setScanPurposes] = useState<ScanPurpose[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isCreateDefaultsLoading, setIsCreateDefaultsLoading] = useState(false);
   const [editingPurpose, setEditingPurpose] = useState<ScanPurpose | null>(null);
   const [userRole, setUserRole] = useState<string>('');
   const [newPurpose, setNewPurpose] = useState({
@@ -34,12 +36,31 @@ export default function ScanPurposesPage() {
     description: '',
     order: 0
   });
+  const [departmentId, setDepartmentId] = useState<string | null>(null);
+  const [departments, setDepartments] = useState<{ id: string; name: string }[]>([]);
 
-  useEffect(() => {
-    fetchScanPurposes();
-    fetchUserRole();
-  }, []);
+  // スキャン目的一覧の取得
+  const fetchScanPurposes = useCallback(async () => {
+    try {
+      console.log('スキャン目的一覧を取得中...', organizationId);
+      const response = await fetch(`/api/organizations/${organizationId}/scan-purposes`);
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('スキャン目的一覧取得エラー:', errorData);
+        throw new Error(errorData.error || 'スキャン目的一覧の取得に失敗しました');
+      }
+      
+      const data = await response.json();
+      console.log('取得したスキャン目的:', data);
+      setScanPurposes(data);
+    } catch (error) {
+      console.error('スキャン目的一覧取得エラー:', error);
+      toast.error(error instanceof Error ? error.message : 'スキャン目的一覧の取得に失敗しました');
+    }
+  }, [organizationId]);
 
+  // ユーザー権限の取得
   const fetchUserRole = async () => {
     try {
       const response = await fetch('/api/users/me');
@@ -63,50 +84,116 @@ export default function ScanPurposesPage() {
     }
   };
 
-  const fetchScanPurposes = async () => {
+  // 部署一覧を取得する関数
+  const fetchDepartments = useCallback(async () => {
     try {
-      const response = await fetch(`/api/organizations/${organizationId}/scan-purposes`);
-      if (response.ok) {
+      const response = await fetch(`/api/organizations/${organizationId}/departments`);
+      if (!response.ok) return;
         const data = await response.json();
-        setScanPurposes(data);
-      } else {
-        console.error('スキャン目的の取得に失敗しました');
+      setDepartments(data);
+    } catch (e) {
+      // エラー処理
+    }
+  }, [organizationId]);
+
+  useEffect(() => {
+    if (organizationId) {
+      fetchScanPurposes();
+      fetchUserRole();
+      fetchDepartments();
+    }
+  }, [organizationId, fetchScanPurposes, fetchUserRole, fetchDepartments]);
+
+  // デフォルト目的の作成
+  const handleCreateDefaults = async () => {
+    setIsCreateDefaultsLoading(true);
+    try {
+      console.log('デフォルト目的を作成中...', organizationId);
+      
+      const response = await fetch(`/api/organizations/${organizationId}/scan-purposes`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'create-defaults' }),
+      });
+
+      console.log('レスポンス:', response.status, response.statusText);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('デフォルト目的作成エラー:', errorData);
+        throw new Error(errorData.error || 'デフォルト目的の作成に失敗しました');
       }
+
+      const result = await response.json();
+      console.log('作成結果:', result);
+      
+      await fetchScanPurposes();
+      toast.success(result.message || 'デフォルト目的を作成しました');
     } catch (error) {
-      console.error('エラー:', error);
+      console.error('デフォルト目的作成エラー:', error);
+      toast.error(error instanceof Error ? error.message : 'デフォルト目的の作成に失敗しました');
+    } finally {
+      setIsCreateDefaultsLoading(false);
+    }
+  };
+
+  // スキャン目的の追加
+  const handleAddPurpose = async () => {
+    if (!newPurpose.name.trim()) {
+      toast.error('目的名を入力してください');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      console.log('スキャン目的を追加中...', { organizationId, ...newPurpose });
+      
+      const response = await fetch(`/api/organizations/${organizationId}/scan-purposes`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newPurpose),
+      });
+
+      console.log('レスポンス:', response.status, response.statusText);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('スキャン目的追加エラー:', errorData);
+        throw new Error(errorData.error || 'スキャン目的の追加に失敗しました');
+      }
+
+      const newPurposeData = await response.json();
+      console.log('追加されたスキャン目的:', newPurposeData);
+      
+      setScanPurposes(prev => [...prev, newPurposeData]);
+      setIsAddDialogOpen(false);
+        setNewPurpose({ name: '', description: '', order: 0 });
+      toast.success('スキャン目的を追加しました');
+    } catch (error) {
+      console.error('スキャン目的追加エラー:', error);
+      toast.error(error instanceof Error ? error.message : 'スキャン目的の追加に失敗しました');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleCreatePurpose = async () => {
-    if (!newPurpose.name.trim()) return;
-
-    try {
-      const response = await fetch(`/api/organizations/${organizationId}/scan-purposes`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newPurpose)
-      });
-
-      if (response.ok) {
-        await fetchScanPurposes();
-        setIsCreateModalOpen(false);
-        setNewPurpose({ name: '', description: '', order: 0 });
-      } else {
-        const error = await response.json();
-        alert(error.error || '作成に失敗しました');
-      }
-    } catch (error) {
-      console.error('エラー:', error);
-      alert('作成に失敗しました');
-    }
-  };
-
+  // スキャン目的の更新
   const handleUpdatePurpose = async () => {
-    if (!editingPurpose || !editingPurpose.name.trim()) return;
+    if (!editingPurpose || !editingPurpose.name.trim()) {
+      toast.error('目的名を入力してください');
+      return;
+    }
 
+    // デフォルト目的（order 1-5）は編集不可
+    if (editingPurpose.order >= 1 && editingPurpose.order <= 5) {
+      toast.error('デフォルト目的は編集できません');
+      return;
+    }
+
+    setIsLoading(true);
     try {
+      console.log('スキャン目的を更新中...', { organizationId, ...editingPurpose });
+      
       const response = await fetch(
         `/api/organizations/${organizationId}/scan-purposes/${editingPurpose.id}`,
         {
@@ -116,128 +203,114 @@ export default function ScanPurposesPage() {
         }
       );
 
-      if (response.ok) {
-        await fetchScanPurposes();
-        setIsEditModalOpen(false);
-        setEditingPurpose(null);
-      } else {
-        const error = await response.json();
-        alert(error.error || '更新に失敗しました');
+      console.log('レスポンス:', response.status, response.statusText);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('スキャン目的更新エラー:', errorData);
+        throw new Error(errorData.error || 'スキャン目的の更新に失敗しました');
       }
+
+      const updatedPurpose = await response.json();
+      console.log('更新されたスキャン目的:', updatedPurpose);
+      
+      setScanPurposes(prev => prev.map(p => p.id === editingPurpose.id ? updatedPurpose : p));
+      setIsEditDialogOpen(false);
+      setEditingPurpose(null);
+      toast.success('スキャン目的を更新しました');
     } catch (error) {
-      console.error('エラー:', error);
-      alert('更新に失敗しました');
+      console.error('スキャン目的更新エラー:', error);
+      toast.error(error instanceof Error ? error.message : 'スキャン目的の更新に失敗しました');
+    } finally {
+      setIsLoading(false);
     }
   };
 
+  // スキャン目的の削除
   const handleDeletePurpose = async (purposeId: string) => {
-    if (!confirm('このスキャン目的を削除してもよろしいですか？')) return;
+    const purpose = scanPurposes.find(p => p.id === purposeId);
+    
+    console.log('削除対象のスキャン目的:', purpose);
+    
+    if (!confirm('このスキャン目的を削除してもよろしいですか？')) {
+      return;
+    }
 
     try {
-      const response = await fetch(
-        `/api/organizations/${organizationId}/scan-purposes/${purposeId}`,
-        { method: 'DELETE' }
-      );
+      console.log('スキャン目的削除リクエスト送信中...', { organizationId, purposeId });
+      
+      const response = await fetch(`/api/organizations/${organizationId}/scan-purposes/${purposeId}`, {
+        method: 'DELETE',
+      });
 
-      if (response.ok) {
-        await fetchScanPurposes();
-      } else {
-        alert('削除に失敗しました');
+      console.log('削除レスポンス:', response.status, response.statusText);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('削除エラー:', errorData);
+        throw new Error(errorData.error || 'スキャン目的の削除に失敗しました');
       }
+
+      const result = await response.json();
+      console.log('削除結果:', result);
+
+      setScanPurposes(prev => prev.filter(p => p.id !== purposeId));
+      toast.success('スキャン目的を削除しました');
     } catch (error) {
-      console.error('エラー:', error);
-      alert('削除に失敗しました');
+      console.error('スキャン目的削除エラー:', error);
+      toast.error(error instanceof Error ? error.message : 'スキャン目的の削除に失敗しました');
     }
   };
 
+  // 編集ダイアログを開く
   const handleEditPurpose = (purpose: ScanPurpose) => {
     setEditingPurpose(purpose);
-    setIsEditModalOpen(true);
+    setIsEditDialogOpen(true);
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">読み込み中...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
+    <>
+      <AdminMenu />
+      <div className="container mx-auto py-8">
+        <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">スキャン目的管理</h1>
+            <h1 className="text-2xl font-bold">スキャン目的管理</h1>
           {userRole === 'system_team' && (
             <p className="text-sm text-blue-600 mt-1">
               システムチーム権限でアクセス中 - 全ての組織の目的を管理できます
             </p>
           )}
         </div>
-        <Button onClick={() => setIsCreateModalOpen(true)}>
-          新しい目的を追加
-        </Button>
-      </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>スキャン目的一覧</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {scanPurposes.length === 0 ? (
-            <p className="text-gray-500 text-center py-8">
-              スキャン目的が登録されていません
-            </p>
-          ) : (
-            <div className="space-y-4">
-              {scanPurposes.map((purpose) => (
-                <div
-                  key={purpose.id}
-                  className="flex items-center justify-between p-4 border rounded-lg"
-                >
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <h3 className="font-semibold">{purpose.name}</h3>
-                      <Badge variant={purpose.isActive ? 'default' : 'secondary'}>
-                        {purpose.isActive ? '有効' : '無効'}
-                      </Badge>
-                      <span className="text-sm text-gray-500">順序: {purpose.order}</span>
-                    </div>
-                    {purpose.description && (
-                      <p className="text-gray-600 mt-1">{purpose.description}</p>
-                    )}
-                  </div>
-                  <div className="flex gap-2">
+          <div className="flex items-center space-x-2">
                     <Button
                       variant="outline"
-                      size="sm"
-                      onClick={() => handleEditPurpose(purpose)}
+              onClick={handleCreateDefaults}
+              disabled={isCreateDefaultsLoading}
                     >
-                      編集
+              <Settings className="w-4 h-4 mr-2" />
+              {isCreateDefaultsLoading ? '作成中...' : 'デフォルト目的を作成'}
                     </Button>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => handleDeletePurpose(purpose.id)}
-                    >
-                      削除
+            <Button onClick={() => setIsAddDialogOpen(true)}>
+              <Plus className="w-4 h-4 mr-2" />
+              新しい目的を追加
                     </Button>
                   </div>
                 </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
 
-      {/* 作成モーダル */}
-      <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
+        <ScanPurposeList
+          scanPurposes={scanPurposes}
+          onDelete={handleDeletePurpose}
+          onEdit={handleEditPurpose}
+        />
+
+        {/* 追加ダイアログ */}
+        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>新しいスキャン目的を追加</DialogTitle>
+              <DialogDescription>
+                新しいスキャン目的の情報を入力してください
+              </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
@@ -247,6 +320,12 @@ export default function ScanPurposesPage() {
                 value={newPurpose.name}
                 onChange={(e) => setNewPurpose({ ...newPurpose, name: e.target.value })}
                 placeholder="例: ランチ"
+                  onKeyDown={e => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleAddPurpose();
+                    }
+                  }}
               />
             </div>
             <div>
@@ -268,21 +347,35 @@ export default function ScanPurposesPage() {
                 placeholder="0"
               />
             </div>
+              <div>
+                <Label htmlFor="department">部署</Label>
+                <select value={departmentId ?? ""} onChange={e => setDepartmentId(e.target.value || null)}>
+                  <option value="">選択してください</option>
+                  {departments.map(dept => (
+                    <option key={dept.id} value={dept.id}>{dept.name}</option>
+                  ))}
+                </select>
+              </div>
             <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setIsCreateModalOpen(false)}>
+                <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
                 キャンセル
               </Button>
-              <Button onClick={handleCreatePurpose}>作成</Button>
+                <Button onClick={handleAddPurpose} disabled={isLoading || !newPurpose.name.trim()}>
+                  {isLoading ? '追加中...' : '追加'}
+                </Button>
             </div>
           </div>
         </DialogContent>
       </Dialog>
 
-      {/* 編集モーダル */}
-      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+        {/* 編集ダイアログ */}
+        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>スキャン目的を編集</DialogTitle>
+              <DialogDescription>
+                スキャン目的の情報を編集してください
+              </DialogDescription>
           </DialogHeader>
           {editingPurpose && (
             <div className="space-y-4">
@@ -292,7 +385,13 @@ export default function ScanPurposesPage() {
                   id="edit-name"
                   value={editingPurpose.name}
                   onChange={(e) => setEditingPurpose({ ...editingPurpose, name: e.target.value })}
+                    disabled={editingPurpose.order >= 1 && editingPurpose.order <= 5}
                 />
+                  {(editingPurpose.order >= 1 && editingPurpose.order <= 5) && (
+                    <p className="text-sm text-red-500 mt-1">
+                      デフォルト目的は編集できません
+                    </p>
+                  )}
               </div>
               <div>
                 <Label htmlFor="edit-description">説明</Label>
@@ -300,6 +399,7 @@ export default function ScanPurposesPage() {
                   id="edit-description"
                   value={editingPurpose.description || ''}
                   onChange={(e) => setEditingPurpose({ ...editingPurpose, description: e.target.value })}
+                    disabled={editingPurpose.order >= 1 && editingPurpose.order <= 5}
                 />
               </div>
               <div>
@@ -309,6 +409,7 @@ export default function ScanPurposesPage() {
                   type="number"
                   value={editingPurpose.order}
                   onChange={(e) => setEditingPurpose({ ...editingPurpose, order: parseInt(e.target.value) || 0 })}
+                    disabled={editingPurpose.order >= 1 && editingPurpose.order <= 5}
                 />
               </div>
               <div>
@@ -317,20 +418,27 @@ export default function ScanPurposesPage() {
                     type="checkbox"
                     checked={editingPurpose.isActive}
                     onChange={(e) => setEditingPurpose({ ...editingPurpose, isActive: e.target.checked })}
+                      disabled={editingPurpose.order >= 1 && editingPurpose.order <= 5}
                   />
                   有効にする
                 </Label>
               </div>
               <div className="flex justify-end gap-2">
-                <Button variant="outline" onClick={() => setIsEditModalOpen(false)}>
+                  <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
                   キャンセル
                 </Button>
-                <Button onClick={handleUpdatePurpose}>更新</Button>
+                  <Button 
+                    onClick={handleUpdatePurpose} 
+                    disabled={isLoading || !editingPurpose.name.trim() || (editingPurpose.order >= 1 && editingPurpose.order <= 5)}
+                  >
+                    {isLoading ? '更新中...' : '更新'}
+                  </Button>
               </div>
             </div>
           )}
         </DialogContent>
       </Dialog>
     </div>
+    </>
   );
 } 

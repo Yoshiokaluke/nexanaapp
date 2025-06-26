@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Trash2 } from 'lucide-react';
+import { Trash2, Edit } from 'lucide-react';
 
 interface Department {
   id: string;
@@ -14,9 +14,10 @@ interface Department {
 interface DepartmentListProps {
   departments: Department[];
   onDelete: (departmentId: string) => void;
+  onEdit: (department: Department) => void;
 }
 
-export function DepartmentList({ departments, onDelete }: DepartmentListProps) {
+export function DepartmentList({ departments, onDelete, onEdit }: DepartmentListProps) {
   return (
     <div className="space-y-2">
       {departments.map((department) => (
@@ -33,11 +34,23 @@ export function DepartmentList({ departments, onDelete }: DepartmentListProps) {
             )}
           </div>
           <div className="flex items-center space-x-2">
+            {!department.isDefault && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => onEdit(department)}
+                className="text-blue-600 hover:text-blue-800"
+                title="編集"
+              >
+                <Edit className="w-4 h-4" />
+              </Button>
+            )}
             <Button
               variant="ghost"
               size="sm"
               onClick={() => onDelete(department.id)}
               className="text-red-600 hover:text-red-800"
+              title={department.isDefault ? "デフォルト部署を削除" : "削除"}
             >
               <Trash2 className="w-4 h-4" />
             </Button>

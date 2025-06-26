@@ -1,7 +1,8 @@
 "use client";
 import Link from "next/link";
 import React, { useState, useEffect } from "react";
-import { SignOutButton } from "@clerk/nextjs";
+import { useClerk } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -23,6 +24,9 @@ export const AdminOrganizationHeader: React.FC<AdminOrganizationHeaderProps> = (
 }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [isSigningOut, setIsSigningOut] = useState(false);
+  const { signOut } = useClerk();
+  const router = useRouter();
 
   useEffect(() => {
     if (clerkId && organizationId) {
@@ -34,6 +38,23 @@ export const AdminOrganizationHeader: React.FC<AdminOrganizationHeaderProps> = (
       });
     }
   }, [clerkId, organizationId]);
+
+  const handleSignOut = async () => {
+    if (isSigningOut) return;
+    
+    setIsSigningOut(true);
+    try {
+      await signOut();
+      // サインアウト後に手動でリダイレクト
+      router.push('/');
+    } catch (error) {
+      console.error('ログアウトエラー:', error);
+      // エラーが発生した場合も手動でリダイレクト
+      router.push('/');
+    } finally {
+      setIsSigningOut(false);
+    }
+  };
 
   return (
     <header className="bg-white shadow-sm sticky top-0 z-30" data-admin-header>
@@ -57,11 +78,13 @@ export const AdminOrganizationHeader: React.FC<AdminOrganizationHeaderProps> = (
         </div>
         {/* ログアウトとアバター・ハンバーガー */}
         <div className="flex items-center gap-2">
-          <SignOutButton>
-            <span className="bg-red-600 text-white px-4 py-2 rounded-full font-semibold shadow hover:bg-red-700 transition-colors duration-150 cursor-pointer text-sm">
-              ログアウト
-            </span>
-          </SignOutButton>
+          <button
+            onClick={handleSignOut}
+            disabled={isSigningOut}
+            className="bg-red-600 text-white px-4 py-2 rounded-full font-semibold shadow hover:bg-red-700 transition-colors duration-150 cursor-pointer text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isSigningOut ? 'ログアウト中...' : 'ログアウト'}
+          </button>
           {clerkId && (
             <Link href={`/organization/${organizationId}/OrganizationProfile/${clerkId}}`}>
               <Avatar className="w-9 h-9 border-2 border-indigo-200">

@@ -66,6 +66,14 @@ export async function PATCH(
       );
     }
 
+    // デフォルト目的（order 1-5）は編集不可
+    if (existingPurpose.order >= 1 && existingPurpose.order <= 5) {
+      return NextResponse.json(
+        { error: 'デフォルト目的は編集できません' },
+        { status: 400 }
+      );
+    }
+
     // 同じ名前の目的が既に存在するかチェック（自分以外）
     if (name && name !== existingPurpose.name) {
       const duplicatePurpose = await prisma.scanPurpose.findFirst({

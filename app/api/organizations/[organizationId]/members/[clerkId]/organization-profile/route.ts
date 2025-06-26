@@ -112,24 +112,11 @@ export async function PATCH(
       // 新規プロフィールを作成
       console.log('新規プロフィールを作成します');
       
-      // デフォルトの部署を取得
-      const defaultDepartment = await prisma.organizationDepartment.findFirst({
-        where: {
-          organizationId: organizationId,
-          isDefault: true,
-        },
-      });
-
-      if (!defaultDepartment) {
-        console.log('デフォルト部署が見つかりません');
-        return new NextResponse('デフォルトの部署が見つかりません', { status: 404 });
-      }
-
       updatedProfile = await prisma.organizationProfile.create({
         data: {
           clerkId: clerkId,
           organizationId: organizationId,
-          organizationDepartmentId: organizationDepartmentId || defaultDepartment.id,
+          organizationDepartmentId: organizationDepartmentId || null,
           introduction: introduction || null,
           displayName: displayName || null,
         },
