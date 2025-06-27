@@ -42,7 +42,7 @@ export default function OrganizationTopPage() {
       name: 'シュマッツ ラガー',
       description: 'モルトの甘味とコクをじっくり堪能できるしっかりボディの長期熟成ラガー',
       price: '',
-      image: '/lager-icon.svg',
+      image: '/a.icon.svg',
       rank: 1
     },
     {
@@ -50,7 +50,7 @@ export default function OrganizationTopPage() {
       name: 'シュマッツ ヴァイツェン',
       description: '華やかな香りと芳醇な味わい。苦味が少なくフルーティーな白ビール',
       price: '',
-      image: '/weizen-icon.svg',
+      image: '/a.icon.svg',
       rank: 2
     },
     {
@@ -58,7 +58,7 @@ export default function OrganizationTopPage() {
       name: 'シュマッツ IPA',
       description: 'ホップの苦味と麦の甘みのバランスが抜群。何杯でも飲めるIPA',
       price: '',
-      image: '/ipa-icon.svg',
+      image: '/a.icon.svg',
       rank: 3
     },
     {
@@ -66,7 +66,7 @@ export default function OrganizationTopPage() {
       name: 'シュマッツ ヘレス',
       description: '苦味控えめ、驚きの美味しさ。100年以上人々に愛されてきた黄金色のヘレス',
       price: '',
-      image: '/helles-icon.svg',
+      image: '/a.icon.svg',
       rank: 4
     },
     {
@@ -74,7 +74,7 @@ export default function OrganizationTopPage() {
       name: 'ミックスセット',
       description: '人気のオリジナルビール3種を気軽にお試し。プレゼントにも最適な飲み比べセット',
       price: '',
-      image: '/mix-icon.svg',
+      image: '/a.icon.svg',
       rank: 5
     }
   ];
@@ -85,7 +85,7 @@ export default function OrganizationTopPage() {
       name: 'シュマッツ ラガー',
       description: 'モルトの甘味とコクをじっくり堪能できるしっかりボディの長期熟成ラガー',
       price: '',
-      image: '/lager-icon.svg',
+      image: '/b.icon.svg',
       category: 'ラガー',
       isPopular: true
     },
@@ -94,7 +94,7 @@ export default function OrganizationTopPage() {
       name: 'シュマッツ ヴァイツェン',
       description: '華やかな香りと芳醇な味わい。苦味が少なくフルーティーな白ビール',
       price: '',
-      image: '/weizen-icon.svg',
+      image: '/b.icon.svg',
       category: 'ヴァイツェン',
       isNew: true
     },
@@ -103,7 +103,7 @@ export default function OrganizationTopPage() {
       name: 'シュマッツ IPA',
       description: 'ホップの苦味と麦の甘みのバランスが抜群。何杯でも飲めるIPA',
       price: '',
-      image: '/ipa-icon.svg',
+      image: '/b.icon.svg',
       category: 'IPA',
       isPopular: true
     },
@@ -112,7 +112,7 @@ export default function OrganizationTopPage() {
       name: 'シュマッツ ヘレス',
       description: '苦味控えめ、驚きの美味しさ。100年以上人々に愛されてきた黄金色のヘレス',
       price: '',
-      image: '/helles-icon.svg',
+      image: '/b.icon.svg',
       category: 'ヘレス'
     },
     {
@@ -120,7 +120,7 @@ export default function OrganizationTopPage() {
       name: 'ミックスセット',
       description: '人気のオリジナルビール3種を気軽にお試し。プレゼントにも最適な飲み比べセット',
       price: '',
-      image: '/mix-icon.svg',
+      image: '/b.icon.svg',
       category: 'セット',
       isNew: true
     },
@@ -129,7 +129,7 @@ export default function OrganizationTopPage() {
       name: '飲み比べセット',
       description: 'ヘレス3本とヴァイツェン3本の組み合わせで、それぞれの特徴を楽しめるセット',
       price: '',
-      image: '/tasting-icon.svg',
+      image: '/b.icon.svg',
       category: 'セット'
     }
   ];
@@ -173,8 +173,8 @@ export default function OrganizationTopPage() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#1E1E1E]">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#4BEA8A] mx-auto mb-4"></div>
-          <p className="text-[#4BEA8A]">読み込み中...</p>
+          <div className="animate-spin rounded-full h-10 w-10 lg:h-12 lg:w-12 border-b-2 border-[#4BEA8A] mx-auto mb-3 lg:mb-4"></div>
+          <p className="text-[#4BEA8A] text-sm lg:text-base">読み込み中...</p>
         </div>
       </div>
     );
@@ -182,39 +182,48 @@ export default function OrganizationTopPage() {
 
   return (
     <div className="min-h-screen bg-[#1E1E1E]">
-      {/* ヒーローセクション */}
-      <section className="relative w-full min-h-[40vh] flex items-center justify-center overflow-hidden border-b border-[#333]">
-        <div className="relative z-20 text-center text-white py-16 w-full">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 text-[#4BEA8A] drop-shadow">{organizationName || '組織名'}</h1>
-          <p className="text-lg text-white/80 max-w-2xl mx-auto">この組織のメンバーやプロジェクトを管理・閲覧できます。</p>
-        </div>
+      {/* ヘッダーはlayout.tsxなどで共通化されている想定 */}
+      <section className="w-full relative">
+        <Image
+          src="/hero.pc.svg" // public配下の画像を利用
+          alt="組織イメージ"
+          width={1920}
+          height={400}
+          className="w-full h-40 sm:h-56 md:h-72 object-cover"
+          priority
+        />
+        {/* 必要なら画像上にテキストを重ねる場合はabsoluteで配置 */}
       </section>
+      {/* ここから既存のコンテンツ */}
+      <main className="px-4 py-6">
+        {/* タイトルや説明文など */}
+      </main>
 
       {/* 人気メンバーランキング */}
-      <section className="py-16 lg:py-24 bg-[#1E1E1E] border-b border-[#333]">
+      <section className="py-8 lg:py-16 xl:py-24 bg-[#1E1E1E] border-b border-[#333]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">
-              人気メンバーランキング
+          <div className="text-center mb-8 lg:mb-16">
+            <h2 className="text-2xl lg:text-3xl xl:text-4xl font-bold text-white mb-2 lg:mb-4">
+              人気クラフトビール缶ランキング
             </h2>
-            <p className="text-lg text-[#4BEA8A] max-w-2xl mx-auto">
-              組織内で活躍している注目のメンバーをご紹介します
+            <p className="text-sm lg:text-lg text-[#4BEA8A] max-w-2xl mx-auto px-4">
+              話題のクラフトビール缶をランキング形式でご紹介します
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-8">
             {rankingItems.map((item, index) => (
               <div key={item.id} className="relative group">
-                <div className="bg-[#232323] rounded-2xl p-8 shadow-lg border border-[#4BEA8A] hover:shadow-xl hover:border-[#4BEA8A] transition-all duration-300">
+                <div className="bg-[#232323] rounded-xl lg:rounded-2xl p-4 lg:p-8 shadow-lg border border-[#4BEA8A] hover:shadow-xl hover:border-[#4BEA8A] transition-all duration-300">
                   {/* ランクバッジ */}
-                  <div className="absolute -top-4 -left-4 w-12 h-12 bg-[#4BEA8A] text-[#1E1E1E] rounded-full flex items-center justify-center font-bold text-lg shadow-lg border-2 border-[#1E1E1E]">
+                  <div className="absolute -top-2 -left-2 lg:-top-4 lg:-left-4 w-8 h-8 lg:w-12 lg:h-12 bg-[#4BEA8A] text-[#1E1E1E] rounded-full flex items-center justify-center font-bold text-sm lg:text-lg shadow-lg border-2 border-[#1E1E1E]">
                     {item.rank}
                   </div>
                   {/* アイコン */}
-                  <div className="w-20 h-20 rounded-full bg-[#1E1E1E] border-2 border-[#4BEA8A] flex items-center justify-center mb-6 mx-auto">
-                    <Image src={item.image} alt={item.name} width={56} height={56} className="object-contain" />
+                  <div className="w-16 h-16 lg:w-20 lg:h-20 rounded-full bg-[#1E1E1E] border-2 border-[#4BEA8A] flex items-center justify-center mb-4 lg:mb-6 mx-auto">
+                    <Image src={item.image} alt={item.name} width={40} height={40} className="w-10 h-10 lg:w-14 lg:h-14 object-contain" />
                   </div>
-                  <h3 className="text-2xl font-bold text-white mb-2 text-center">{item.name}</h3>
-                  <p className="text-white/80 mb-2 text-center">{item.description}</p>
+                  <h3 className="text-lg lg:text-2xl font-bold text-white mb-1 lg:mb-2 text-center">{item.name}</h3>
+                  <p className="text-white/80 mb-2 text-center text-xs lg:text-sm">{item.description}</p>
                 </div>
               </div>
             ))}
@@ -223,46 +232,52 @@ export default function OrganizationTopPage() {
       </section>
 
       {/* プロジェクト一覧セクション */}
-      <section className="py-16 lg:py-24 bg-[#1E1E1E]">
+      <section className="py-8 lg:py-16 xl:py-24 bg-[#1E1E1E]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">
-              プロジェクト一覧
+          <div className="text-center mb-8 lg:mb-16">
+            <h2 className="text-2xl lg:text-3xl xl:text-4xl font-bold text-white mb-2 lg:mb-4">
+              クラフトビール缶 メニューリスト
             </h2>
-            <p className="text-lg text-[#4BEA8A] max-w-2xl mx-auto">
-              組織で進行中のプロジェクトや活動をチェックしましょう
+            <p className="text-sm lg:text-lg text-[#4BEA8A] max-w-2xl mx-auto px-4">
+              取り扱い中のクラフトビール缶メニューをご覧いただけます
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-8">
             {productItems.map((item) => (
               <div key={item.id} className="group">
-                <div className="bg-[#232323] rounded-2xl overflow-hidden shadow-lg border border-[#4BEA8A] hover:shadow-xl hover:border-[#4BEA8A] transition-all duration-300">
+                <div className="bg-[#232323] rounded-xl lg:rounded-2xl overflow-hidden shadow-lg border border-[#4BEA8A] hover:shadow-xl hover:border-[#4BEA8A] transition-all duration-300">
                   {/* プロジェクト画像エリア */}
-                  <div className="relative h-48 lg:h-56 flex items-center justify-center bg-[#1E1E1E] border-b border-[#333]">
-                    <Image src={item.image} alt={item.name} width={96} height={96} className="object-contain" />
+                  <div className="relative aspect-[16/9] w-full bg-[#1E1E1E] border-b border-[#333] rounded-t-xl overflow-hidden">
+                    <Image
+                      src={item.image}
+                      alt={item.name}
+                      fill
+                      className="object-cover rounded-t-xl"
+                      sizes="(max-width: 768px) 100vw, 33vw"
+                    />
                     {/* バッジ */}
                     {item.isNew && (
-                      <div className="absolute top-4 left-4 bg-[#4BEA8A] text-[#1E1E1E] px-3 py-1 rounded-full text-sm font-bold">
+                      <div className="absolute top-2 left-2 lg:top-4 lg:left-4 bg-[#4BEA8A] text-[#1E1E1E] px-2 py-1 lg:px-3 lg:py-1 rounded-full text-xs lg:text-sm font-bold">
                         NEW
                       </div>
                     )}
                     {item.isPopular && (
-                      <div className="absolute top-4 right-4 bg-white text-[#1E1E1E] px-3 py-1 rounded-full text-sm font-bold border border-[#4BEA8A]">
+                      <div className="absolute top-2 right-2 lg:top-4 lg:right-4 bg-white text-[#1E1E1E] px-2 py-1 lg:px-3 lg:py-1 rounded-full text-xs lg:text-sm font-bold border border-[#4BEA8A]">
                         注目
                       </div>
                     )}
                   </div>
                   {/* プロジェクト情報 */}
-                  <div className="p-8">
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-sm font-medium text-[#4BEA8A] bg-[#1E1E1E] px-3 py-1 rounded-full border border-[#4BEA8A]">
+                  <div className="p-4 lg:p-8">
+                    <div className="flex items-center justify-between mb-2 lg:mb-3">
+                      <span className="text-xs lg:text-sm font-medium text-[#4BEA8A] bg-[#1E1E1E] px-2 py-1 lg:px-3 lg:py-1 rounded-full border border-[#4BEA8A]">
                         {item.category}
                       </span>
                     </div>
-                    <h3 className="text-2xl font-bold text-white mb-2 group-hover:text-[#4BEA8A] transition-colors duration-300">
+                    <h3 className="text-lg lg:text-2xl font-bold text-white mb-1 lg:mb-2 group-hover:text-[#4BEA8A] transition-colors duration-300">
                       {item.name}
                     </h3>
-                    <p className="text-white/80 leading-relaxed">
+                    <p className="text-white/80 leading-relaxed text-xs lg:text-sm">
                       {item.description}
                     </p>
                   </div>

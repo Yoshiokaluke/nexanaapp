@@ -3,8 +3,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-export const dynamic = 'force-dynamic';
-
 export default function CreateOrganizationPage() {
   const router = useRouter();
   const [formData, setFormData] = useState({

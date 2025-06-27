@@ -1,6 +1,8 @@
 import { redirect } from "next/navigation";
 import { isSystemTeam } from "@/app/lib/auth";
 
+export const dynamic = 'force-dynamic';
+
 export default async function SystemTeamLayout({
   children,
 }: {

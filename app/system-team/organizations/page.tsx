@@ -5,8 +5,6 @@ import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { SignOutButton } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 
-export const dynamic = 'force-dynamic';
-
 type Organization = {
   id: string;
   name: string;
