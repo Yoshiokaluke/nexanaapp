@@ -27,7 +27,7 @@ export default async function AdminLayout({
   return (
     <div className="admin-layout">
       {/* ヘッダーは表示しない */}
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-[#1E1E1E]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="py-8">{children}</div>
         </div>

@@ -1,8 +1,5 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { auth } from '@clerk/nextjs/server';
-import { redirect } from 'next/navigation';
-import { prisma } from '@/lib/prisma';
 import Link from 'next/link';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { SignOutButton } from '@clerk/nextjs';

@@ -70,7 +70,7 @@ export default async function MyQrPage({ params }: MyQrPageProps) {
   // system_teamでもプロファイルがない場合は作成を促す
   if (!profile) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-indigo-50">
+      <div className="min-h-screen bg-[#1E1E1E] flex items-center justify-center">
         <div className="container mx-auto py-16 px-4 sm:px-6 lg:px-8">
           <div className="max-w-2xl mx-auto">
             <Card className="border-0 shadow-2xl bg-white/80 backdrop-blur-sm">
@@ -103,69 +103,35 @@ export default async function MyQrPage({ params }: MyQrPageProps) {
 
   // 自分のQRコードを表示（system_teamでも自分のみ）
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
-      <div className="relative container mx-auto pt-4 pb-8 px-2 sm:px-4">
-        {/* QRコード表示エリアを中央に大きく（PC時はmax-w-lg） */}
-        <div className="mx-auto mt-2 max-w-xs md:max-w-lg">
-          {/* ロゴをQRコードの上に表示 */}
-          <div className="flex justify-center mb-4">
-            <Image src="/blacklogo.svg" alt="Nexana Logo" width={128} height={40} className="w-24 md:w-32 h-auto" priority />
-          </div>
-          <div className="bg-white rounded-2xl md:rounded-3xl shadow-lg md:shadow-2xl p-4 md:p-10 border border-gray-100">
-            <QrCodeDisplay
-              organizationProfileId={profile.id}
-              displayName={profile.displayName || `${profile.user.firstName} ${profile.user.lastName}`}
-              organizationName={organization?.name || membership?.organization.name}
-              departmentName={profile.organizationDepartment?.name}
-            />
-          </div>
+    <div className="min-h-screen bg-[#1E1E1E] flex items-start justify-center py-12 px-2">
+      <div className="w-full max-w-md bg-[#232323] rounded-2xl shadow-xl border border-[#4BEA8A] p-8 flex flex-col items-center">
+        {/* 上部：残り時間＋更新ボタン */}
+        <div className="flex w-full justify-between items-center mb-6">
+          {/* 残り時間バッジ（仮） */}
+          <span className="px-3 py-1 rounded-full bg-[#1E1E1E] text-[#4BEA8A] text-xs font-bold">
+            残り: 4:37
+          </span>
+          <button className="px-4 py-1 rounded-full bg-[#4BEA8A] text-[#1E1E1E] font-bold hover:brightness-110 transition">
+            更新
+          </button>
         </div>
-
-        {/* 追加情報カードのみ */}
-        <div className="mt-8 max-w-2xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="bg-white/60 backdrop-blur-sm rounded-xl p-4 border border-white/20 shadow">
-              <div className="flex items-center mb-2">
-                <div className="w-7 h-7 bg-gradient-to-br from-green-100 to-green-200 rounded-lg flex items-center justify-center mr-2">
-                  <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                  </svg>
-                </div>
-                <h3 className="font-semibold text-gray-900 text-sm">プロフィール</h3>
-              </div>
-              <p className="text-gray-600 text-xs">
-                {profile.displayName || `${profile.user.firstName} ${profile.user.lastName}`}
-              </p>
-            </div>
-
-            <div className="bg-white/60 backdrop-blur-sm rounded-xl p-4 border border-white/20 shadow">
-              <div className="flex items-center mb-2">
-                <div className="w-7 h-7 bg-gradient-to-br from-blue-100 to-blue-200 rounded-lg flex items-center justify-center mr-2">
-                  <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                  </svg>
-                </div>
-                <h3 className="font-semibold text-gray-900 text-sm">組織</h3>
-              </div>
-              <p className="text-gray-600 text-xs">
-                {organization?.name || membership?.organization.name}
-              </p>
-            </div>
-
-            <div className="bg-white/60 backdrop-blur-sm rounded-xl p-4 border border-white/20 shadow">
-              <div className="flex items-center mb-2">
-                <div className="w-7 h-7 bg-gradient-to-br from-purple-100 to-purple-200 rounded-lg flex items-center justify-center mr-2">
-                  <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                  </svg>
-                </div>
-                <h3 className="font-semibold text-gray-900 text-sm">部門</h3>
-              </div>
-              <p className="text-gray-600 text-xs">
-                {profile.organizationDepartment?.name || '未設定'}
-              </p>
-            </div>
-          </div>
+        {/* QRコード */}
+        <div className="my-4">
+          <QrCodeDisplay
+            organizationProfileId={profile.id}
+            displayName={profile.displayName || `${profile.user.firstName} ${profile.user.lastName}`}
+            organizationName={organization?.name || membership?.organization.name}
+            departmentName={profile.organizationDepartment?.name}
+          />
+        </div>
+        {/* 表示名のみ */}
+        <div className="w-full mt-6">
+          <span className="text-xs text-[#4BEA8A] font-bold">表示名</span>
+          <div className="text-lg text-white font-semibold">{profile.displayName || `${profile.user.firstName} ${profile.user.lastName}`}</div>
+        </div>
+        {/* 有効期限説明 */}
+        <div className="mt-8 text-xs text-[#4BEA8A] text-center opacity-80">
+          このQRコードは5分間有効です
         </div>
       </div>
     </div>

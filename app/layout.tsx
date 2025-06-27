@@ -23,7 +23,7 @@ export default function RootLayout({
       afterSignUpUrl="/organization-list"
     >
       <html lang="ja" className={inter.className}>
-        <body suppressHydrationWarning={true}>
+        <body suppressHydrationWarning={true} className="bg-[#1E1E1E]">
           <AuthSync />
           {children}
         </body>

@@ -515,27 +515,36 @@ export function ProfileView({ user: initialUser, clerkId }: ProfileViewProps) {
   const requiredFieldsStatus = checkRequiredFields();
 
   return (
-    <div className="max-w-4xl mx-auto py-12 px-4 md:px-8 bg-gray-50 min-h-screen">
+    <div className="max-w-6xl mx-auto py-12 px-4 md:px-8 relative">
       {/* タイトル */}
-      <div className="max-w-2xl mx-auto mb-8">
-        <div className="flex items-center gap-3">
-          <User className="w-7 h-7 text-blue-500" />
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 tracking-tight">プロフィール・設定</h1>
+      <div className="max-w-4xl mx-auto mb-12 text-center">
+        <div className="flex items-center justify-center gap-4 mb-6">
+          <div className="w-12 h-12 bg-gradient-to-r from-[#4BEA8A] to-[#3DD879] rounded-xl flex items-center justify-center shadow-lg">
+            <User className="w-6 h-6 text-[#1E1E1E]" />
+          </div>
+          <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-white via-[#4BEA8A] to-white bg-clip-text text-transparent tracking-tight">
+            マイプロフィール
+          </h1>
         </div>
-        <div className="h-1 w-16 bg-blue-100 rounded mt-2 mb-2" />
+        <div className="w-32 h-1 bg-gradient-to-r from-[#4BEA8A] to-[#3DD879] mx-auto rounded-full shadow-lg"></div>
       </div>
 
       {/* 招待フローからの誘導の場合のヘッダー */}
       {isFromInvitation && (
-        <div className="mb-6">
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <div className="flex items-center gap-3">
-              <AlertCircle className="w-5 h-5 text-blue-600" />
-              <div>
-                <h2 className="text-lg font-semibold text-blue-900">共通プロフィールの登録が必要です</h2>
-                <p className="text-blue-700 text-sm mt-1">
-                  組織に参加するために、以下の必須項目を登録してください。
-                </p>
+        <div className="mb-8 max-w-4xl mx-auto">
+          <div className="relative group">
+            <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/20 to-blue-600/20 rounded-2xl blur opacity-0 group-hover:opacity-100 transition duration-500"></div>
+            <div className="relative bg-gradient-to-r from-blue-500/10 to-blue-600/10 border border-blue-500/20 rounded-2xl p-6 backdrop-blur-sm">
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
+                  <AlertCircle className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-white mb-2">共通プロフィールの登録が必要です</h2>
+                  <p className="text-blue-200 text-sm">
+                    組織に参加するために、以下の必須項目を登録してください。
+                  </p>
+                </div>
               </div>
             </div>
           </div>
@@ -544,385 +553,691 @@ export function ProfileView({ user: initialUser, clerkId }: ProfileViewProps) {
 
       {/* 必須項目完了状況の表示 */}
       {isFromInvitation && (
-        <div className="mb-6">
-          <div className="bg-white rounded-lg shadow p-4">
-            <h3 className="text-lg font-semibold text-gray-900 mb-3">必須項目の登録状況</h3>
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                {user.profile?.birthday ? (
-                  <CheckCircle className="w-4 h-4 text-green-500" />
-                ) : (
-                  <AlertCircle className="w-4 h-4 text-red-500" />
-                )}
-                <span className={user.profile?.birthday ? "text-green-700" : "text-red-700"}>
-                  生年月日: {user.profile?.birthday ? "登録済み" : "未登録"}
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                {user.profile?.gender ? (
-                  <CheckCircle className="w-4 h-4 text-green-500" />
-                ) : (
-                  <AlertCircle className="w-4 h-4 text-red-500" />
-                )}
-                <span className={user.profile?.gender ? "text-green-700" : "text-red-700"}>
-                  性別: {user.profile?.gender ? "登録済み" : "未登録"}
-                </span>
-              </div>
-            </div>
-            {requiredFieldsStatus.isComplete && (
-              <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="w-5 h-5 text-green-600" />
-                  <span className="text-green-800 font-medium">すべての必須項目が登録されました</span>
+        <div className="mb-8 max-w-4xl mx-auto">
+          <div className="relative group">
+            <div className="absolute -inset-1 bg-gradient-to-r from-white/10 to-gray-100/10 rounded-2xl blur opacity-0 group-hover:opacity-100 transition duration-500"></div>
+            <div className="relative bg-gradient-to-br from-white/5 to-gray-100/5 border border-white/10 rounded-2xl p-6 backdrop-blur-sm">
+              <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-3">
+                <div className="w-8 h-8 bg-gradient-to-r from-[#4BEA8A] to-[#3DD879] rounded-lg flex items-center justify-center">
+                  <CheckCircle className="w-4 h-4 text-[#1E1E1E]" />
                 </div>
-                {organizationId && (
-                  <div className="mt-3">
+                必須項目の登録状況
+              </h3>
+              <div className="space-y-3">
+                <div className="flex items-center gap-3 p-3 bg-gradient-to-r from-[#333333]/50 to-[#2A2A2A]/50 rounded-xl border border-[#4BEA8A]/10">
+                  {user.profile?.birthday ? (
+                    <CheckCircle className="w-5 h-5 text-[#4BEA8A]" />
+                  ) : (
+                    <AlertCircle className="w-5 h-5 text-red-400" />
+                  )}
+                  <span className={user.profile?.birthday ? "text-[#4BEA8A] font-medium" : "text-red-400 font-medium"}>
+                    生年月日: {user.profile?.birthday ? "登録済み" : "未登録"}
+                  </span>
+                </div>
+                <div className="flex items-center gap-3 p-3 bg-gradient-to-r from-[#333333]/50 to-[#2A2A2A]/50 rounded-xl border border-[#4BEA8A]/10">
+                  {user.profile?.gender ? (
+                    <CheckCircle className="w-5 h-5 text-[#4BEA8A]" />
+                  ) : (
+                    <AlertCircle className="w-5 h-5 text-red-400" />
+                  )}
+                  <span className={user.profile?.gender ? "text-[#4BEA8A] font-medium" : "text-red-400 font-medium"}>
+                    性別: {user.profile?.gender ? "登録済み" : "未登録"}
+                  </span>
+                </div>
+              </div>
+              {requiredFieldsStatus.isComplete && (
+                <div className="mt-6 p-4 bg-gradient-to-r from-[#4BEA8A]/10 to-[#3DD879]/10 border border-[#4BEA8A]/20 rounded-xl">
+                  <div className="flex items-center gap-3 mb-4">
+                    <CheckCircle className="w-6 h-6 text-[#4BEA8A]" />
+                    <span className="text-[#4BEA8A] font-bold text-lg">すべての必須項目が登録されました</span>
+                  </div>
+                  {organizationId && (
                     <Button
                       onClick={() => router.push(`/organization/${organizationId}/(member)/OrganizationProfile/${clerkId}/edit?from_invitation=true`)}
-                      className="bg-green-600 hover:bg-green-700 text-white"
+                      className="bg-gradient-to-r from-[#4BEA8A] to-[#3DD879] text-[#1E1E1E] hover:from-[#3DD879] hover:to-[#4BEA8A] transition-all duration-300 transform hover:scale-105 shadow-lg font-semibold"
                     >
                       組織プロフィールの登録に進む
                     </Button>
-                  </div>
-                )}
-              </div>
-            )}
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}
 
       {/* プロフィール情報カード */}
-      <div className="space-y-6 max-w-2xl mx-auto">
-        {/* メールアドレス */}
-        <div className="bg-white rounded-xl shadow p-6">
-          <div className="grid grid-cols-[60px_1fr] md:grid-cols-[80px_1fr] gap-4 md:gap-12 items-center">
-            <div className="flex-shrink-0 flex items-center justify-start w-12 h-12 md:w-16 md:h-16 rounded-full bg-blue-50 shadow">
-              <Mail className="w-6 h-6 md:w-8 md:h-8 text-blue-500" />
-            </div>
-            <div className="flex-1">
-              <div className="text-xs text-gray-500 mb-1">メールアドレス</div>
-              <div className="flex items-center justify-between">
-                <span className="block text-sm md:text-base text-gray-800 break-all font-normal">{user.email}</span>
+      <div className="space-y-8 max-w-4xl mx-auto">
+        {/* メールアドレスカード */}
+        <div className="relative group">
+          <div className="absolute -inset-1 bg-gradient-to-r from-[#4BEA8A]/20 to-[#3DD879]/20 rounded-2xl blur opacity-0 group-hover:opacity-100 transition duration-500"></div>
+          <div className="relative bg-gradient-to-br from-[#2A2A2A]/80 to-[#1E1E1E]/80 border border-[#333333] rounded-2xl p-8 backdrop-blur-sm shadow-2xl">
+            <div className="flex items-center gap-6">
+              <div className="relative">
+                <div className="absolute -inset-2 bg-gradient-to-r from-[#4BEA8A] to-[#3DD879] rounded-full blur opacity-30 animate-pulse"></div>
+                <div className="relative w-16 h-16 bg-gradient-to-r from-[#4BEA8A] to-[#3DD879] rounded-full flex items-center justify-center shadow-lg">
+                  <Mail className="w-8 h-8 text-[#1E1E1E]" />
+                </div>
+              </div>
+              <div className="flex-1">
+                <div className="text-sm font-bold text-[#4BEA8A] uppercase tracking-wide mb-2">メールアドレス</div>
+                <div className="text-xl text-white font-semibold break-all">{user.email}</div>
               </div>
             </div>
           </div>
         </div>
+
         {/* 氏名 */}
-        <div className="bg-white rounded-xl shadow p-6">
-          <div className="grid grid-cols-[60px_1fr] md:grid-cols-[80px_1fr] gap-4 md:gap-12 items-center">
-            <div className="flex-shrink-0 flex items-center justify-start w-12 h-12 md:w-16 md:h-16 rounded-full bg-blue-50 shadow">
-              <User className="w-6 h-6 md:w-8 md:h-8 text-blue-500" />
-            </div>
-            <div className="flex-1">
-              <div className="text-xs text-gray-500 mb-1">氏名</div>
-              {isEditingName ? (
-                <div className="flex items-center gap-3">
-                  <div className="flex gap-2">
-                    <Input
-                      value={editingFirstName}
-                      onChange={(e) => setEditingFirstName(e.target.value)}
-                      placeholder="姓"
-                      className="w-32 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-400 h-11 text-base shadow-sm"
-                    />
-                    <Input
-                      value={editingLastName}
-                      onChange={(e) => setEditingLastName(e.target.value)}
-                      placeholder="名"
-                      className="w-32 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-400 h-11 text-base shadow-sm"
+        <div className="relative group">
+          <div className="absolute -inset-1 bg-gradient-to-r from-[#4BEA8A]/20 to-[#3DD879]/20 rounded-2xl blur opacity-0 group-hover:opacity-100 transition duration-500"></div>
+          <div className="relative bg-gradient-to-br from-[#2A2A2A]/80 to-[#1E1E1E]/80 border border-[#333333] rounded-2xl p-8 backdrop-blur-sm shadow-2xl">
+            {isEditingName ? (
+              <div className="space-y-4">
+                <div className="flex items-center gap-6">
+                  <div className="relative">
+                    <div className="absolute -inset-2 bg-gradient-to-r from-[#4BEA8A] to-[#3DD879] rounded-full blur opacity-30 animate-pulse"></div>
+                    <div className="relative w-16 h-16 bg-gradient-to-r from-[#4BEA8A] to-[#3DD879] rounded-full flex items-center justify-center shadow-lg">
+                      <User className="w-8 h-8 text-[#1E1E1E]" />
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-sm font-bold text-[#4BEA8A] uppercase tracking-wide mb-2">氏名</div>
+                    <div className="space-y-3">
+                      <div>
+                        <label className="block text-sm font-medium text-[#4BEA8A] mb-2">姓</label>
+                        <Input
+                          value={editingFirstName}
+                          onChange={(e) => setEditingFirstName(e.target.value)}
+                          className="h-12 text-base bg-[#1E1E1E] border-[#333333] text-white focus:border-[#4BEA8A] focus:ring-[#4BEA8A]/20 rounded-xl"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-[#4BEA8A] mb-2">名</label>
+                        <Input
+                          value={editingLastName}
+                          onChange={(e) => setEditingLastName(e.target.value)}
+                          className="h-12 text-base bg-[#1E1E1E] border-[#333333] text-white focus:border-[#4BEA8A] focus:ring-[#4BEA8A]/20 rounded-xl"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex justify-end gap-3">
+                  <button
+                    onClick={() => setIsEditingName(false)}
+                    className="px-4 py-2 border border-[#4BEA8A] text-[#4BEA8A] rounded-xl font-semibold hover:bg-[#4BEA8A] hover:text-[#1E1E1E] transition-all duration-300"
+                  >
+                    キャンセル
+                  </button>
+                  <button
+                    onClick={handleSaveName}
+                    className="px-4 py-2 bg-gradient-to-r from-[#4BEA8A] to-[#3DD879] text-[#1E1E1E] rounded-xl font-semibold hover:from-[#3DD879] hover:to-[#4BEA8A] transition-all duration-300 transform hover:scale-105 shadow-lg"
+                  >
+                    保存
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-6">
+                  <div className="relative">
+                    <div className="absolute -inset-2 bg-gradient-to-r from-[#4BEA8A] to-[#3DD879] rounded-full blur opacity-30 animate-pulse"></div>
+                    <div className="relative w-16 h-16 bg-gradient-to-r from-[#4BEA8A] to-[#3DD879] rounded-full flex items-center justify-center shadow-lg">
+                      <User className="w-8 h-8 text-[#1E1E1E]" />
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-sm font-bold text-[#4BEA8A] uppercase tracking-wide mb-2">氏名</div>
+                    <div className="text-xl text-white font-semibold break-all">{user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : "未設定"}</div>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setIsEditingName(true)} 
+                  className="px-4 py-2 bg-gradient-to-r from-[#4BEA8A] to-[#3DD879] text-[#1E1E1E] rounded-xl font-semibold hover:from-[#3DD879] hover:to-[#4BEA8A] transition-all duration-300 transform hover:scale-105 shadow-lg"
+                >
+                  編集
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* 性別 */}
+        <div className="relative group">
+          <div className="absolute -inset-1 bg-gradient-to-r from-[#4BEA8A]/20 to-[#3DD879]/20 rounded-2xl blur opacity-0 group-hover:opacity-100 transition duration-500"></div>
+          <div className="relative bg-gradient-to-br from-[#2A2A2A]/80 to-[#1E1E1E]/80 border border-[#333333] rounded-2xl p-8 backdrop-blur-sm shadow-2xl">
+            {isEditingGender ? (
+              <div className="space-y-4">
+                <div className="flex items-center gap-6">
+                  <div className="relative">
+                    <div className="absolute -inset-2 bg-gradient-to-r from-[#4BEA8A] to-[#3DD879] rounded-full blur opacity-30 animate-pulse"></div>
+                    <div className="relative w-16 h-16 bg-gradient-to-r from-[#4BEA8A] to-[#3DD879] rounded-full flex items-center justify-center shadow-lg">
+                      <Users className="w-8 h-8 text-[#1E1E1E]" />
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-sm font-bold text-[#4BEA8A] uppercase tracking-wide mb-2">性別</div>
+                    <Select value={editingGender} onValueChange={setEditingGender}>
+                      <SelectTrigger className="h-12 text-base bg-[#1E1E1E] border-[#333333] text-white focus:border-[#4BEA8A] focus:ring-[#4BEA8A]/20 rounded-xl">
+                        <SelectValue placeholder="性別を選択" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-[#2A2A2A] border-[#333333] text-white">
+                        <SelectItem value="male">男性</SelectItem>
+                        <SelectItem value="female">女性</SelectItem>
+                        <SelectItem value="other">その他</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div className="flex justify-end gap-3">
+                  <button
+                    onClick={() => setIsEditingGender(false)}
+                    className="px-4 py-2 border border-[#4BEA8A] text-[#4BEA8A] rounded-xl font-semibold hover:bg-[#4BEA8A] hover:text-[#1E1E1E] transition-all duration-300"
+                  >
+                    キャンセル
+                  </button>
+                  <button
+                    onClick={handleSaveGender}
+                    className="px-4 py-2 bg-gradient-to-r from-[#4BEA8A] to-[#3DD879] text-[#1E1E1E] rounded-xl font-semibold hover:from-[#3DD879] hover:to-[#4BEA8A] transition-all duration-300 transform hover:scale-105 shadow-lg"
+                  >
+                    保存
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-6">
+                  <div className="relative">
+                    <div className="absolute -inset-2 bg-gradient-to-r from-[#4BEA8A] to-[#3DD879] rounded-full blur opacity-30 animate-pulse"></div>
+                    <div className="relative w-16 h-16 bg-gradient-to-r from-[#4BEA8A] to-[#3DD879] rounded-full flex items-center justify-center shadow-lg">
+                      <Users className="w-8 h-8 text-[#1E1E1E]" />
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-sm font-bold text-[#4BEA8A] uppercase tracking-wide mb-2">性別</div>
+                    <div className="text-xl text-white font-semibold break-all">{getGenderLabel(user.profile?.gender)}</div>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setIsEditingGender(true)} 
+                  className="px-4 py-2 bg-gradient-to-r from-[#4BEA8A] to-[#3DD879] text-[#1E1E1E] rounded-xl font-semibold hover:from-[#3DD879] hover:to-[#4BEA8A] transition-all duration-300 transform hover:scale-105 shadow-lg"
+                >
+                  編集
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* 生年月日 */}
+        <div className="relative group">
+          <div className="absolute -inset-1 bg-gradient-to-r from-[#4BEA8A]/20 to-[#3DD879]/20 rounded-2xl blur opacity-0 group-hover:opacity-100 transition duration-500"></div>
+          <div className="relative bg-gradient-to-br from-[#2A2A2A]/80 to-[#1E1E1E]/80 border border-[#333333] rounded-2xl p-8 backdrop-blur-sm shadow-2xl">
+            {isEditingBirthday ? (
+              <div className="space-y-4">
+                <div className="flex items-center gap-6">
+                  <div className="relative">
+                    <div className="absolute -inset-2 bg-gradient-to-r from-[#4BEA8A] to-[#3DD879] rounded-full blur opacity-30 animate-pulse"></div>
+                    <div className="relative w-16 h-16 bg-gradient-to-r from-[#4BEA8A] to-[#3DD879] rounded-full flex items-center justify-center shadow-lg">
+                      <CalendarIcon className="w-8 h-8 text-[#1E1E1E]" />
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-sm font-bold text-[#4BEA8A] uppercase tracking-wide mb-2">生年月日</div>
+                    <DateSelect
+                      value={editingBirthday}
+                      onChange={setEditingBirthday}
                     />
                   </div>
-                  <Button size="sm" variant="outline" onClick={handleSaveName} disabled={isSaving} className="h-11 px-4">保存</Button>
-                  <Button size="sm" variant="ghost" onClick={() => { setIsEditingName(false); setEditingFirstName(user.firstName || ''); setEditingLastName(user.lastName || ''); }} disabled={isSaving} className="h-11 px-4">キャンセル</Button>
                 </div>
-              ) : (
-                <div className="flex items-center justify-between">
-                  <span className={`font-semibold text-base md:text-lg ${user.firstName && user.lastName ? 'text-gray-800' : 'text-red-600'}`}>
-                    {user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : "未設定"}
-                  </span>
-                  <Button size="sm" variant="ghost" onClick={() => setIsEditingName(true)} className="text-blue-600 h-11 px-4">編集</Button>
+                <div className="flex justify-end gap-3">
+                  <button
+                    onClick={() => setIsEditingBirthday(false)}
+                    className="px-4 py-2 border border-[#4BEA8A] text-[#4BEA8A] rounded-xl font-semibold hover:bg-[#4BEA8A] hover:text-[#1E1E1E] transition-all duration-300"
+                  >
+                    キャンセル
+                  </button>
+                  <button
+                    onClick={handleSaveBirthday}
+                    className="px-4 py-2 bg-gradient-to-r from-[#4BEA8A] to-[#3DD879] text-[#1E1E1E] rounded-xl font-semibold hover:from-[#3DD879] hover:to-[#4BEA8A] transition-all duration-300 transform hover:scale-105 shadow-lg"
+                  >
+                    保存
+                  </button>
                 </div>
-              )}
-            </div>
+              </div>
+            ) : (
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-6">
+                  <div className="relative">
+                    <div className="absolute -inset-2 bg-gradient-to-r from-[#4BEA8A] to-[#3DD879] rounded-full blur opacity-30 animate-pulse"></div>
+                    <div className="relative w-16 h-16 bg-gradient-to-r from-[#4BEA8A] to-[#3DD879] rounded-full flex items-center justify-center shadow-lg">
+                      <CalendarIcon className="w-8 h-8 text-[#1E1E1E]" />
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-sm font-bold text-[#4BEA8A] uppercase tracking-wide mb-2">生年月日</div>
+                    <div className="text-xl text-white font-semibold break-all">{formatDate(user.profile?.birthday)}</div>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setIsEditingBirthday(true)} 
+                  className="px-4 py-2 bg-gradient-to-r from-[#4BEA8A] to-[#3DD879] text-[#1E1E1E] rounded-xl font-semibold hover:from-[#3DD879] hover:to-[#4BEA8A] transition-all duration-300 transform hover:scale-105 shadow-lg"
+                >
+                  編集
+                </button>
+              </div>
+            )}
           </div>
         </div>
-        {/* 性別 */}
-        <div className="bg-white rounded-xl shadow p-6">
-          <div className="grid grid-cols-[60px_1fr] md:grid-cols-[80px_1fr] gap-4 md:gap-12 items-center">
-            <div className="flex-shrink-0 flex items-center justify-start w-12 h-12 md:w-16 md:h-16 rounded-full bg-blue-50 shadow">
-              <Users className="w-6 h-6 md:w-8 md:h-8 text-blue-500" />
-            </div>
-            <div className="flex-1">
-              <div className="text-xs text-gray-500 mb-1">性別</div>
-              {isEditingGender ? (
-                <div className="flex items-center gap-3">
-                  <Select value={editingGender} onValueChange={setEditingGender}>
-                    <SelectTrigger className="w-44 h-11 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-400 text-base shadow-sm">
-                      <SelectValue placeholder="性別を選択" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="male">男性</SelectItem>
-                      <SelectItem value="female">女性</SelectItem>
-                      <SelectItem value="other">その他</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <Button size="sm" variant="outline" onClick={handleSaveGender} disabled={isSaving} className="h-11 px-4">保存</Button>
-                  <Button size="sm" variant="ghost" onClick={() => { setIsEditingGender(false); setEditingGender(user.profile?.gender || ''); }} disabled={isSaving} className="h-11 px-4">キャンセル</Button>
-                </div>
-              ) : (
-                <div className="flex items-center justify-between">
-                  <span className={`font-semibold text-base md:text-lg ${user.profile?.gender ? 'text-gray-800' : 'text-red-600'}`}>{getGenderLabel(user.profile?.gender)}</span>
-                  <Button size="sm" variant="ghost" onClick={() => setIsEditingGender(true)} className="text-blue-600 h-11 px-4">編集</Button>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-        {/* 生年月日 */}
-        <div className="bg-white rounded-xl shadow p-6">
-          <div className="grid grid-cols-[60px_1fr] md:grid-cols-[80px_1fr] gap-4 md:gap-12 items-center">
-            <div className="flex-shrink-0 flex items-center justify-start w-12 h-12 md:w-16 md:h-16 rounded-full bg-blue-50 shadow">
-              <CalendarIcon className="w-6 h-6 md:w-8 md:h-8 text-blue-500" />
-            </div>
-            <div className="flex-1">
-              <div className="text-xs text-gray-500 mb-1">生年月日</div>
-              {isEditingBirthday ? (
-                <div className="flex items-center gap-3">
-                  <DateSelect value={editingBirthday} onChange={setEditingBirthday} />
-                  <Button size="sm" variant="outline" onClick={handleSaveBirthday} disabled={isSaving} className="h-11 px-4">保存</Button>
-                  <Button size="sm" variant="ghost" onClick={() => { setIsEditingBirthday(false); setEditingBirthday(user.profile?.birthday ? new Date(user.profile.birthday) : undefined); }} disabled={isSaving} className="h-11 px-4">キャンセル</Button>
-                </div>
-              ) : (
-                <div className="flex items-center justify-between">
-                  <span className={`font-semibold text-base md:text-lg ${user.profile?.birthday ? 'text-gray-800' : 'text-red-600'}`}>{formatDate(user.profile?.birthday)}</span>
-                  <Button size="sm" variant="ghost" onClick={() => setIsEditingBirthday(true)} className="text-blue-600 h-11 px-4">編集</Button>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
+
         {/* 所属企業 */}
-        <div className="bg-white rounded-xl shadow p-6">
-          <div className="grid grid-cols-[60px_1fr] md:grid-cols-[80px_1fr] gap-4 md:gap-12 items-center">
-            <div className="flex-shrink-0 flex items-center justify-start w-12 h-12 md:w-16 md:h-16 rounded-full bg-blue-50 shadow">
-              <Building2 className="w-6 h-6 md:w-8 md:h-8 text-blue-500" />
-            </div>
-            <div className="flex-1">
-              <div className="text-xs text-gray-500 mb-1">所属企業</div>
-              {isEditingCompany ? (
-                <div className="flex items-center gap-3">
-                  <Input
-                    value={editingCompany}
-                    onChange={(e) => setEditingCompany(e.target.value)}
-                    placeholder="所属企業名"
-                    className="w-full md:w-80 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-400 h-11 text-base shadow-sm"
-                  />
-                  <Button size="sm" variant="outline" onClick={handleSaveCompany} disabled={isSaving} className="h-11 px-4">保存</Button>
-                  <Button size="sm" variant="ghost" onClick={() => { setIsEditingCompany(false); setEditingCompany(user.profile?.companyName || ''); }} disabled={isSaving} className="h-11 px-4">キャンセル</Button>
+        <div className="relative group">
+          <div className="absolute -inset-1 bg-gradient-to-r from-[#4BEA8A]/20 to-[#3DD879]/20 rounded-2xl blur opacity-0 group-hover:opacity-100 transition duration-500"></div>
+          <div className="relative bg-gradient-to-br from-[#2A2A2A]/80 to-[#1E1E1E]/80 border border-[#333333] rounded-2xl p-8 backdrop-blur-sm shadow-2xl">
+            {isEditingCompany ? (
+              <div className="space-y-4">
+                <div className="flex items-center gap-6">
+                  <div className="relative">
+                    <div className="absolute -inset-2 bg-gradient-to-r from-[#4BEA8A] to-[#3DD879] rounded-full blur opacity-30 animate-pulse"></div>
+                    <div className="relative w-16 h-16 bg-gradient-to-r from-[#4BEA8A] to-[#3DD879] rounded-full flex items-center justify-center shadow-lg">
+                      <Building2 className="w-8 h-8 text-[#1E1E1E]" />
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-sm font-bold text-[#4BEA8A] uppercase tracking-wide mb-2">所属企業</div>
+                    <Input
+                      value={editingCompany}
+                      onChange={(e) => setEditingCompany(e.target.value)}
+                      className="h-12 text-base bg-[#1E1E1E] border-[#333333] text-white focus:border-[#4BEA8A] focus:ring-[#4BEA8A]/20 rounded-xl"
+                    />
+                  </div>
                 </div>
-              ) : (
-                <div className="flex items-center justify-between">
-                  <span className="block text-sm md:text-base text-gray-800 break-all font-normal">{user.profile?.companyName || "未設定"}</span>
-                  <Button size="sm" variant="ghost" onClick={() => setIsEditingCompany(true)} className="text-blue-600 h-11 px-4">編集</Button>
+                <div className="flex justify-end gap-3">
+                  <button
+                    onClick={() => setIsEditingCompany(false)}
+                    className="px-4 py-2 border border-[#4BEA8A] text-[#4BEA8A] rounded-xl font-semibold hover:bg-[#4BEA8A] hover:text-[#1E1E1E] transition-all duration-300"
+                  >
+                    キャンセル
+                  </button>
+                  <button
+                    onClick={handleSaveCompany}
+                    className="px-4 py-2 bg-gradient-to-r from-[#4BEA8A] to-[#3DD879] text-[#1E1E1E] rounded-xl font-semibold hover:from-[#3DD879] hover:to-[#4BEA8A] transition-all duration-300 transform hover:scale-105 shadow-lg"
+                  >
+                    保存
+                  </button>
                 </div>
-              )}
-            </div>
+              </div>
+            ) : (
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-6">
+                  <div className="relative">
+                    <div className="absolute -inset-2 bg-gradient-to-r from-[#4BEA8A] to-[#3DD879] rounded-full blur opacity-30 animate-pulse"></div>
+                    <div className="relative w-16 h-16 bg-gradient-to-r from-[#4BEA8A] to-[#3DD879] rounded-full flex items-center justify-center shadow-lg">
+                      <Building2 className="w-8 h-8 text-[#1E1E1E]" />
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-sm font-bold text-[#4BEA8A] uppercase tracking-wide mb-2">所属企業</div>
+                    <div className="text-xl text-white font-semibold break-all">{user.profile?.companyName || "未設定"}</div>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setIsEditingCompany(true)} 
+                  className="px-4 py-2 bg-gradient-to-r from-[#4BEA8A] to-[#3DD879] text-[#1E1E1E] rounded-xl font-semibold hover:from-[#3DD879] hover:to-[#4BEA8A] transition-all duration-300 transform hover:scale-105 shadow-lg"
+                >
+                  編集
+                </button>
+              </div>
+            )}
           </div>
         </div>
+
         {/* 所属部署 */}
-        <div className="bg-white rounded-xl shadow p-6">
-          <div className="grid grid-cols-[60px_1fr] md:grid-cols-[80px_1fr] gap-4 md:gap-12 items-center">
-            <div className="flex-shrink-0 flex items-center justify-start w-12 h-12 md:w-16 md:h-16 rounded-full bg-blue-50 shadow">
-              <Users className="w-6 h-6 md:w-8 md:h-8 text-blue-500" />
-            </div>
-            <div className="flex-1">
-              <div className="text-xs text-gray-500 mb-1">所属部署</div>
-              {isEditingDepartment ? (
-                <div className="flex items-center gap-3">
-                  <Input
-                    value={editingDepartment}
-                    onChange={(e) => setEditingDepartment(e.target.value)}
-                    placeholder="所属部署名"
-                    className="w-full md:w-80 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-400 h-11 text-base shadow-sm"
-                  />
-                  <Button size="sm" variant="outline" onClick={handleSaveDepartment} disabled={isSaving} className="h-11 px-4">保存</Button>
-                  <Button size="sm" variant="ghost" onClick={() => { setIsEditingDepartment(false); setEditingDepartment(user.profile?.departmentName || ''); }} disabled={isSaving} className="h-11 px-4">キャンセル</Button>
+        <div className="relative group">
+          <div className="absolute -inset-1 bg-gradient-to-r from-[#4BEA8A]/20 to-[#3DD879]/20 rounded-2xl blur opacity-0 group-hover:opacity-100 transition duration-500"></div>
+          <div className="relative bg-gradient-to-br from-[#2A2A2A]/80 to-[#1E1E1E]/80 border border-[#333333] rounded-2xl p-8 backdrop-blur-sm shadow-2xl">
+            {isEditingDepartment ? (
+              <div className="space-y-4">
+                <div className="flex items-center gap-6">
+                  <div className="relative">
+                    <div className="absolute -inset-2 bg-gradient-to-r from-[#4BEA8A] to-[#3DD879] rounded-full blur opacity-30 animate-pulse"></div>
+                    <div className="relative w-16 h-16 bg-gradient-to-r from-[#4BEA8A] to-[#3DD879] rounded-full flex items-center justify-center shadow-lg">
+                      <Users className="w-8 h-8 text-[#1E1E1E]" />
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-sm font-bold text-[#4BEA8A] uppercase tracking-wide mb-2">所属部署</div>
+                    <Input
+                      value={editingDepartment}
+                      onChange={(e) => setEditingDepartment(e.target.value)}
+                      className="h-12 text-base bg-[#1E1E1E] border-[#333333] text-white focus:border-[#4BEA8A] focus:ring-[#4BEA8A]/20 rounded-xl"
+                    />
+                  </div>
                 </div>
-              ) : (
-                <div className="flex items-center justify-between">
-                  <span className="block text-sm md:text-base text-gray-800 break-all font-normal">{user.profile?.departmentName || "未設定"}</span>
-                  <Button size="sm" variant="ghost" onClick={() => setIsEditingDepartment(true)} className="text-blue-600 h-11 px-4">編集</Button>
+                <div className="flex justify-end gap-3">
+                  <button
+                    onClick={() => setIsEditingDepartment(false)}
+                    className="px-4 py-2 border border-[#4BEA8A] text-[#4BEA8A] rounded-xl font-semibold hover:bg-[#4BEA8A] hover:text-[#1E1E1E] transition-all duration-300"
+                  >
+                    キャンセル
+                  </button>
+                  <button
+                    onClick={handleSaveDepartment}
+                    className="px-4 py-2 bg-gradient-to-r from-[#4BEA8A] to-[#3DD879] text-[#1E1E1E] rounded-xl font-semibold hover:from-[#3DD879] hover:to-[#4BEA8A] transition-all duration-300 transform hover:scale-105 shadow-lg"
+                  >
+                    保存
+                  </button>
                 </div>
-              )}
-            </div>
+              </div>
+            ) : (
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-6">
+                  <div className="relative">
+                    <div className="absolute -inset-2 bg-gradient-to-r from-[#4BEA8A] to-[#3DD879] rounded-full blur opacity-30 animate-pulse"></div>
+                    <div className="relative w-16 h-16 bg-gradient-to-r from-[#4BEA8A] to-[#3DD879] rounded-full flex items-center justify-center shadow-lg">
+                      <Users className="w-8 h-8 text-[#1E1E1E]" />
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-sm font-bold text-[#4BEA8A] uppercase tracking-wide mb-2">所属部署</div>
+                    <div className="text-xl text-white font-semibold break-all">{user.profile?.departmentName || "未設定"}</div>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setIsEditingDepartment(true)} 
+                  className="px-4 py-2 bg-gradient-to-r from-[#4BEA8A] to-[#3DD879] text-[#1E1E1E] rounded-xl font-semibold hover:from-[#3DD879] hover:to-[#4BEA8A] transition-all duration-300 transform hover:scale-105 shadow-lg"
+                >
+                  編集
+                </button>
+              </div>
+            )}
           </div>
         </div>
+
         {/* SNSリンク */}
-        <div className="bg-white rounded-xl shadow p-6">
-          <div className="grid grid-cols-[60px_1fr] md:grid-cols-[80px_1fr] gap-4 md:gap-12 items-center">
-            <div className="flex-shrink-0 flex items-center justify-start w-12 h-12 md:w-16 md:h-16 rounded-full bg-blue-50 shadow">
-              <FacebookIcon className="w-6 h-6 md:w-8 md:h-8 text-gray-600" />
-            </div>
-            <div className="flex-1">
-              <div className="text-xs text-gray-500 mb-1">Facebookリンク</div>
-              {editingSnsPlatform === 'facebook' ? (
-                <div className="flex items-center gap-3">
-                  <Input
-                    value={editingSnsLinks['facebook'] || ''}
-                    onChange={e => setEditingSnsLinks((prev: any) => ({ ...prev, facebook: e.target.value }))}
-                    placeholder="FacebookのURL"
-                    className="w-full md:w-80 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-400 h-11 text-base shadow-sm"
-                  />
-                  <Button size="sm" variant="outline" onClick={() => handleSaveSns('facebook')} disabled={isSaving} className="h-11 px-4">保存</Button>
-                  <Button size="sm" variant="ghost" onClick={() => { setEditingSnsPlatform(null); setEditingSnsLinks((prev: any) => ({ ...prev, facebook: user.profile?.snsLinks?.facebook || '' })); }} disabled={isSaving} className="h-11 px-4">キャンセル</Button>
+        <div className="relative group">
+          <div className="absolute -inset-1 bg-gradient-to-r from-[#4BEA8A]/20 to-[#3DD879]/20 rounded-2xl blur opacity-0 group-hover:opacity-100 transition duration-500"></div>
+          <div className="relative bg-gradient-to-br from-[#2A2A2A]/80 to-[#1E1E1E]/80 border border-[#333333] rounded-2xl p-8 backdrop-blur-sm shadow-2xl">
+            {editingSnsPlatform === 'facebook' ? (
+              <div className="space-y-4">
+                <div className="flex items-center gap-6">
+                  <div className="relative">
+                    <div className="absolute -inset-2 bg-gradient-to-r from-[#4BEA8A] to-[#3DD879] rounded-full blur opacity-30 animate-pulse"></div>
+                    <div className="relative w-16 h-16 bg-gradient-to-r from-[#4BEA8A] to-[#3DD879] rounded-full flex items-center justify-center shadow-lg">
+                      <FacebookIcon className="w-8 h-8 text-[#1E1E1E]" />
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-sm font-bold text-[#4BEA8A] uppercase tracking-wide mb-2">Facebookリンク</div>
+                    <Input
+                      value={editingSnsLinks.facebook || ''}
+                      onChange={(e) => setEditingSnsLinks({...editingSnsLinks, facebook: e.target.value})}
+                      placeholder="https://facebook.com/your-profile"
+                      className="h-12 text-base bg-[#1E1E1E] border-[#333333] text-white focus:border-[#4BEA8A] focus:ring-[#4BEA8A]/20 rounded-xl"
+                    />
+                  </div>
                 </div>
-              ) : (
-                <div className="flex items-center justify-between">
-                  <span className="block text-sm md:text-base text-gray-800 break-all font-normal">
-                    {user.profile?.snsLinks?.facebook ? (
-                      <a href={user.profile.snsLinks.facebook} target="_blank" rel="noopener noreferrer" className="hover:underline">
-                        {user.profile.snsLinks.facebook}
-                      </a>
-                    ) : (
-                      <span className="text-gray-600">未設定</span>
-                    )}
-                  </span>
-                  <Button size="sm" variant="ghost" onClick={() => setEditingSnsPlatform('facebook')} className="text-blue-600 h-11 px-4">編集</Button>
+                <div className="flex justify-end gap-3">
+                  <button
+                    onClick={() => setEditingSnsPlatform(null)}
+                    className="px-4 py-2 border border-[#4BEA8A] text-[#4BEA8A] rounded-xl font-semibold hover:bg-[#4BEA8A] hover:text-[#1E1E1E] transition-all duration-300"
+                  >
+                    キャンセル
+                  </button>
+                  <button
+                    onClick={() => handleSaveSns('facebook')}
+                    className="px-4 py-2 bg-gradient-to-r from-[#4BEA8A] to-[#3DD879] text-[#1E1E1E] rounded-xl font-semibold hover:from-[#3DD879] hover:to-[#4BEA8A] transition-all duration-300 transform hover:scale-105 shadow-lg"
+                  >
+                    保存
+                  </button>
                 </div>
-              )}
-            </div>
+              </div>
+            ) : (
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-6">
+                  <div className="relative">
+                    <div className="absolute -inset-2 bg-gradient-to-r from-[#4BEA8A] to-[#3DD879] rounded-full blur opacity-30 animate-pulse"></div>
+                    <div className="relative w-16 h-16 bg-gradient-to-r from-[#4BEA8A] to-[#3DD879] rounded-full flex items-center justify-center shadow-lg">
+                      <FacebookIcon className="w-8 h-8 text-[#1E1E1E]" />
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-sm font-bold text-[#4BEA8A] uppercase tracking-wide mb-2">Facebookリンク</div>
+                    <div className="text-xl text-white font-semibold break-all">
+                      {user.profile?.snsLinks?.facebook ? (
+                        <a href={user.profile.snsLinks.facebook} target="_blank" rel="noopener noreferrer" className="hover:underline text-[#4BEA8A]">
+                          {user.profile.snsLinks.facebook}
+                        </a>
+                      ) : (
+                        <span className="text-gray-400">未設定</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setEditingSnsPlatform('facebook')} 
+                  className="px-4 py-2 bg-gradient-to-r from-[#4BEA8A] to-[#3DD879] text-[#1E1E1E] rounded-xl font-semibold hover:from-[#3DD879] hover:to-[#4BEA8A] transition-all duration-300 transform hover:scale-105 shadow-lg"
+                >
+                  編集
+                </button>
+              </div>
+            )}
           </div>
         </div>
-        <div className="bg-white rounded-xl shadow p-6">
-          <div className="grid grid-cols-[60px_1fr] md:grid-cols-[80px_1fr] gap-4 md:gap-12 items-center">
-            <div className="flex-shrink-0 flex items-center justify-start w-12 h-12 md:w-16 md:h-16 rounded-full bg-blue-50 shadow">
-              <LinkedinIcon className="w-6 h-6 md:w-8 md:h-8 text-gray-600" />
-            </div>
-            <div className="flex-1">
-              <div className="text-xs text-gray-500 mb-1">Linkedinリンク</div>
-              {editingSnsPlatform === 'linkedin' ? (
-                <div className="flex items-center gap-3">
-                  <Input
-                    value={editingSnsLinks['linkedin'] || ''}
-                    onChange={e => setEditingSnsLinks((prev: any) => ({ ...prev, linkedin: e.target.value }))}
-                    placeholder="LinkedinのURL"
-                    className="w-full md:w-80 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-400 h-11 text-base shadow-sm"
-                  />
-                  <Button size="sm" variant="outline" onClick={() => handleSaveSns('linkedin')} disabled={isSaving} className="h-11 px-4">保存</Button>
-                  <Button size="sm" variant="ghost" onClick={() => { setEditingSnsPlatform(null); setEditingSnsLinks((prev: any) => ({ ...prev, linkedin: user.profile?.snsLinks?.linkedin || '' })); }} disabled={isSaving} className="h-11 px-4">キャンセル</Button>
+
+        <div className="relative group">
+          <div className="absolute -inset-1 bg-gradient-to-r from-[#4BEA8A]/20 to-[#3DD879]/20 rounded-2xl blur opacity-0 group-hover:opacity-100 transition duration-500"></div>
+          <div className="relative bg-gradient-to-br from-[#2A2A2A]/80 to-[#1E1E1E]/80 border border-[#333333] rounded-2xl p-8 backdrop-blur-sm shadow-2xl">
+            {editingSnsPlatform === 'linkedin' ? (
+              <div className="space-y-4">
+                <div className="flex items-center gap-6">
+                  <div className="relative">
+                    <div className="absolute -inset-2 bg-gradient-to-r from-[#4BEA8A] to-[#3DD879] rounded-full blur opacity-30 animate-pulse"></div>
+                    <div className="relative w-16 h-16 bg-gradient-to-r from-[#4BEA8A] to-[#3DD879] rounded-full flex items-center justify-center shadow-lg">
+                      <LinkedinIcon className="w-8 h-8 text-[#1E1E1E]" />
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-sm font-bold text-[#4BEA8A] uppercase tracking-wide mb-2">LinkedInリンク</div>
+                    <Input
+                      value={editingSnsLinks.linkedin || ''}
+                      onChange={(e) => setEditingSnsLinks({...editingSnsLinks, linkedin: e.target.value})}
+                      placeholder="https://linkedin.com/in/your-profile"
+                      className="h-12 text-base bg-[#1E1E1E] border-[#333333] text-white focus:border-[#4BEA8A] focus:ring-[#4BEA8A]/20 rounded-xl"
+                    />
+                  </div>
                 </div>
-              ) : (
-                <div className="flex items-center justify-between">
-                  <span className="block text-sm md:text-base text-gray-800 break-all font-normal">
-                    {user.profile?.snsLinks?.linkedin ? (
-                      <a href={user.profile.snsLinks.linkedin} target="_blank" rel="noopener noreferrer" className="hover:underline">
-                        {user.profile.snsLinks.linkedin}
-                      </a>
-                    ) : (
-                      <span className="text-gray-600">未設定</span>
-                    )}
-                  </span>
-                  <Button size="sm" variant="ghost" onClick={() => setEditingSnsPlatform('linkedin')} className="text-blue-600 h-11 px-4">編集</Button>
+                <div className="flex justify-end gap-3">
+                  <button
+                    onClick={() => setEditingSnsPlatform(null)}
+                    className="px-4 py-2 border border-[#4BEA8A] text-[#4BEA8A] rounded-xl font-semibold hover:bg-[#4BEA8A] hover:text-[#1E1E1E] transition-all duration-300"
+                  >
+                    キャンセル
+                  </button>
+                  <button
+                    onClick={() => handleSaveSns('linkedin')}
+                    className="px-4 py-2 bg-gradient-to-r from-[#4BEA8A] to-[#3DD879] text-[#1E1E1E] rounded-xl font-semibold hover:from-[#3DD879] hover:to-[#4BEA8A] transition-all duration-300 transform hover:scale-105 shadow-lg"
+                  >
+                    保存
+                  </button>
                 </div>
-              )}
-            </div>
+              </div>
+            ) : (
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-6">
+                  <div className="relative">
+                    <div className="absolute -inset-2 bg-gradient-to-r from-[#4BEA8A] to-[#3DD879] rounded-full blur opacity-30 animate-pulse"></div>
+                    <div className="relative w-16 h-16 bg-gradient-to-r from-[#4BEA8A] to-[#3DD879] rounded-full flex items-center justify-center shadow-lg">
+                      <LinkedinIcon className="w-8 h-8 text-[#1E1E1E]" />
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-sm font-bold text-[#4BEA8A] uppercase tracking-wide mb-2">LinkedInリンク</div>
+                    <div className="text-xl text-white font-semibold break-all">
+                      {user.profile?.snsLinks?.linkedin ? (
+                        <a href={user.profile.snsLinks.linkedin} target="_blank" rel="noopener noreferrer" className="hover:underline text-[#4BEA8A]">
+                          {user.profile.snsLinks.linkedin}
+                        </a>
+                      ) : (
+                        <span className="text-gray-400">未設定</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setEditingSnsPlatform('linkedin')} 
+                  className="px-4 py-2 bg-gradient-to-r from-[#4BEA8A] to-[#3DD879] text-[#1E1E1E] rounded-xl font-semibold hover:from-[#3DD879] hover:to-[#4BEA8A] transition-all duration-300 transform hover:scale-105 shadow-lg"
+                >
+                  編集
+                </button>
+              </div>
+            )}
           </div>
         </div>
-        <div className="bg-white rounded-xl shadow p-6">
-          <div className="grid grid-cols-[60px_1fr] md:grid-cols-[80px_1fr] gap-4 md:gap-12 items-center">
-            <div className="flex-shrink-0 flex items-center justify-start w-12 h-12 md:w-16 md:h-16 rounded-full bg-blue-50 shadow">
-              <InstagramIcon className="w-6 h-6 md:w-8 md:h-8 text-pink-500" />
-            </div>
-            <div className="flex-1">
-              <div className="text-xs text-gray-500 mb-1">Instagramリンク</div>
-              {editingSnsPlatform === 'instagram' ? (
-                <div className="flex items-center gap-3">
-                  <Input
-                    value={editingSnsLinks['instagram'] || ''}
-                    onChange={e => setEditingSnsLinks((prev: any) => ({ ...prev, instagram: e.target.value }))}
-                    placeholder="InstagramのURL"
-                    className="w-full md:w-80 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-400 h-11 text-base shadow-sm"
-                  />
-                  <Button size="sm" variant="outline" onClick={() => handleSaveSns('instagram')} disabled={isSaving} className="h-11 px-4">保存</Button>
-                  <Button size="sm" variant="ghost" onClick={() => { setEditingSnsPlatform(null); setEditingSnsLinks((prev: any) => ({ ...prev, instagram: user.profile?.snsLinks?.instagram || '' })); }} disabled={isSaving} className="h-11 px-4">キャンセル</Button>
+
+        <div className="relative group">
+          <div className="absolute -inset-1 bg-gradient-to-r from-[#4BEA8A]/20 to-[#3DD879]/20 rounded-2xl blur opacity-0 group-hover:opacity-100 transition duration-500"></div>
+          <div className="relative bg-gradient-to-br from-[#2A2A2A]/80 to-[#1E1E1E]/80 border border-[#333333] rounded-2xl p-8 backdrop-blur-sm shadow-2xl">
+            {editingSnsPlatform === 'instagram' ? (
+              <div className="space-y-4">
+                <div className="flex items-center gap-6">
+                  <div className="relative">
+                    <div className="absolute -inset-2 bg-gradient-to-r from-[#4BEA8A] to-[#3DD879] rounded-full blur opacity-30 animate-pulse"></div>
+                    <div className="relative w-16 h-16 bg-gradient-to-r from-[#4BEA8A] to-[#3DD879] rounded-full flex items-center justify-center shadow-lg">
+                      <InstagramIcon className="w-8 h-8 text-[#1E1E1E]" />
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-sm font-bold text-[#4BEA8A] uppercase tracking-wide mb-2">Instagramリンク</div>
+                    <Input
+                      value={editingSnsLinks.instagram || ''}
+                      onChange={(e) => setEditingSnsLinks({...editingSnsLinks, instagram: e.target.value})}
+                      placeholder="https://instagram.com/your-profile"
+                      className="h-12 text-base bg-[#1E1E1E] border-[#333333] text-white focus:border-[#4BEA8A] focus:ring-[#4BEA8A]/20 rounded-xl"
+                    />
+                  </div>
                 </div>
-              ) : (
-                <div className="flex items-center justify-between">
-                  <span className="block text-sm md:text-base text-pink-500 break-all font-normal">
-                    {user.profile?.snsLinks?.instagram ? (
-                      <a href={user.profile.snsLinks.instagram} target="_blank" rel="noopener noreferrer" className="hover:underline">
-                        {user.profile.snsLinks.instagram}
-                      </a>
-                    ) : (
-                      <span className="text-gray-400">未設定</span>
-                    )}
-                  </span>
-                  <Button size="sm" variant="ghost" onClick={() => setEditingSnsPlatform('instagram')} className="text-blue-600 h-11 px-4">編集</Button>
+                <div className="flex justify-end gap-3">
+                  <button
+                    onClick={() => setEditingSnsPlatform(null)}
+                    className="px-4 py-2 border border-[#4BEA8A] text-[#4BEA8A] rounded-xl font-semibold hover:bg-[#4BEA8A] hover:text-[#1E1E1E] transition-all duration-300"
+                  >
+                    キャンセル
+                  </button>
+                  <button
+                    onClick={() => handleSaveSns('instagram')}
+                    className="px-4 py-2 bg-gradient-to-r from-[#4BEA8A] to-[#3DD879] text-[#1E1E1E] rounded-xl font-semibold hover:from-[#3DD879] hover:to-[#4BEA8A] transition-all duration-300 transform hover:scale-105 shadow-lg"
+                  >
+                    保存
+                  </button>
                 </div>
-              )}
-            </div>
+              </div>
+            ) : (
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-6">
+                  <div className="relative">
+                    <div className="absolute -inset-2 bg-gradient-to-r from-[#4BEA8A] to-[#3DD879] rounded-full blur opacity-30 animate-pulse"></div>
+                    <div className="relative w-16 h-16 bg-gradient-to-r from-[#4BEA8A] to-[#3DD879] rounded-full flex items-center justify-center shadow-lg">
+                      <InstagramIcon className="w-8 h-8 text-[#1E1E1E]" />
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-sm font-bold text-[#4BEA8A] uppercase tracking-wide mb-2">Instagramリンク</div>
+                    <div className="text-xl text-white font-semibold break-all">
+                      {user.profile?.snsLinks?.instagram ? (
+                        <a href={user.profile.snsLinks.instagram} target="_blank" rel="noopener noreferrer" className="hover:underline text-[#4BEA8A]">
+                          {user.profile.snsLinks.instagram}
+                        </a>
+                      ) : (
+                        <span className="text-gray-400">未設定</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setEditingSnsPlatform('instagram')} 
+                  className="px-4 py-2 bg-gradient-to-r from-[#4BEA8A] to-[#3DD879] text-[#1E1E1E] rounded-xl font-semibold hover:from-[#3DD879] hover:to-[#4BEA8A] transition-all duration-300 transform hover:scale-105 shadow-lg"
+                >
+                  編集
+                </button>
+              </div>
+            )}
           </div>
         </div>
+
         {/* パスワード変更 */}
         {isPasswordChangeVisible && (
-          <div className="bg-white rounded-xl shadow p-6 mt-6">
-            <h3 className="text-lg font-bold text-gray-900 mb-4">パスワード変更</h3>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  現在のパスワード
-                </label>
-                <Input
-                  type="password"
-                  value={currentPassword}
-                  onChange={(e) => setCurrentPassword(e.target.value)}
-                  className="h-11 text-base shadow-sm w-full md:w-96"
-                />
+          <div className="relative group">
+            <div className="absolute -inset-1 bg-gradient-to-r from-[#4BEA8A]/20 to-[#3DD879]/20 rounded-2xl blur opacity-0 group-hover:opacity-100 transition duration-500"></div>
+            <div className="relative bg-gradient-to-br from-[#2A2A2A]/80 to-[#1E1E1E]/80 border border-[#333333] rounded-2xl p-8 backdrop-blur-sm shadow-2xl">
+              <div className="flex items-center gap-6 mb-6">
+                <div className="relative">
+                  <div className="absolute -inset-2 bg-gradient-to-r from-[#4BEA8A] to-[#3DD879] rounded-full blur opacity-30 animate-pulse"></div>
+                  <div className="relative w-16 h-16 bg-gradient-to-r from-[#4BEA8A] to-[#3DD879] rounded-full flex items-center justify-center shadow-lg">
+                    <Lock className="w-8 h-8 text-[#1E1E1E]" />
+                  </div>
+                </div>
+                <div className="flex-1">
+                  <div className="text-sm font-bold text-[#4BEA8A] uppercase tracking-wide mb-2">パスワード変更</div>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-[#4BEA8A] mb-2">
+                        現在のパスワード
+                      </label>
+                      <Input
+                        type="password"
+                        value={currentPassword}
+                        onChange={(e) => setCurrentPassword(e.target.value)}
+                        className="h-12 text-base bg-[#1E1E1E] border-[#333333] text-white focus:border-[#4BEA8A] focus:ring-[#4BEA8A]/20 rounded-xl"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-[#4BEA8A] mb-2">
+                        新しいパスワード
+                      </label>
+                      <Input
+                        type="password"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        className="h-12 text-base bg-[#1E1E1E] border-[#333333] text-white focus:border-[#4BEA8A] focus:ring-[#4BEA8A]/20 rounded-xl"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-[#4BEA8A] mb-2">
+                        新しいパスワード（確認）
+                      </label>
+                      <Input
+                        type="password"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        className="h-12 text-base bg-[#1E1E1E] border-[#333333] text-white focus:border-[#4BEA8A] focus:ring-[#4BEA8A]/20 rounded-xl"
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  新しいパスワード
-                </label>
-                <Input
-                  type="password"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  className="h-11 text-base shadow-sm w-full md:w-96"
-                />
+              <div className="flex justify-end">
+                <Button
+                  onClick={handlePasswordChange}
+                  disabled={isChangingPassword || !currentPassword || !newPassword || !confirmPassword}
+                  className="px-6 py-3 bg-gradient-to-r from-[#4BEA8A] to-[#3DD879] text-[#1E1E1E] hover:from-[#3DD879] hover:to-[#4BEA8A] transition-all duration-300 transform hover:scale-105 shadow-lg font-semibold rounded-xl"
+                >
+                  {isChangingPassword ? "更新中..." : "パスワードを変更"}
+                </Button>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  新しいパスワード（確認）
-                </label>
-                <Input
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="h-11 text-base shadow-sm w-full md:w-96"
-                />
-              </div>
-              <Button
-                onClick={handlePasswordChange}
-                disabled={isChangingPassword || !currentPassword || !newPassword || !confirmPassword}
-                className="w-full md:w-96 h-11 text-base bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-sm"
-              >
-                {isChangingPassword ? "更新中..." : "パスワードを変更"}
-              </Button>
             </div>
           </div>
         )}
 
         {/* ログアウトボタン */}
-        <div className="bg-white rounded-xl shadow p-6 mt-6">
-          <div className="flex items-center justify-center">
-            <Button
-              onClick={handleLogout}
-              variant="outline"
-              className="w-full md:w-96 h-12 text-base border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300 font-semibold rounded-xl shadow-sm"
-            >
-              <LogOut className="w-5 h-5 mr-2" />
-              ログアウト
-            </Button>
-          </div>
+        <div className="flex justify-center pt-8">
+          <button
+            onClick={handleLogout}
+            className="px-8 py-4 bg-gradient-to-r from-red-500 to-red-600 text-white font-bold text-lg hover:from-red-600 hover:to-red-700 transition-all duration-300 transform hover:scale-105 shadow-lg rounded-xl flex items-center gap-3"
+          >
+            <LogOut className="w-5 h-5" />
+            ログアウト
+          </button>
         </div>
       </div>
     </div>

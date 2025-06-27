@@ -16,7 +16,7 @@ export default async function OrganizationListLayout({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#1E1E1E]">
       <OrganizationListHeader />
       {children}
     </div>

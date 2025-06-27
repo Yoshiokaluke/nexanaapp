@@ -73,12 +73,12 @@ export const OrganizationHeader: React.FC<OrganizationHeaderProps> = ({
   ].filter(Boolean) as { href: string; label: string }[];
 
   return (
-    <header className="bg-white shadow-sm sticky top-0 z-30" data-regular-header>
+    <header className="bg-[#1E1E1E] shadow-sm sticky top-0 z-30" data-regular-header>
       <div className="max-w-7xl mx-auto flex items-center justify-between px-4 py-3" style={{ minHeight: '64px' }}>
         {/* ロゴ */}
         <Link href={`/organization/${organizationId}`} className="flex items-center gap-3 hover:opacity-90 transition-opacity duration-200">
           <Image
-            src="/blacklogo.svg"
+            src="/White.w.logo.svg"
             alt="NexanaApp"
             width={96}
             height={30}
@@ -92,7 +92,7 @@ export const OrganizationHeader: React.FC<OrganizationHeaderProps> = ({
             <Link
               key={link.href}
               href={link.href}
-              className="text-gray-700 hover:text-indigo-600 transition-colors duration-150 px-3 py-2 rounded-lg hover:bg-indigo-50"
+              className="text-white hover:text-[#4BEA8A] transition-colors duration-150 px-3 py-2 rounded-lg hover:bg-[#232323]"
             >
               {link.label}
             </Link>
@@ -100,13 +100,13 @@ export const OrganizationHeader: React.FC<OrganizationHeaderProps> = ({
           <button
             onClick={handleSignOut}
             disabled={isSigningOut}
-            className="ml-4 bg-indigo-600 text-white px-5 py-2 rounded-full font-semibold shadow hover:bg-indigo-700 transition-colors duration-150 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            className="ml-4 bg-[#4BEA8A] text-[#1E1E1E] px-5 py-2 rounded-full font-semibold shadow hover:bg-[#3DD879] transition-colors duration-150 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSigningOut ? 'ログアウト中...' : 'ログアウト'}
           </button>
           {clerkId && (
-            <Link href={`/organization/${organizationId}/OrganizationProfile/${clerkId}/edit`} className="ml-4">
-              <Avatar className="w-9 h-9 border-2 border-indigo-200">
+            <Link href={`/organization/${organizationId}/OrganizationProfile/${clerkId}`} className="ml-4">
+              <Avatar className="w-9 h-9 border-2 border-[#4BEA8A]">
                 <AvatarImage src={profileImage || undefined} alt="My Avatar" />
                 <AvatarFallback>Me</AvatarFallback>
               </Avatar>
@@ -118,29 +118,28 @@ export const OrganizationHeader: React.FC<OrganizationHeaderProps> = ({
           {/* My-QRアイコン */}
           <Link 
             href={`/organization/${organizationId}/my-qr`}
-            className="flex items-center justify-center w-10 h-10 rounded-full bg-indigo-100 hover:bg-indigo-200 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+            className="flex items-center justify-center w-10 h-10 rounded-full bg-[#232323] hover:bg-[#333] transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-[#4BEA8A]"
             aria-label="My-QR"
           >
-            <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <svg className="w-6 h-6 text-[#4BEA8A]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V6a1 1 0 00-1-1H5a1 1 0 00-1 1v1a1 1 0 001 1zm12 0h2a1 1 0 001-1V6a1 1 0 00-1-1h-2a1 1 0 00-1 1v1a1 1 0 001 1zM5 20h2a1 1 0 001-1v-1a1 1 0 00-1-1H5a1 1 0 00-1 1v1a1 1 0 001 1z" />
             </svg>
           </Link>
-          
           {clerkId && (
-            <Link href={`/organization/${organizationId}/OrganizationProfile/${clerkId}/edit`}>
-              <Avatar className="w-8 h-8 border-2 border-indigo-200">
+            <Link href={`/organization/${organizationId}/OrganizationProfile/${clerkId}`}>
+              <Avatar className="w-8 h-8 border-2 border-[#4BEA8A]">
                 <AvatarImage src={profileImage || undefined} alt="My Avatar" />
                 <AvatarFallback>Me</AvatarFallback>
               </Avatar>
             </Link>
           )}
           <button
-            className="flex items-center justify-center w-10 h-10 rounded focus:outline-none focus:ring-2 focus:ring-indigo-400"
+            className="flex items-center justify-center w-10 h-10 rounded focus:outline-none focus:ring-2 focus:ring-[#4BEA8A]"
             onClick={() => setMenuOpen(!menuOpen)}
             aria-label="メニューを開く"
           >
             <span className="sr-only">メニュー</span>
-            <svg className="w-7 h-7 text-indigo-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <svg className="w-7 h-7 text-[#4BEA8A]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               {menuOpen ? (
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
               ) : (
@@ -156,26 +155,26 @@ export const OrganizationHeader: React.FC<OrganizationHeaderProps> = ({
           {/* オーバーレイ */}
           <div className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm transition-opacity" onClick={() => setMenuOpen(false)} />
           {/* サイドメニュー */}
-          <aside className="fixed top-0 right-0 z-50 h-full w-4/5 max-w-xs bg-white shadow-2xl rounded-l-2xl flex flex-col py-8 px-6 animate-slide-in">
+          <aside className="fixed top-0 right-0 z-50 h-full w-4/5 max-w-xs bg-[#232323] shadow-2xl rounded-l-2xl flex flex-col py-8 px-6 animate-slide-in">
             {/* 閉じるボタン */}
             <button
-              className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 focus:outline-none"
+              className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full hover:bg-[#333] focus:outline-none"
               onClick={() => setMenuOpen(false)}
               aria-label="メニューを閉じる"
             >
-              <svg className="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <svg className="w-6 h-6 text-[#4BEA8A]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
             <div className="flex items-center gap-3 mb-8">
-              <Image src="/blacklogo.svg" alt="NexanaApp" width={96} height={30} className="h-8 w-auto" />
+              <Image src="/White.w.logo.svg" alt="NexanaApp" width={96} height={30} className="h-8 w-auto" />
             </div>
             <nav className="flex flex-col gap-4 flex-1">
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="block text-base text-gray-800 hover:text-indigo-600 font-semibold rounded-lg px-3 py-3 transition-colors duration-150"
+                  className="block text-base text-white hover:text-[#4BEA8A] font-semibold rounded-lg px-3 py-3 transition-colors duration-150"
                   onClick={() => setMenuOpen(false)}
                 >
                   {link.label}
@@ -186,7 +185,7 @@ export const OrganizationHeader: React.FC<OrganizationHeaderProps> = ({
               <button
                 onClick={handleSignOut}
                 disabled={isSigningOut}
-                className="block w-full bg-indigo-600 text-white text-base font-bold rounded-full py-3 shadow hover:bg-indigo-700 transition-colors duration-150 cursor-pointer text-center disabled:opacity-50 disabled:cursor-not-allowed"
+                className="block w-full bg-[#4BEA8A] text-[#1E1E1E] text-base font-bold rounded-full py-3 shadow hover:bg-[#3DD879] transition-colors duration-150 cursor-pointer text-center disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSigningOut ? 'ログアウト中...' : 'ログアウト'}
               </button>

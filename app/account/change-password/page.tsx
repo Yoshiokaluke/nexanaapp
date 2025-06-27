@@ -2,10 +2,6 @@
 
 import { useUser } from '@clerk/nextjs';
 import { useState } from 'react';
-import { auth } from "@clerk/nextjs/server";
-import { redirect } from "next/navigation";
-
-export const dynamic = 'force-dynamic';
 
 export default function ChangePassword() {
   const { user } = useUser();

@@ -1,8 +1,3 @@
-import { getAuthenticatedUser, isOrganizationMember, checkOrganizationAdmin } from '@/lib/auth/roles';
-import { auth } from '@clerk/nextjs/server';
-import { redirect } from 'next/navigation';
-import { prisma } from '@/lib/prisma';
-
 declare global {
   interface Window {
     __DISABLE_AUTHSYNC__?: boolean;

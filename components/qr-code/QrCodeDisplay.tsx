@@ -148,11 +148,11 @@ export function QrCodeDisplay({
 
   if (isLoading) {
     return (
-      <Card className={className}>
+      <Card className={className + " bg-[#232323]"}>
         <CardContent className="flex items-center justify-center p-6">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-2"></div>
-            <p className="text-sm text-gray-600">QRコードを生成中...</p>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#4BEA8A] mx-auto mb-2"></div>
+            <p className="text-sm text-[#4BEA8A]">QRコードを生成中...</p>
           </div>
         </CardContent>
       </Card>
@@ -161,7 +161,7 @@ export function QrCodeDisplay({
 
   if (error) {
     return (
-      <Card className={className}>
+      <Card className={className + " bg-[#232323]"}>
         <CardContent className="p-6">
           <div className="text-center">
             <p className="text-red-600 mb-4">{error}</p>
@@ -174,51 +174,16 @@ export function QrCodeDisplay({
     );
   }
 
+  // QRコード画像のみ表示（テキストや説明は親コンポーネントで表示）
   return (
-    <Card className={className}>
-      <CardHeader>
-        <CardTitle className="text-lg font-semibold">QRコード</CardTitle>
-        <div className="flex items-center gap-2">
-          <Badge variant={remainingTime > 60 ? "default" : "destructive"}>
-            残り時間: {formatTime(remainingTime)}
-          </Badge>
-          <Button 
-            onClick={refreshQrCode} 
-            variant="outline" 
-            size="sm"
-            disabled={remainingTime > 60}
-          >
-            更新
-          </Button>
-        </div>
-      </CardHeader>
-      <CardContent className="text-center">
+    <Card className={className + " bg-[#232323]"}>
+      <CardContent className="flex flex-col items-center justify-center p-0">
         {qrCodeImage && (
-          <div className="space-y-4">
-            <div className="flex justify-center">
-              <img 
-                src={qrCodeImage} 
-                alt="QR Code" 
-                className="w-48 h-48 border rounded-lg"
-              />
-            </div>
-            
-            <div className="space-y-2 text-sm text-gray-600">
-              {displayName && (
-                <p><strong>名前:</strong> {displayName}</p>
-              )}
-              {organizationName && (
-                <p><strong>組織:</strong> {organizationName}</p>
-              )}
-              {departmentName && (
-                <p><strong>部署:</strong> {departmentName}</p>
-              )}
-            </div>
-            
-            <p className="text-xs text-gray-500">
-              このQRコードは5分間有効です
-            </p>
-          </div>
+          <img 
+            src={qrCodeImage} 
+            alt="QR Code" 
+            className="w-48 h-48 border rounded-lg"
+          />
         )}
       </CardContent>
     </Card>

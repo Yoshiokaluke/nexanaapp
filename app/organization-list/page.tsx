@@ -79,38 +79,106 @@ export default function OrganizationListPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex items-center justify-center min-h-screen bg-[#1E1E1E]">
         <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">読み込み中...</h1>
-          <p>しばらくお待ちください</p>
+          <div className="w-16 h-16 border-4 border-[#4BEA8A] border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
+          <h1 className="text-2xl font-bold mb-4 text-white">読み込み中...</h1>
+          <p className="text-gray-400">組織情報を取得しています</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <div className="mb-8">
-        <div className="flex items-center gap-3">
-          <svg className="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 21V7a2 2 0 012-2h2a2 2 0 012 2v14M7 21V7m0 0V5a2 2 0 012-2h2a2 2 0 012 2v2m0 0v14m0 0V7m0 0V5a2 2 0 012-2h2a2 2 0 012 2v2m0 0v14" /></svg>
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 tracking-tight">ワークスペースを選択</h1>
+    <div className="max-w-6xl mx-auto p-6">
+      {/* ヘッダーセクション */}
+      <div className="mb-12">
+        <div className="flex items-center gap-4 mb-6">
+          <div className="w-12 h-12 bg-[#4BEA8A] rounded-xl flex items-center justify-center">
+            <svg className="w-6 h-6 text-[#1E1E1E]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 21V7a2 2 0 012-2h2a2 2 0 012 2v14M7 21V7m0 0V5a2 2 0 012-2h2a2 2 0 012 2v2m0 0v14m0 0V7m0 0V5a2 2 0 012-2h2a2 2 0 012 2v2m0 0v14" />
+            </svg>
+          </div>
+          <div>
+            <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight">
+              ワークスペースを選択
+            </h1>
+            <p className="text-gray-400 mt-2">
+              参加している組織から選択して、管理を開始しましょう
+            </p>
+          </div>
         </div>
-        <div className="h-1 w-20 bg-blue-100 rounded mt-2 mb-2" />
+        <div className="h-1 w-24 bg-gradient-to-r from-[#4BEA8A] to-[#3DD879] rounded-full" />
       </div>
+
+      {/* 組織一覧 */}
       {organizations.length === 0 ? (
-        <p className="text-gray-600">所属している組織がありません</p>
+        <div className="text-center py-16">
+          <div className="w-24 h-24 bg-[#2A2A2A] rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg className="w-12 h-12 text-gray-500" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 21V7a2 2 0 012-2h2a2 2 0 012 2v14M7 21V7m0 0V5a2 2 0 012-2h2a2 2 0 012 2v2m0 0v14m0 0V7m0 0V5a2 2 0 012-2h2a2 2 0 012 2v2m0 0v14" />
+            </svg>
+          </div>
+          <h2 className="text-2xl font-bold text-white mb-4">組織が見つかりません</h2>
+          <p className="text-gray-400 mb-8 max-w-md mx-auto">
+            現在、参加している組織はありません。新しい組織に招待されるか、組織を作成してください。
+          </p>
+          <button
+            onClick={() => router.push('/')}
+            className="bg-[#4BEA8A] text-[#1E1E1E] px-6 py-3 rounded-full font-semibold hover:bg-[#3DD879] transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+          >
+            ホームに戻る
+          </button>
+        </div>
       ) : (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {organizations.map((org) => (
             <button
               key={org.id}
               onClick={() => router.push(`/organization/${org.id}`)}
-              className="group p-6 bg-white rounded-2xl shadow-lg border border-gray-100 hover:shadow-2xl hover:scale-[1.03] transition-all duration-200 flex flex-col items-center text-center cursor-pointer"
+              className="group p-8 bg-[#2A2A2A] rounded-2xl shadow-lg border border-[#333333] hover:border-[#4BEA8A] hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 flex flex-col items-center text-center cursor-pointer"
             >
-              <svg className="w-10 h-10 text-blue-400 mb-2 group-hover:text-blue-600 transition-colors" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 21V7a2 2 0 012-2h2a2 2 0 012 2v14M7 21V7m0 0V5a2 2 0 012-2h2a2 2 0 012 2v2m0 0v14m0 0V7m0 0V5a2 2 0 012-2h2a2 2 0 012 2v2m0 0v14" /></svg>
-              <h2 className="font-semibold text-lg md:text-xl text-gray-800 group-hover:text-blue-700 break-words">{org.name}</h2>
+              <div className="w-16 h-16 bg-gradient-to-br from-[#4BEA8A] to-[#3DD879] rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                <svg className="w-8 h-8 text-[#1E1E1E]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 21V7a2 2 0 012-2h2a2 2 0 012 2v14M7 21V7m0 0V5a2 2 0 012-2h2a2 2 0 012 2v2m0 0v14m0 0V7m0 0V5a2 2 0 012-2h2a2 2 0 012 2v2m0 0v14" />
+                </svg>
+              </div>
+              <h2 className="font-bold text-xl md:text-2xl text-white group-hover:text-[#4BEA8A] break-words transition-colors duration-300 mb-2">
+                {org.name}
+              </h2>
+              <p className="text-gray-400 text-sm group-hover:text-gray-300 transition-colors duration-300">
+                クリックして管理画面を開く
+              </p>
             </button>
           ))}
+        </div>
+      )}
+
+      {/* 追加情報セクション */}
+      {organizations.length > 0 && (
+        <div className="mt-16 text-center">
+          <div className="bg-gradient-to-r from-[#4BEA8A]/10 to-transparent rounded-2xl p-8 border border-[#333333]">
+            <h3 className="text-xl font-semibold text-white mb-4">
+              新しい組織に参加しますか？
+            </h3>
+            <p className="text-gray-400 mb-6 max-w-2xl mx-auto">
+              組織の管理者から招待リンクを受け取った場合は、そのリンクをクリックして新しいワークスペースに参加できます。
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <button
+                onClick={() => router.push('/')}
+                className="text-[#4BEA8A] hover:text-[#3DD879] px-6 py-3 rounded-full font-semibold border-2 border-[#4BEA8A] hover:border-[#3DD879] transition-all duration-200"
+              >
+                ホームに戻る
+              </button>
+              <button
+                onClick={() => window.open('mailto:', '_blank')}
+                className="bg-[#4BEA8A] text-[#1E1E1E] px-6 py-3 rounded-full font-semibold hover:bg-[#3DD879] transition-all duration-200"
+              >
+                サポートに問い合わせ
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
