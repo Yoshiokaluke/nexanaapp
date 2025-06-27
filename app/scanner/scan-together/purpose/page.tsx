@@ -4,9 +4,9 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import Image from 'next/image';
+import Link from 'next/link';
 
 interface ScanPurpose {
   id: string;
@@ -36,7 +36,11 @@ export default function PurposeSelector() {
       });
       if (response.ok) {
         const data = await response.json();
-        setPurposes(data.purposes || []);
+        // 優先順位順（order）でソートし、最大6個まで表示
+        const sortedPurposes = (data.purposes || [])
+          .sort((a: ScanPurpose, b: ScanPurpose) => a.order - b.order)
+          .slice(0, 6);
+        setPurposes(sortedPurposes);
       }
     } catch (error) {
       // エラー時は何もしない
@@ -72,24 +76,19 @@ export default function PurposeSelector() {
   // ローディング画面
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 relative overflow-hidden">
-        {/* 装飾的な背景要素 */}
-        <div className="absolute inset-0">
-          <div className="absolute top-20 left-20 w-72 h-72 bg-gradient-to-br from-blue-200/30 to-purple-200/30 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-20 right-20 w-96 h-96 bg-gradient-to-br from-indigo-200/20 to-pink-200/20 rounded-full blur-3xl"></div>
+      <div className="min-h-screen relative overflow-hidden flex items-center justify-center" style={{ background: '#1E1E1E' }}>
+        {/* ロゴ */}
+        <div className="absolute top-8 left-1/2 transform -translate-x-1/2 z-20 pointer-events-auto cursor-pointer">
+          <Link href="/scanner/dashboard">
+            <Image src="/White.w.logo.svg" alt="ロゴ" width={240} height={240} priority />
+          </Link>
         </div>
-        {/* 中央上部のロゴ */}
-        <div className="absolute top-8 left-1/2 transform -translate-x-1/2 z-20 pointer-events-none">
-          <Image src="/blacklogo.svg" alt="ロゴ" width={240} height={240} priority />
-        </div>
-        <div className="relative z-10 flex items-center justify-center min-h-screen">
-          <div className="flex flex-col items-center">
-            <div className="relative">
-              <div className="animate-spin rounded-full h-20 w-20 border-4 border-blue-200 border-t-blue-600 mx-auto"></div>
-              <div className="absolute inset-0 rounded-full h-20 w-20 border-4 border-transparent border-t-purple-600 animate-spin" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}></div>
-            </div>
-            <p className="mt-8 text-xl font-medium text-gray-700">読み込み中...</p>
+        <div className="text-center z-10">
+          <div className="relative">
+            <div className="animate-spin rounded-full h-20 w-20 border-4 border-[#4BEA8A]/30 border-t-[#4BEA8A] mx-auto"></div>
+            <div className="absolute inset-0 rounded-full h-20 w-20 border-4 border-transparent border-t-white animate-spin" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}></div>
           </div>
+          <p className="mt-8 text-xl font-medium text-white">読み込み中...</p>
         </div>
       </div>
     );
@@ -98,23 +97,20 @@ export default function PurposeSelector() {
   // 目的がない場合
   if (purposes.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 relative overflow-hidden">
-        {/* 装飾的な背景要素 */}
-        <div className="absolute inset-0">
-          <div className="absolute top-20 left-20 w-72 h-72 bg-gradient-to-br from-blue-200/30 to-purple-200/30 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-20 right-20 w-96 h-96 bg-gradient-to-br from-indigo-200/20 to-pink-200/20 rounded-full blur-3xl"></div>
-        </div>
-        {/* 中央上部のロゴ */}
-        <div className="absolute top-8 left-1/2 transform -translate-x-1/2 z-20 pointer-events-none">
-          <Image src="/blacklogo.svg" alt="ロゴ" width={240} height={240} priority />
+      <div className="min-h-screen relative overflow-hidden flex items-center justify-center" style={{ background: '#1E1E1E' }}>
+        {/* ロゴ */}
+        <div className="absolute top-8 left-1/2 transform -translate-x-1/2 z-20 pointer-events-auto cursor-pointer">
+          <Link href="/scanner/dashboard">
+            <Image src="/White.w.logo.svg" alt="ロゴ" width={240} height={240} priority />
+          </Link>
         </div>
         <div className="relative z-10 flex items-center justify-center min-h-screen px-6">
-          <Card className="w-full max-w-lg bg-white/80 backdrop-blur-sm border-0 shadow-2xl">
+          <Card className="w-full max-w-lg bg-[#232323] border border-[#4BEA8A]/30 shadow-2xl">
             <CardHeader className="text-center pb-4">
-              <CardTitle className="text-2xl font-bold text-gray-900">
+              <CardTitle className="text-2xl font-bold text-white">
                 スキャン目的が設定されていません
               </CardTitle>
-              <p className="text-gray-600 mt-3">
+              <p className="text-[#4BEA8A] mt-3">
                 管理者がスキャン目的を設定するまでお待ちください
               </p>
             </CardHeader>
@@ -122,7 +118,7 @@ export default function PurposeSelector() {
               <Button
                 onClick={() => router.push('/scanner/dashboard')}
                 variant="outline"
-                className="w-full bg-white/50 hover:bg-white/80 transition-all duration-300"
+                className="w-full bg-[#232323] border-2 border-[#4BEA8A] text-[#4BEA8A] hover:bg-[#333] transition-all duration-300"
               >
                 ダッシュボードに戻る
               </Button>
@@ -135,55 +131,68 @@ export default function PurposeSelector() {
 
   // メインUI
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 relative overflow-hidden">
-      {/* 装飾的な背景要素 */}
-      <div className="absolute inset-0">
-        <div className="absolute top-20 left-20 w-72 h-72 bg-gradient-to-br from-blue-200/30 to-purple-200/30 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-20 right-20 w-96 h-96 bg-gradient-to-br from-indigo-200/20 to-pink-200/20 rounded-full blur-3xl"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-gradient-to-br from-cyan-200/20 to-blue-200/20 rounded-full blur-3xl"></div>
-      </div>
-      {/* 中央上部のロゴ */}
-      <div className="absolute top-8 left-1/2 transform -translate-x-1/2 z-20 pointer-events-none">
-        <Image src="/blacklogo.svg" alt="ロゴ" width={240} height={240} priority />
+    <div className="min-h-screen relative overflow-hidden flex items-center justify-center" style={{ background: '#1E1E1E' }}>
+      {/* ロゴ */}
+      <div className="absolute top-8 left-1/2 transform -translate-x-1/2 z-20 pointer-events-auto cursor-pointer">
+        <Link href="/scanner/dashboard">
+          <Image src="/White.w.logo.svg" alt="ロゴ" width={240} height={240} priority />
+        </Link>
       </div>
       {/* メインコンテンツ */}
-      <div className="relative z-10 flex items-center justify-center min-h-screen px-6">
-        <div className="w-full max-w-2xl">
-          <Card className="w-full bg-white/80 backdrop-blur-sm border-0 shadow-2xl">
+      <div className="relative z-10 flex items-center justify-center min-h-screen px-6 w-full">
+        <div className="w-full max-w-4xl">
+          <Card className="w-full bg-[#232323] border border-[#4BEA8A]/30 shadow-2xl">
             <CardHeader className="text-center pb-6">
-              <CardTitle className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              <CardTitle className="text-4xl font-bold text-white">
                 スキャン目的を選択
               </CardTitle>
-              <p className="text-gray-600 mt-3 text-lg">
+              <p className="text-[#4BEA8A] mt-3 text-lg">
                 スキャンする目的を選択してください
               </p>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="space-y-3">
-                <Label htmlFor="purpose" className="text-lg font-medium text-gray-700">目的</Label>
-                <Select value={selectedPurpose} onValueChange={setSelectedPurpose}>
-                  <SelectTrigger className="h-14 text-lg bg-white/50 border-2 border-gray-200 hover:border-blue-300 focus:border-blue-500 transition-colors">
-                    <SelectValue placeholder="目的を選択してください" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white/95 backdrop-blur-sm">
-                    {purposes.map((purpose) => (
-                      <SelectItem key={purpose.id} value={purpose.id} className="py-3">
-                        <div>
-                          <div className="font-medium text-lg">{purpose.name}</div>
-                          {purpose.description && (
-                            <div className="text-sm text-gray-500 mt-1">{purpose.description}</div>
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {purposes.map((purpose) => (
+                    <Card
+                      key={purpose.id}
+                      className={`cursor-pointer transition-all duration-300 hover:shadow-lg border-2 ${
+                        selectedPurpose === purpose.id
+                          ? 'ring-2 ring-[#4BEA8A] bg-[#232323] border-[#4BEA8A]'
+                          : 'bg-[#232323] hover:bg-[#333] border-[#4BEA8A]/30'
+                      }`}
+                      onClick={() => setSelectedPurpose(purpose.id)}
+                    >
+                      <CardContent className="p-6">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <h3 className="text-lg font-semibold text-white mb-2">
+                              {purpose.name}
+                            </h3>
+                            {purpose.description && (
+                              <p className="text-sm text-[#4BEA8A] leading-relaxed">
+                                {purpose.description}
+                              </p>
+                            )}
+                          </div>
+                          {selectedPurpose === purpose.id && (
+                            <div className="ml-3">
+                              <svg className="w-6 h-6 text-[#4BEA8A]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                              </svg>
+                            </div>
                           )}
                         </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
               </div>
               
               <Button
                 onClick={handleNext}
                 disabled={!selectedPurpose || isCreating}
-                className="w-full h-14 text-lg font-semibold bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full h-14 text-lg font-semibold bg-[#4BEA8A] hover:bg-[#36c96b] text-[#1E1E1E] shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isCreating ? '処理中...' : '次へ進む'}
               </Button>
@@ -194,7 +203,7 @@ export default function PurposeSelector() {
             <Button
               onClick={() => router.push('/scanner/dashboard')}
               variant="outline"
-              className="bg-white/50 hover:bg-white/80 border-2 border-gray-200 hover:border-gray-300 transition-all duration-300 px-8 py-3"
+              className="bg-[#232323] border-2 border-[#4BEA8A] text-[#4BEA8A] hover:bg-[#333] transition-all duration-300 px-8 py-3"
             >
               ダッシュボードに戻る
             </Button>

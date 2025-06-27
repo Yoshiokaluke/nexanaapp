@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { OrganizationHeader } from '@/components/organization/OrganizationHeader';
+import { OrganizationNameDisplay } from '@/components/organization/OrganizationNameDisplay';
 
 export function OrganizationHeaderWrapper() {
   const params = useParams();
@@ -89,12 +90,15 @@ export function OrganizationHeaderWrapper() {
   });
 
   return (
-    <OrganizationHeader
-      organizationId={organizationId}
-      organizationName={organizationName}
-      isSystemTeam={isSystemTeam}
-      isAdmin={isAdmin}
-      clerkId={clerkId}
-    />
+    <>
+      <OrganizationHeader
+        organizationId={organizationId}
+        organizationName={organizationName}
+        isSystemTeam={isSystemTeam}
+        isAdmin={isAdmin}
+        clerkId={clerkId}
+      />
+      <OrganizationNameDisplay organizationName={organizationName} />
+    </>
   );
 } 

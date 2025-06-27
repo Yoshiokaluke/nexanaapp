@@ -23,6 +23,11 @@ export default async function OrganizationPage({
           qrScanners: true,
         },
       },
+      qrScanners: {
+        orderBy: {
+          createdAt: 'desc',
+        },
+      },
     },
   });
 

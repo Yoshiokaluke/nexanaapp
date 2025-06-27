@@ -75,7 +75,7 @@ export const OrganizationHeader: React.FC<OrganizationHeaderProps> = ({
   return (
     <header className="bg-white shadow-sm sticky top-0 z-30" data-regular-header>
       <div className="max-w-7xl mx-auto flex items-center justify-between px-4 py-3" style={{ minHeight: '64px' }}>
-        {/* ロゴ・組織名 */}
+        {/* ロゴ */}
         <Link href={`/organization/${organizationId}`} className="flex items-center gap-3 hover:opacity-90 transition-opacity duration-200">
           <Image
             src="/blacklogo.svg"
@@ -85,16 +85,6 @@ export const OrganizationHeader: React.FC<OrganizationHeaderProps> = ({
             className="h-8 w-auto"
             priority
           />
-          {/* アイコンと組織名をロゴの右横に表示 */}
-          <span className="flex items-center ml-2">
-            {/* ビルディングアイコン */}
-            <svg className="w-5 h-5 text-indigo-600 mr-1" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3 21V5a2 2 0 012-2h2a2 2 0 012 2v16m8 0V5a2 2 0 012-2h2a2 2 0 012 2v16M9 21h6" />
-            </svg>
-            <span className="text-lg font-bold text-gray-800 truncate max-w-xs md:max-w-sm lg:max-w-md">
-              {organizationName ? organizationName.slice(0, 10) : ''}
-            </span>
-          </span>
         </Link>
         {/* PCナビゲーション */}
         <nav className="hidden md:flex items-center gap-8 text-base font-semibold">

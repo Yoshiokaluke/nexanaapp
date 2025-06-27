@@ -8,6 +8,7 @@ import { ArrowLeft, Camera, CameraOff, RotateCcw, CheckCircle, XCircle, AlertCir
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import jsQR from 'jsqr';
+import Link from 'next/link';
 
 interface ScanResult {
   success: boolean;
@@ -48,7 +49,18 @@ function ScanningPageContent() {
   // useEffectで初期化ログを1回だけ出す
   useEffect(() => {
     console.log('ScanningPage初期化:', { sessionId });
-  }, [sessionId]);
+    
+    // 5分後に自動的にダッシュボードに遷移
+    const timer = setTimeout(() => {
+      console.log('5分経過、ダッシュボードに自動遷移');
+      router.push('/scanner/dashboard');
+    }, 5 * 60 * 1000); // 5分 = 300秒 = 300,000ミリ秒
+    
+    // クリーンアップ関数でタイマーをクリア
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [sessionId, router]);
   
   const [isScanning, setIsScanning] = useState(false);
   const [scanResult, setScanResult] = useState<ScanResult | null>(null);
@@ -508,39 +520,38 @@ function ScanningPageContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 relative overflow-hidden">
-      {/* 装飾的な背景要素 */}
+    <div className="min-h-screen relative overflow-hidden" style={{ background: '#1E1E1E' }}>
+      {/* 装飾的な背景要素（グリーンの光） */}
       <div className="absolute inset-0">
-        <div className="absolute top-20 left-20 w-72 h-72 bg-gradient-to-br from-blue-200/30 to-purple-200/30 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-20 right-20 w-96 h-96 bg-gradient-to-br from-indigo-200/20 to-pink-200/20 rounded-full blur-3xl"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-gradient-to-br from-cyan-200/20 to-blue-200/20 rounded-full blur-3xl"></div>
+        <div className="absolute top-20 left-20 w-72 h-72 bg-[#4BEA8A]/20 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-20 right-20 w-96 h-96 bg-[#4BEA8A]/10 rounded-full blur-3xl"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-[#4BEA8A]/10 rounded-full blur-3xl"></div>
       </div>
-      
       {/* 左上の戻るボタン */}
       <div className="absolute top-8 left-8 z-20">
         <Button
           onClick={() => router.back()}
           variant="ghost"
           size="sm"
-          className="flex items-center gap-2 bg-white/50 hover:bg-white/80 backdrop-blur-sm"
+          className="flex items-center gap-2 bg-[#232323] hover:bg-[#333] text-white border border-[#4BEA8A]"
         >
           <ArrowLeft className="h-4 w-4" />
           戻る
         </Button>
       </div>
-
       {/* 中央上部のロゴ（absoluteで重ねて表示） */}
-      <div className="absolute top-8 left-1/2 transform -translate-x-1/2 z-20 pointer-events-none">
-        <Image src="/blacklogo.svg" alt="ロゴ" width={240} height={240} priority />
+      <div className="absolute top-8 left-1/2 transform -translate-x-1/2 z-20 pointer-events-auto cursor-pointer">
+        <Link href="/scanner/dashboard">
+          <Image src="/White.w.logo.svg" alt="ロゴ" width={240} height={240} priority />
+        </Link>
       </div>
-
       {/* メインコンテンツ（ロゴ分の余白を上部に追加） */}
       <div className="relative z-10 flex-1 flex flex-col items-center justify-center p-6 space-y-8 pt-32">
         {/* カメラとスキャン記録の横並びレイアウト */}
         <div className="w-full max-w-6xl min-h-[40rem] flex flex-col lg:flex-row gap-8 items-stretch lg:items-start">
           {/* カメラビュー＋ボタン */}
           <div className="flex flex-col items-center w-full max-w-lg h-full">
-            <div className="relative w-full aspect-square bg-black rounded-2xl overflow-hidden shadow-2xl border-4 border-white/20">
+            <div className="relative w-full aspect-square bg-black rounded-2xl overflow-hidden shadow-2xl border-4 border-[#4BEA8A]/30">
               <video
                 ref={videoRef}
                 autoPlay
@@ -555,19 +566,19 @@ function ScanningPageContent() {
               />
               {/* スキャン枠 */}
               <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-64 h-64 border-2 border-white rounded-xl relative">
-                  <div className="absolute -top-1 -left-1 w-6 h-6 border-t-3 border-l-3 border-blue-500 rounded-tl-lg"></div>
-                  <div className="absolute -top-1 -right-1 w-6 h-6 border-t-3 border-r-3 border-blue-500 rounded-tr-lg"></div>
-                  <div className="absolute -bottom-1 -left-1 w-6 h-6 border-b-3 border-l-3 border-blue-500 rounded-bl-lg"></div>
-                  <div className="absolute -bottom-1 -right-1 w-6 h-6 border-b-3 border-r-3 border-blue-500 rounded-br-lg"></div>
+                <div className="w-64 h-64 border-2 border-[#4BEA8A] rounded-xl relative">
+                  <div className="absolute -top-1 -left-1 w-6 h-6 border-t-4 border-l-4 border-[#4BEA8A] rounded-tl-lg"></div>
+                  <div className="absolute -top-1 -right-1 w-6 h-6 border-t-4 border-r-4 border-[#4BEA8A] rounded-tr-lg"></div>
+                  <div className="absolute -bottom-1 -left-1 w-6 h-6 border-b-4 border-l-4 border-[#4BEA8A] rounded-bl-lg"></div>
+                  <div className="absolute -bottom-1 -right-1 w-6 h-6 border-b-4 border-r-4 border-[#4BEA8A] rounded-br-lg"></div>
                 </div>
               </div>
               {/* 処理中インジケーター（カメラを塞ぐ） */}
               {isProcessing && (
                 <div className="absolute inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
-                  <div className="bg-white/90 rounded-2xl p-6 flex items-center gap-4 shadow-2xl">
-                    <div className="animate-spin rounded-full h-8 w-8 border-4 border-blue-200 border-t-blue-600"></div>
-                    <span className="text-gray-800 font-semibold text-lg">処理中...</span>
+                  <div className="bg-[#232323] rounded-2xl p-6 flex items-center gap-4 shadow-2xl border border-[#4BEA8A]/30">
+                    <div className="animate-spin rounded-full h-8 w-8 border-4 border-[#4BEA8A]/30 border-t-[#4BEA8A]"></div>
+                    <span className="text-white font-semibold text-lg">処理中...</span>
                   </div>
                 </div>
               )}
@@ -577,7 +588,7 @@ function ScanningPageContent() {
               <Button
                 onClick={isScanning ? stopCamera : startCamera}
                 size="lg"
-                className="w-64 h-16 text-2xl font-bold rounded-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white shadow-xl transition-all duration-300 flex items-center justify-center gap-3"
+                className="w-64 h-16 text-2xl font-bold rounded-full bg-[#4BEA8A] hover:bg-[#36c96b] text-[#1E1E1E] shadow-xl transition-all duration-300 flex items-center justify-center gap-3"
               >
                 {isScanning ? <CameraOff className="h-7 w-7" /> : <Camera className="h-7 w-7" />}
                 {isScanning ? "カメラ停止" : "カメラ開始"}
@@ -586,14 +597,14 @@ function ScanningPageContent() {
           </div>
 
           {/* スキャン記録＋セッション情報カード */}
-          <Card className="w-full max-w-xl h-full bg-white/80 backdrop-blur-sm border-0 shadow-2xl lg:sticky lg:top-8 flex flex-col">
+          <Card className="w-full max-w-xl h-full bg-[#232323] border border-[#4BEA8A]/30 shadow-2xl lg:sticky lg:top-8 flex flex-col">
             <CardHeader className="text-center pb-2">
-              <CardTitle className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              <CardTitle className="text-xl font-bold text-white">
                 スキャン記録 ({uniqueRecords.length}人)
               </CardTitle>
               {session && (
                 <div className="mt-2">
-                  <span className="text-base font-medium text-gray-700">目的: {session.purpose}</span>
+                  <span className="text-base font-medium text-[#4BEA8A]">目的: {session.purpose}</span>
                 </div>
               )}
             </CardHeader>
@@ -601,22 +612,22 @@ function ScanningPageContent() {
               <div className="space-y-3 flex-1 overflow-y-auto">
                 {uniqueRecords.length > 0 ? (
                   uniqueRecords.map((record) => (
-                    <div key={record.id} className="flex items-center justify-between p-4 bg-white/50 backdrop-blur-sm rounded-xl border border-white/20">
+                    <div key={record.id} className="flex items-center justify-between p-4 bg-[#232323] rounded-xl border border-[#4BEA8A]/20">
                       <div>
-                        <p className="font-semibold text-gray-800">{record.profile.displayName}</p>
+                        <p className="font-semibold text-white">{record.profile.displayName}</p>
                       </div>
                       <div className="text-right">
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-[#4BEA8A]">
                           {new Date(record.scannedAt).toLocaleTimeString()}
                         </p>
                       </div>
                     </div>
                   ))
                 ) : (
-                  <div className="flex items-center justify-center p-8 text-gray-400 flex-1">
+                  <div className="flex items-center justify-center p-8 text-[#4BEA8A]/60 flex-1">
                     <div className="text-center">
-                      <div className="w-12 h-12 mx-auto mb-3 border-2 border-gray-300 border-dashed rounded-full flex items-center justify-center">
-                        <Camera className="h-6 w-6 text-gray-300" />
+                      <div className="w-12 h-12 mx-auto mb-3 border-2 border-[#4BEA8A]/40 border-dashed rounded-full flex items-center justify-center">
+                        <Camera className="h-6 w-6 text-[#4BEA8A]/40" />
                       </div>
                       <p className="text-sm">QRコードをスキャンしてください</p>
                       <p className="text-xs mt-1">スキャンした参加者がここに表示されます</p>
@@ -627,19 +638,18 @@ function ScanningPageContent() {
             </CardContent>
             {/* 飲み物を取得するカードを常に表示 */}
             <div className="px-6 pb-6 pt-2 mt-auto">
-              <Card className="w-full bg-white/90 backdrop-blur-sm border-0 shadow-md">
+              <Card className="w-full bg-[#1E1E1E] border border-[#4BEA8A]/30 shadow-md">
                 <CardContent className="pt-6">
                   <Button
                     onClick={handleGetItem}
                     disabled={isProcessing || uniqueUserCount < 2}
                     className={`w-full h-16 text-xl font-bold rounded-full shadow-2xl transition-all duration-300 flex items-center justify-center gap-3 text-white
-                      bg-gradient-to-r from-emerald-400 via-green-500 to-emerald-600
-                      hover:from-emerald-500 hover:via-green-600 hover:to-emerald-700
-                      disabled:bg-gradient-to-r disabled:from-gray-200 disabled:to-gray-300 disabled:text-gray-400 disabled:shadow-none disabled:cursor-not-allowed`}
+                      bg-[#4BEA8A] hover:bg-[#36c96b] text-[#1E1E1E]
+                      disabled:bg-[#232323] disabled:text-[#4BEA8A]/40 disabled:shadow-none disabled:cursor-not-allowed`}
                   >
                     {isProcessing ? '処理中...' : '🍹 飲み物を取得する'}
                   </Button>
-                  <p className="text-base text-gray-500 mt-4 text-center font-medium">
+                  <p className="text-base text-[#4BEA8A] mt-4 text-center font-medium">
                     2人以上のユニークユーザーがスキャンしました
                   </p>
                 </CardContent>
@@ -649,7 +659,7 @@ function ScanningPageContent() {
         </div>
 
         {/* デバッグ情報 */}
-        <div className="w-full max-w-lg text-xs text-gray-500 space-y-1 bg-white/30 backdrop-blur-sm rounded-xl p-4">
+        <div className="w-full max-w-lg text-xs text-[#4BEA8A]/80 space-y-1 bg-[#232323] rounded-xl p-4">
           <p>セッションID: {sessionId}</p>
           <p>検出回数: {detectionCount}</p>
           <p>処理フレーム数: {frameCount}</p>
@@ -661,7 +671,7 @@ function ScanningPageContent() {
             <p>最後の検出データ: {lastDetectedData.substring(0, 50)}...</p>
           )}
           {debugInfo && (
-            <div className="mt-2 p-2 bg-white/50 rounded-lg text-xs">
+            <div className="mt-2 p-2 bg-[#1E1E1E] rounded-lg text-xs">
               <p className="font-medium">デバッグ情報:</p>
               <p>{debugInfo}</p>
             </div>
