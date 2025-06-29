@@ -47,7 +47,7 @@ async function checkUserSync() {
     }
 
     // 特定の組織IDでのメンバーシップ確認
-    const targetOrgId = 'cmc5is4iu000cta81l4jbeus6'
+    const targetOrgId = 'cmch1t5k10006tag48b7wck9k'
     console.log(`\n=== 組織ID ${targetOrgId} でのメンバーシップ確認 ===`)
     
     const specificMembership = await prisma.organizationMembership.findFirst({

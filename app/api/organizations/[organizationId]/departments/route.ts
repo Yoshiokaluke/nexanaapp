@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { getAuthenticatedUser, isOrganizationMember, checkOrganizationAdmin } from '@/lib/auth/roles';
+import { getAuthenticatedUser, checkOrganizationAdmin } from '@/lib/auth/roles';
 
 // GET: 部署一覧取得
 export async function GET(req: NextRequest, { params }: { params: Promise<{ organizationId: string }> }) {
@@ -16,11 +16,11 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ orga
       return new NextResponse('Unauthorized', { status: 401 });
     }
 
-    const isMember = await isOrganizationMember(user.clerkId, organizationId);
-    console.log('組織メンバー権限:', isMember);
+    const isAdmin = await checkOrganizationAdmin(user.clerkId, organizationId);
+    console.log('管理者権限:', isAdmin);
 
-    if (!isMember) {
-      console.log('組織メンバー権限がありません');
+    if (!isAdmin) {
+      console.log('管理者権限がありません');
       return NextResponse.json({ error: '権限がありません' }, { status: 403 });
     }
 
