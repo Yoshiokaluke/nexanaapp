@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
-import PWAInstallPrompt from '@/components/scanner/PWAInstallPrompt';
 
 interface ScannerInfo {
   scannerName: string;
@@ -196,9 +195,6 @@ export default function ScannerDashboard() {
           ログアウト
         </Button>
       </div>
-
-      {/* PWAインストールプロンプト */}
-      <PWAInstallPrompt />
     </div>
   );
 } 

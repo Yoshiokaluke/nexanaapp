@@ -3,7 +3,7 @@
   "short_name": "QR Scanner",
   "description": "QRコードスキャナーアプリケーション",
   "start_url": "/scanner",
-  "display": "standalone",
+  "display": "browser",
   "background_color": "#1E1E1E",
   "theme_color": "#4BEA8A",
   "orientation": "portrait-primary",

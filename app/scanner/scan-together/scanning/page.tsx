@@ -138,20 +138,13 @@ function ScanningPageContent() {
         return;
       }
       
-      // PWA環境でのカメラアクセス改善
-      console.log('PWA環境チェック:', {
-        isStandalone: window.matchMedia('(display-mode: standalone)').matches,
-        userAgent: navigator.userAgent,
-        isIOS: /iPad|iPhone|iPod/.test(navigator.userAgent)
-      });
-      
       // 利用可能なカメラデバイスを取得
       const devices = await navigator.mediaDevices.enumerateDevices();
       const videoDevices = devices.filter(device => device.kind === 'videoinput');
       
       console.log('利用可能なカメラデバイス:', videoDevices.map(d => ({ id: d.deviceId, label: d.label })));
       
-      // PWA環境では、より柔軟なカメラ選択を行う
+      // カメラ制約の設定
       let constraints: any = {
         video: {
           width: { ideal: 1280, min: 640 },
@@ -160,69 +153,40 @@ function ScanningPageContent() {
         }
       };
       
-      // iPad PWA環境での特別な処理
-      const isIPadPWA = /iPad/.test(navigator.userAgent) && window.matchMedia('(display-mode: standalone)').matches;
+      // 内カメラを優先的に選択
+      let preferredDeviceId = null;
       
-      if (isIPadPWA) {
-        console.log('iPad PWA環境を検出');
-        // iPad PWAでは、まずfacingModeで試行
+      // デバイスラベルから内カメラを特定
+      const frontCamera = videoDevices.find(device => 
+        device.label.toLowerCase().includes('front') ||
+        device.label.toLowerCase().includes('user') ||
+        device.label.toLowerCase().includes('内') ||
+        device.label.toLowerCase().includes('フロント')
+      );
+      
+      if (frontCamera) {
+        preferredDeviceId = frontCamera.deviceId;
+        console.log('内カメラを検出:', frontCamera.label);
+      }
+      
+      // 内カメラが見つかった場合は明示的に指定
+      if (preferredDeviceId) {
+        constraints.video = {
+          ...constraints.video,
+          deviceId: { exact: preferredDeviceId }
+        };
+      } else {
+        // 内カメラが見つからない場合はfacingModeを使用
         constraints.video = {
           ...constraints.video,
           facingMode: 'user'
         };
-      } else {
-        // 通常の環境では、内カメラを優先的に選択
-        let preferredDeviceId = null;
-        
-        // デバイスラベルから内カメラを特定
-        const frontCamera = videoDevices.find(device => 
-          device.label.toLowerCase().includes('front') ||
-          device.label.toLowerCase().includes('user') ||
-          device.label.toLowerCase().includes('内') ||
-          device.label.toLowerCase().includes('フロント')
-        );
-        
-        if (frontCamera) {
-          preferredDeviceId = frontCamera.deviceId;
-          console.log('内カメラを検出:', frontCamera.label);
-        }
-        
-        // 内カメラが見つかった場合は明示的に指定
-        if (preferredDeviceId) {
-          constraints.video = {
-            ...constraints.video,
-            deviceId: { exact: preferredDeviceId }
-          };
-        } else {
-          // 内カメラが見つからない場合はfacingModeを使用
-          constraints.video = {
-            ...constraints.video,
-            facingMode: 'user'
-          };
-        }
       }
       
       console.log('カメラ制約:', constraints);
       
       // カメラアクセスを試行
-      let stream: MediaStream;
-      try {
-        stream = await navigator.mediaDevices.getUserMedia(constraints);
-      } catch (firstError) {
-        console.log('最初のカメラアクセス試行が失敗:', firstError);
-        
-        // iPad PWAで最初の試行が失敗した場合、より基本的な制約で再試行
-        if (isIPadPWA) {
-          console.log('iPad PWA用の基本的な制約で再試行');
-          stream = await navigator.mediaDevices.getUserMedia({
-            video: {
-              facingMode: 'user'
-            }
-          });
-        } else {
-          throw firstError;
-        }
-      }
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
       
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
@@ -234,7 +198,7 @@ function ScanningPageContent() {
           }
         });
         
-        setDebugInfo(`カメラ開始完了 - デバイス数: ${videoDevices.length}, PWA: ${isIPadPWA}`);
+        setDebugInfo(`カメラ開始完了 - デバイス数: ${videoDevices.length}`);
         setIsScanning(true);
         
         // ビデオの準備が完了するまで待機
@@ -585,19 +549,6 @@ function ScanningPageContent() {
             </CardHeader>
             <CardContent className="space-y-6">
               <p className="text-gray-600 text-center">{cameraError}</p>
-              
-              {/* PWAでのカメラアクセスガイダンス */}
-              {window.matchMedia('(display-mode: standalone)').matches && (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <h4 className="font-semibold text-blue-800 mb-2">PWAでのカメラアクセスについて</h4>
-                  <ul className="text-sm text-blue-700 space-y-1">
-                    <li>• ホーム画面からアプリを起動してください</li>
-                    <li>• 初回起動時にカメラ権限を許可してください</li>
-                    <li>• 設定 → Safari → カメラ → このサイトを許可</li>
-                    <li>• 他のアプリでカメラを使用中の場合は閉じてください</li>
-                  </ul>
-                </div>
-              )}
               
               <div className="flex gap-3">
                 <Button onClick={startCamera} className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
