@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 import { ScanPurposeList } from './scan-purpose-list';
 import { Plus, Settings } from 'lucide-react';
 import { AdminMenu } from '@/components/organization/AdminMenu';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 
 interface ScanPurpose {
   id: string;
@@ -274,174 +275,142 @@ export default function ScanPurposesPage() {
   return (
     <>
       <AdminMenu />
-      <div className="container mx-auto py-8">
+      <div className="container mx-auto py-8 bg-[#1E1E1E] min-h-screen">
         <div className="flex justify-between items-center mb-6">
-        <div>
-            <h1 className="text-2xl font-bold">スキャン目的管理</h1>
-          {userRole === 'system_team' && (
-            <p className="text-sm text-blue-600 mt-1">
-              システムチーム権限でアクセス中 - 全ての組織の目的を管理できます
-            </p>
-          )}
+          <h1 className="text-2xl font-bold text-[#4BEA8A]">スキャン目的管理</h1>
+          <Button
+            className="bg-[#4BEA8A] text-[#1E1E1E] hover:bg-[#3DD879] font-semibold"
+            onClick={() => setIsAddDialogOpen(true)}
+          >
+            <Plus className="w-4 h-4 mr-1" /> 新規目的追加
+          </Button>
         </div>
-          <div className="flex items-center space-x-2">
-                    <Button
-                      variant="outline"
-              onClick={handleCreateDefaults}
-              disabled={isCreateDefaultsLoading}
-                    >
-              <Settings className="w-4 h-4 mr-2" />
-              {isCreateDefaultsLoading ? '作成中...' : 'デフォルト目的を作成'}
-                    </Button>
-            <Button onClick={() => setIsAddDialogOpen(true)}>
-              <Plus className="w-4 h-4 mr-2" />
-              新しい目的を追加
-                    </Button>
-                  </div>
-                </div>
-
-        <ScanPurposeList
-          scanPurposes={scanPurposes}
-          onDelete={handleDeletePurpose}
-          onEdit={handleEditPurpose}
-        />
+        <Card className="bg-[#232323] border border-[#4BEA8A]/20 shadow-md">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-[#4BEA8A]">
+              <Settings className="w-5 h-5" /> スキャン目的一覧
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ScanPurposeList
+              scanPurposes={scanPurposes}
+              onDelete={handleDeletePurpose}
+              onEdit={handleEditPurpose}
+            />
+          </CardContent>
+        </Card>
 
         {/* 追加ダイアログ */}
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>新しいスキャン目的を追加</DialogTitle>
-              <DialogDescription>
+          <DialogContent className="bg-[#232323] border border-[#4BEA8A]/30 text-[#FFFFFF]">
+            <DialogHeader>
+              <DialogTitle className="text-[#4BEA8A]">新しいスキャン目的を追加</DialogTitle>
+              <DialogDescription className="text-[#CCCCCC]">
                 新しいスキャン目的の情報を入力してください
               </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="name">目的名 *</Label>
-              <Input
-                id="name"
-                value={newPurpose.name}
-                onChange={(e) => setNewPurpose({ ...newPurpose, name: e.target.value })}
-                placeholder="例: ランチ"
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="dialog-name" className="text-[#FFFFFF]">目的名 *</Label>
+                <Input
+                  id="dialog-name"
+                  value={newPurpose.name}
+                  onChange={e => setNewPurpose({ ...newPurpose, name: e.target.value })}
+                  placeholder="目的名を入力"
+                  className="bg-[#2A2A2A] border-[#4BEA8A]/20 text-[#FFFFFF] placeholder-[#888888] focus:border-[#4BEA8A] focus:ring-[#4BEA8A]"
                   onKeyDown={e => {
                     if (e.key === 'Enter') {
                       e.preventDefault();
                       handleAddPurpose();
                     }
                   }}
-              />
-            </div>
-            <div>
-              <Label htmlFor="description">説明</Label>
-              <Textarea
-                id="description"
-                value={newPurpose.description}
-                onChange={(e) => setNewPurpose({ ...newPurpose, description: e.target.value })}
-                placeholder="例: お昼ご飯を一緒に食べる"
-              />
-            </div>
-            <div>
-              <Label htmlFor="order">表示順序</Label>
-              <Input
-                id="order"
-                type="number"
-                value={newPurpose.order}
-                onChange={(e) => setNewPurpose({ ...newPurpose, order: parseInt(e.target.value) || 0 })}
-                placeholder="0"
-              />
-            </div>
-              <div>
-                <Label htmlFor="department">部署</Label>
-                <select value={departmentId ?? ""} onChange={e => setDepartmentId(e.target.value || null)}>
-                  <option value="">選択してください</option>
-                  {departments.map(dept => (
-                    <option key={dept.id} value={dept.id}>{dept.name}</option>
-                  ))}
-                </select>
+                />
               </div>
-            <div className="flex justify-end gap-2">
-                <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
-                キャンセル
-              </Button>
-                <Button onClick={handleAddPurpose} disabled={isLoading || !newPurpose.name.trim()}>
+              <div>
+                <Label htmlFor="dialog-desc" className="text-[#FFFFFF]">説明</Label>
+                <Textarea
+                  id="dialog-desc"
+                  value={newPurpose.description}
+                  onChange={e => setNewPurpose({ ...newPurpose, description: e.target.value })}
+                  placeholder="説明（任意）"
+                  className="bg-[#2A2A2A] border-[#4BEA8A]/20 text-[#FFFFFF] placeholder-[#888888] focus:border-[#4BEA8A] focus:ring-[#4BEA8A]"
+                  rows={3}
+                />
+              </div>
+              <div className="flex justify-end gap-2">
+                <Button variant="outline" className="border-[#4BEA8A] text-[#4BEA8A] hover:bg-[#333333]" onClick={() => setIsAddDialogOpen(false)}>
+                  キャンセル
+                </Button>
+                <Button className="bg-[#4BEA8A] text-[#1E1E1E] hover:bg-[#3DD879] font-semibold" onClick={handleAddPurpose} disabled={isLoading || !newPurpose.name.trim()}>
                   {isLoading ? '追加中...' : '追加'}
                 </Button>
+              </div>
             </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+          </DialogContent>
+        </Dialog>
 
         {/* 編集ダイアログ */}
         <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>スキャン目的を編集</DialogTitle>
-              <DialogDescription>
+          <DialogContent className="bg-[#232323] border border-[#4BEA8A]/30 text-[#FFFFFF]">
+            <DialogHeader>
+              <DialogTitle className="text-[#4BEA8A]">スキャン目的を編集</DialogTitle>
+              <DialogDescription className="text-[#CCCCCC]">
                 スキャン目的の情報を編集してください
               </DialogDescription>
-          </DialogHeader>
-          {editingPurpose && (
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="edit-name">目的名 *</Label>
-                <Input
-                  id="edit-name"
-                  value={editingPurpose.name}
-                  onChange={(e) => setEditingPurpose({ ...editingPurpose, name: e.target.value })}
+            </DialogHeader>
+            {editingPurpose && (
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="edit-name" className="text-[#FFFFFF]">目的名 *</Label>
+                  <Input
+                    id="edit-name"
+                    value={editingPurpose.name}
+                    onChange={e => setEditingPurpose({ ...editingPurpose, name: e.target.value })}
+                    placeholder="目的名を入力"
+                    className="bg-[#2A2A2A] border-[#4BEA8A]/20 text-[#FFFFFF] placeholder-[#888888] focus:border-[#4BEA8A] focus:ring-[#4BEA8A]"
                     disabled={editingPurpose.order >= 1 && editingPurpose.order <= 5}
-                />
+                    onKeyDown={e => {
+                      if (e.key === 'Enter' && !(editingPurpose.order >= 1 && editingPurpose.order <= 5)) {
+                        e.preventDefault();
+                        handleUpdatePurpose();
+                      }
+                    }}
+                  />
                   {(editingPurpose.order >= 1 && editingPurpose.order <= 5) && (
-                    <p className="text-sm text-red-500 mt-1">
+                    <p className="text-sm text-red-400 mt-1">
                       デフォルト目的は編集できません
                     </p>
                   )}
-              </div>
-              <div>
-                <Label htmlFor="edit-description">説明</Label>
-                <Textarea
-                  id="edit-description"
-                  value={editingPurpose.description || ''}
-                  onChange={(e) => setEditingPurpose({ ...editingPurpose, description: e.target.value })}
+                </div>
+                <div>
+                  <Label htmlFor="edit-desc" className="text-[#FFFFFF]">説明</Label>
+                  <Textarea
+                    id="edit-desc"
+                    value={editingPurpose.description || ''}
+                    onChange={e => setEditingPurpose({ ...editingPurpose, description: e.target.value })}
+                    placeholder="説明（任意）"
+                    className="bg-[#2A2A2A] border-[#4BEA8A]/20 text-[#FFFFFF] placeholder-[#888888] focus:border-[#4BEA8A] focus:ring-[#4BEA8A]"
+                    rows={3}
                     disabled={editingPurpose.order >= 1 && editingPurpose.order <= 5}
-                />
-              </div>
-              <div>
-                <Label htmlFor="edit-order">表示順序</Label>
-                <Input
-                  id="edit-order"
-                  type="number"
-                  value={editingPurpose.order}
-                  onChange={(e) => setEditingPurpose({ ...editingPurpose, order: parseInt(e.target.value) || 0 })}
-                    disabled={editingPurpose.order >= 1 && editingPurpose.order <= 5}
-                />
-              </div>
-              <div>
-                <Label className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={editingPurpose.isActive}
-                    onChange={(e) => setEditingPurpose({ ...editingPurpose, isActive: e.target.checked })}
-                      disabled={editingPurpose.order >= 1 && editingPurpose.order <= 5}
                   />
-                  有効にする
-                </Label>
-              </div>
-              <div className="flex justify-end gap-2">
-                  <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
-                  キャンセル
-                </Button>
+                </div>
+                <div className="flex justify-end gap-2">
+                  <Button variant="outline" className="border-[#4BEA8A] text-[#4BEA8A] hover:bg-[#333333]" onClick={() => setIsEditDialogOpen(false)}>
+                    キャンセル
+                  </Button>
                   <Button 
+                    className="bg-[#4BEA8A] text-[#1E1E1E] hover:bg-[#3DD879] font-semibold"
                     onClick={handleUpdatePurpose} 
                     disabled={isLoading || !editingPurpose.name.trim() || (editingPurpose.order >= 1 && editingPurpose.order <= 5)}
                   >
                     {isLoading ? '更新中...' : '更新'}
                   </Button>
+                </div>
               </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
-    </div>
+            )}
+          </DialogContent>
+        </Dialog>
+      </div>
     </>
   );
 } 

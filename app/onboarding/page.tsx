@@ -209,6 +209,28 @@ function OnboardingPageContent() {
         }
       }
 
+      // 組織に参加した場合、OrganizationProfileを初期化（部署はnullに設定）
+      if (organizationId) {
+        const organizationProfileData = {
+          organizationDepartmentId: null, // 明示的にnullに設定
+          displayName: null,
+          introduction: null,
+        };
+        
+        const organizationProfileResponse = await fetch(
+          `/api/organizations/${organizationId}/members/${userId}/organization-profile`,
+          {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(organizationProfileData),
+          }
+        );
+
+        if (!organizationProfileResponse.ok) {
+          console.error('OrganizationProfileの初期化に失敗しましたが、処理を続行します');
+        }
+      }
+
       if (organizationId) {
         const queryParams = new URLSearchParams({ from_invitation: 'true' });
         const profileEditUrl = `/organization/${organizationId}/OrganizationProfile/${userId}/edit?${queryParams.toString()}`;
@@ -228,10 +250,10 @@ function OnboardingPageContent() {
 
   if (!isLoaded || !userId || isFetchingProfile) {
     return (
-      <div className="flex h-screen w-full items-center justify-center bg-gray-100">
+      <div className="flex h-screen w-full items-center justify-center bg-[#1E1E1E]">
         <div className="flex flex-col items-center gap-4">
-          <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-gray-900"></div>
-          <p className="text-lg text-gray-700">ユーザー情報を読み込み中...</p>
+          <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-[#4BEA8A]"></div>
+          <p className="text-lg text-[#FFFFFF]">ユーザー情報を読み込み中...</p>
         </div>
       </div>
     );
@@ -244,46 +266,61 @@ function OnboardingPageContent() {
   ];
 
   return (
-    <div className="min-h-screen w-full lg:grid lg:grid-cols-2">
-      <div className="hidden lg:flex flex-col items-center justify-center bg-gray-100 p-12 text-center">
-        <Image
-          src="/blacklogo.svg"
-          alt="nexana Illustration"
-          width={300}
-          height={300}
-          priority
-        />
-        <h1 className="mt-8 text-3xl font-bold tracking-tight text-gray-900">
-          ようこそ ネクサナ へ
-        </h1>
-        <p className="mt-4 text-lg text-gray-600">
-          いくつかの簡単なステップで、あなたのプロフィールを完成させましょう。
-        </p>
+    <div className="min-h-screen w-full bg-[#1E1E1E] lg:grid lg:grid-cols-2">
+      {/* 左側のヒーローセクション */}
+      <div className="hidden lg:flex flex-col items-center justify-center bg-gradient-to-br from-[#1E1E1E] to-[#2A2A2A] p-12 text-center relative overflow-hidden">
+        {/* 背景の装飾的な要素 */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-20 left-20 w-32 h-32 bg-[#4BEA8A] rounded-full blur-3xl"></div>
+          <div className="absolute bottom-20 right-20 w-24 h-24 bg-[#4BEA8A] rounded-full blur-2xl"></div>
         </div>
-      <div className="flex flex-col items-center justify-center p-6 sm:p-12">
-        <div className="w-full max-w-md">
-          <div className="mb-8 w-5/6 mx-auto">
+        
+        <div className="relative z-10">
+          <Image
+            src="/White.w.logo.svg"
+            alt="nexana Logo"
+            width={200}
+            height={200}
+            priority
+            className="mb-8"
+          />
+          <h1 className="mt-8 text-4xl font-bold tracking-tight text-[#FFFFFF] mb-4">
+            ようこそ ネクサナ へ
+          </h1>
+          <p className="text-xl text-[#CCCCCC] leading-relaxed max-w-md">
+            いくつかの簡単なステップで、あなたのプロフィールを完成させましょう。
+          </p>
+          
+          {/* ステップインジケーター（左側にも表示） */}
+          <div className="mt-12 w-full max-w-sm">
+            <div className="text-left mb-4">
+              <p className="text-[#4BEA8A] font-semibold text-sm uppercase tracking-wide">
+                ステップ {currentStep} / 3
+              </p>
+            </div>
             <ol className="flex items-center w-full">
               {STEPS.map((step, stepIdx) => (
                 <li
                   key={step.id}
                   className={`flex w-full items-center ${
-                    stepIdx !== STEPS.length - 1 ? "after:content-[''] after:w-full after:h-1 after:border-b after:border-4 after:inline-block" : ''
+                    stepIdx !== STEPS.length - 1 ? "after:content-[''] after:w-full after:h-1 after:border-b after:border-2 after:inline-block" : ''
                   } ${
                     currentStep > step.id
-                      ? 'text-blue-600 after:border-blue-600'
-                      : 'after:border-gray-200'
+                      ? 'text-[#4BEA8A] after:border-[#4BEA8A]'
+                      : currentStep === step.id
+                      ? 'text-[#4BEA8A] after:border-[#4BEA8A]'
+                      : 'text-[#666666] after:border-[#444444]'
                   }`}
                 >
                   <span
-                    className={`flex items-center justify-center w-10 h-10 rounded-full shrink-0 ${
+                    className={`flex items-center justify-center w-8 h-8 rounded-full shrink-0 text-sm font-medium ${
                       currentStep >= step.id
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-gray-200'
+                        ? 'bg-[#4BEA8A] text-[#1E1E1E]'
+                        : 'bg-[#333333] text-[#666666]'
                     }`}
                   >
                     {currentStep > step.id ? (
-                      <CheckCircle className="w-5 h-5" />
+                      <CheckCircle className="w-4 h-4" />
                     ) : (
                       step.id
                     )}
@@ -291,27 +328,74 @@ function OnboardingPageContent() {
                 </li>
               ))}
             </ol>
+          </div>
         </div>
+      </div>
 
-          <Card className="w-full">
-            <CardHeader>
-              <CardTitle>
+      {/* 右側のフォームセクション */}
+      <div className="flex flex-col items-center justify-center p-6 sm:p-12 bg-[#1E1E1E]">
+        <div className="w-full max-w-md">
+          {/* モバイル用ステップインジケーター */}
+          <div className="lg:hidden mb-8 w-full">
+            <div className="text-center mb-4">
+              <p className="text-[#4BEA8A] font-semibold text-sm uppercase tracking-wide">
+                ステップ {currentStep} / 3
+              </p>
+            </div>
+            <ol className="flex items-center w-full">
+              {STEPS.map((step, stepIdx) => (
+                <li
+                  key={step.id}
+                  className={`flex w-full items-center ${
+                    stepIdx !== STEPS.length - 1 ? "after:content-[''] after:w-full after:h-1 after:border-b after:border-2 after:inline-block" : ''
+                  } ${
+                    currentStep > step.id
+                      ? 'text-[#4BEA8A] after:border-[#4BEA8A]'
+                      : currentStep === step.id
+                      ? 'text-[#4BEA8A] after:border-[#4BEA8A]'
+                      : 'text-[#666666] after:border-[#444444]'
+                  }`}
+                >
+                  <span
+                    className={`flex items-center justify-center w-8 h-8 rounded-full shrink-0 text-sm font-medium ${
+                      currentStep >= step.id
+                        ? 'bg-[#4BEA8A] text-[#1E1E1E]'
+                        : 'bg-[#333333] text-[#666666]'
+                    }`}
+                  >
+                    {currentStep > step.id ? (
+                      <CheckCircle className="w-4 h-4" />
+                    ) : (
+                      step.id
+                    )}
+                  </span>
+                </li>
+              ))}
+            </ol>
+          </div>
+
+          <Card className="w-full bg-[#2A2A2A] border-[#444444] shadow-xl">
+            <CardHeader className="pb-6">
+              <CardTitle className="text-[#FFFFFF] text-xl">
                 {currentStep === 1 && 'あなたについて教えてください'}
                 {currentStep === 2 && 'もう少しです'}
                 {currentStep === 3 && '入力内容の確認'}
-                  </CardTitle>
-              <CardDescription>
+              </CardTitle>
+              <CardDescription className="text-[#CCCCCC]">
                 {currentStep === 1 && '姓名をそれぞれ入力してください。'}
                 {currentStep === 2 && '生年月日と性別を選択してください。'}
                 {currentStep === 3 &&
                   '入力内容に間違いがないかご確認ください。'}
               </CardDescription>
-                </CardHeader>
-            <CardContent>
+            </CardHeader>
+            
+            <CardContent className="space-y-6">
               {currentStep === 1 && (
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="lastName">姓</Label>
+                    <Label htmlFor="lastName" className="text-[#FFFFFF] font-medium">
+                      姓
+                    </Label>
                     <Input
                       id="lastName"
                       placeholder="例: 山田"
@@ -319,10 +403,13 @@ function OnboardingPageContent() {
                       onChange={(e) =>
                         handleInputChange('lastName', e.target.value)
                       }
+                      className="bg-[#333333] border-[#555555] text-[#FFFFFF] placeholder-[#888888] focus:border-[#4BEA8A] focus:ring-[#4BEA8A]"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="firstName">名</Label>
+                    <Label htmlFor="firstName" className="text-[#FFFFFF] font-medium">
+                      名
+                    </Label>
                     <Input
                       id="firstName"
                       placeholder="例: 太郎"
@@ -330,73 +417,82 @@ function OnboardingPageContent() {
                       onChange={(e) =>
                         handleInputChange('firstName', e.target.value)
                       }
+                      className="bg-[#333333] border-[#555555] text-[#FFFFFF] placeholder-[#888888] focus:border-[#4BEA8A] focus:ring-[#4BEA8A]"
                     />
+                  </div>
                 </div>
-              </div>
-            )}
-            {currentStep === 2 && (
-                <div className="space-y-4">
+              )}
+              
+              {currentStep === 2 && (
+                <div className="space-y-6">
                   <div className="space-y-2">
-                    <Label>生年月日</Label>
-                      <DateSelect
-                        value={formData.birthday}
-                        onChange={(date) => handleInputChange('birthday', date)}
-                      />
-                    </div>
+                    <Label className="text-[#FFFFFF] font-medium">生年月日</Label>
+                    <DateSelect
+                      value={formData.birthday}
+                      onChange={(date) => handleInputChange('birthday', date)}
+                    />
+                  </div>
                   <div className="space-y-2">
-                    <Label>性別</Label>
+                    <Label className="text-[#FFFFFF] font-medium">性別</Label>
                     <Select
                       value={formData.gender}
                       onValueChange={(value) => handleInputChange('gender', value)}
                     >
-                      <SelectTrigger>
-                        <SelectValue placeholder="性別を選択" />
+                      <SelectTrigger className="bg-[#333333] border-[#555555] text-[#FFFFFF] focus:border-[#4BEA8A] focus:ring-[#4BEA8A]">
+                        <SelectValue placeholder="性別を選択" className="text-[#888888]" />
                       </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="male">男性</SelectItem>
-                        <SelectItem value="female">女性</SelectItem>
-                        <SelectItem value="other">その他</SelectItem>
-                        <SelectItem value="unanswered">無回答</SelectItem>
+                      <SelectContent className="bg-[#333333] border-[#555555]">
+                        <SelectItem value="male" className="text-[#FFFFFF] hover:bg-[#444444]">男性</SelectItem>
+                        <SelectItem value="female" className="text-[#FFFFFF] hover:bg-[#444444]">女性</SelectItem>
+                        <SelectItem value="other" className="text-[#FFFFFF] hover:bg-[#444444]">その他</SelectItem>
+                        <SelectItem value="unanswered" className="text-[#FFFFFF] hover:bg-[#444444]">無回答</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                 </div>
               )}
+              
               {currentStep === 3 && (
-                <div className="space-y-4 text-sm">
-                  <div className="grid grid-cols-3 gap-x-4 gap-y-2 rounded-lg border p-4">
-                    <div className="font-semibold text-gray-600">氏名</div>
-                    <div className="col-span-2">
-                      {formData.lastName} {formData.firstName}
-                    </div>
-                    <div className="font-semibold text-gray-600">生年月日</div>
-                    <div className="col-span-2">
-                      {formData.birthday?.toLocaleDateString()}
-                    </div>
-                    <div className="font-semibold text-gray-600">性別</div>
-                    <div className="col-span-2">
-                      {
+                <div className="space-y-4">
+                  <div className="rounded-lg border border-[#555555] bg-[#333333] p-6">
+                    <div className="grid grid-cols-3 gap-x-4 gap-y-3 text-sm">
+                      <div className="font-semibold text-[#4BEA8A]">氏名</div>
+                      <div className="col-span-2 text-[#FFFFFF]">
+                        {formData.lastName} {formData.firstName}
+                      </div>
+                      <div className="font-semibold text-[#4BEA8A]">生年月日</div>
+                      <div className="col-span-2 text-[#FFFFFF]">
+                        {formData.birthday?.toLocaleDateString()}
+                      </div>
+                      <div className="font-semibold text-[#4BEA8A]">性別</div>
+                      <div className="col-span-2 text-[#FFFFFF]">
                         {
-                          male: '男性',
-                          female: '女性',
-                          other: 'その他',
-                          unanswered: '無回答',
-                        }[formData.gender]
-                      }
+                          {
+                            male: '男性',
+                            female: '女性',
+                            other: 'その他',
+                            unanswered: '無回答',
+                          }[formData.gender]
+                        }
+                      </div>
                     </div>
-                </div>
+                  </div>
                   {error && (
-                    <p className="text-sm text-red-500">{error}</p>
+                    <p className="text-sm text-red-400 bg-red-900/20 p-3 rounded-lg border border-red-800">
+                      {error}
+                    </p>
                   )}
-              </div>
-            )}
-          </CardContent>
-            <CardFooter className="flex justify-between">
+                </div>
+              )}
+            </CardContent>
+            
+            <CardFooter className="flex justify-between pt-6">
               {currentStep > 1 ? (
                 <Button
                   variant="outline"
                   onClick={handleBack}
                   disabled={isLoading}
+                  className="border-[#555555] text-[#1E1E1E] bg-[#FFFFFF] hover:bg-[#F0F0F0] hover:border-[#666666]"
                 >
                   戻る
                 </Button>
@@ -404,11 +500,18 @@ function OnboardingPageContent() {
                 <div />
               )}
               {currentStep < 3 ? (
-                <Button onClick={handleNext}>
+                <Button 
+                  onClick={handleNext}
+                  className="bg-[#4BEA8A] text-[#1E1E1E] hover:bg-[#3DD879] font-semibold"
+                >
                   次へ <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               ) : (
-                <Button onClick={handleSubmit} disabled={isLoading}>
+                <Button 
+                  onClick={handleSubmit} 
+                  disabled={isLoading}
+                  className="bg-[#4BEA8A] text-[#1E1E1E] hover:bg-[#3DD879] font-semibold disabled:opacity-50"
+                >
                   {isLoading ? '保存中...' : '登録して始める'}
                   {!isLoading && (
                     <CheckCircle className="ml-2 h-4 w-4" />
@@ -416,7 +519,7 @@ function OnboardingPageContent() {
                 </Button>
               )}
             </CardFooter>
-        </Card>
+          </Card>
         </div>
       </div>
     </div>
@@ -425,8 +528,15 @@ function OnboardingPageContent() {
 
 export default function OnboardingPage() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={
+      <div className="flex h-screen w-full items-center justify-center bg-[#1E1E1E]">
+        <div className="flex flex-col items-center gap-4">
+          <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-[#4BEA8A]"></div>
+          <p className="text-lg text-[#FFFFFF]">読み込み中...</p>
+        </div>
+      </div>
+    }>
       <OnboardingPageContent />
     </Suspense>
   );
-} 
+}

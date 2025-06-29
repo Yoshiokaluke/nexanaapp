@@ -69,7 +69,6 @@ export const OrganizationHeader: React.FC<OrganizationHeaderProps> = ({
     { href: `/organization/${organizationId}`, label: "Top" },
     { href: `/organization/${organizationId}/my-qr`, label: "MY-QR" },
     { href: `/organization/${organizationId}/OrganizationProfile`, label: "Member" },
-    clerkId && { href: `/organization/${organizationId}/OrganizationProfile/${clerkId}`, label: "MyPage" },
   ].filter(Boolean) as { href: string; label: string }[];
 
   return (
@@ -105,10 +104,17 @@ export const OrganizationHeader: React.FC<OrganizationHeaderProps> = ({
             {isSigningOut ? 'ログアウト中...' : 'ログアウト'}
           </button>
           {clerkId && (
-            <Link href={`/organization/${organizationId}/OrganizationProfile/${clerkId}`} className="ml-4">
-              <Avatar className="w-9 h-9 border-2 border-[#4BEA8A]">
-                <AvatarImage src={profileImage || undefined} alt="My Avatar" />
-                <AvatarFallback>Me</AvatarFallback>
+            <Link href={`/organization/${organizationId}/OrganizationProfile/${clerkId || ''}`} className="ml-4">
+              <Avatar className="w-9 h-9 aspect-square border-2 border-[#4BEA8A] bg-[#232323]">
+                {profileImage && (
+                  <AvatarImage 
+                    src={profileImage} 
+                    alt="My Avatar"
+                    onLoad={() => console.log('AvatarImage loaded successfully:', profileImage)}
+                    onError={(e) => console.error('AvatarImage failed to load:', profileImage, e)}
+                  />
+                )}
+                <AvatarFallback className="bg-[#232323] text-white text-base font-semibold">Me</AvatarFallback>
               </Avatar>
             </Link>
           )}
@@ -125,14 +131,19 @@ export const OrganizationHeader: React.FC<OrganizationHeaderProps> = ({
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V6a1 1 0 00-1-1H5a1 1 0 00-1 1v1a1 1 0 001 1zm12 0h2a1 1 0 001-1V6a1 1 0 00-1-1h-2a1 1 0 00-1 1v1a1 1 0 001 1zM5 20h2a1 1 0 001-1v-1a1 1 0 00-1-1H5a1 1 0 00-1 1v1a1 1 0 001 1z" />
             </svg>
           </Link>
-          {clerkId && (
-            <Link href={`/organization/${organizationId}/OrganizationProfile/${clerkId}`}>
-              <Avatar className="w-8 h-8 border-2 border-[#4BEA8A]">
-                <AvatarImage src={profileImage || undefined} alt="My Avatar" />
-                <AvatarFallback>Me</AvatarFallback>
-              </Avatar>
-            </Link>
-          )}
+          <Link href={`/organization/${organizationId}/OrganizationProfile/${clerkId || ''}`}>
+            <Avatar className="w-8 h-8 aspect-square border-2 border-[#4BEA8A] bg-[#232323]">
+              {profileImage && (
+                <AvatarImage 
+                  src={profileImage} 
+                  alt="My Avatar"
+                  onLoad={() => console.log('Mobile AvatarImage loaded successfully:', profileImage)}
+                  onError={(e) => console.error('Mobile AvatarImage failed to load:', profileImage, e)}
+                />
+              )}
+              <AvatarFallback className="bg-[#232323] text-white text-base font-semibold">Me</AvatarFallback>
+            </Avatar>
+          </Link>
           <button
             className="flex items-center justify-center w-10 h-10 rounded focus:outline-none focus:ring-2 focus:ring-[#4BEA8A]"
             onClick={() => setMenuOpen(!menuOpen)}

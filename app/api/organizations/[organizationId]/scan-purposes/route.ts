@@ -2,6 +2,15 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs';
 import { prisma } from '@/lib/prisma';
 
+// デフォルトスキャン目的リスト
+const DEFAULT_SCAN_PURPOSES = [
+  { name: '休憩', description: 'リフレッシュや休息のための目的', order: 1 },
+  { name: '1on1', description: '1対1の面談や相談', order: 2 },
+  { name: 'カジュアルトーク', description: '気軽な雑談やコミュニケーション', order: 3 },
+  { name: '雑談', description: '自由な会話や情報交換', order: 4 },
+  { name: '相談', description: '業務やプライベートの相談', order: 5 },
+];
+
 // スキャン目的一覧の取得
 export async function GET(
   request: NextRequest,
@@ -26,17 +35,30 @@ export async function GET(
 
     // system_team権限の場合は全ての組織にアクセス可能
     if (user?.systemRole === 'system_team') {
-      // スキャン目的一覧を取得
-      const scanPurposes = await prisma.scanPurpose.findMany({
-        where: {
-          organizationId: organizationId
-        },
-        orderBy: [
-          { order: 'asc' },
-          { createdAt: 'desc' }
-        ]
+      let scanPurposes = await prisma.scanPurpose.findMany({
+        where: { organizationId: organizationId },
+        orderBy: [ { order: 'asc' }, { createdAt: 'desc' } ]
       });
-
+      // デフォルト目的がなければ自動登録
+      if (scanPurposes.length === 0) {
+        await prisma.$transaction(
+          DEFAULT_SCAN_PURPOSES.map((purpose) =>
+            prisma.scanPurpose.create({
+              data: {
+                organizationId,
+                name: purpose.name,
+                description: purpose.description,
+                order: purpose.order,
+                isActive: true
+              }
+            })
+          )
+        );
+        scanPurposes = await prisma.scanPurpose.findMany({
+          where: { organizationId: organizationId },
+          orderBy: [ { order: 'asc' }, { createdAt: 'desc' } ]
+        });
+      }
       return NextResponse.json(scanPurposes);
     }
 
@@ -56,17 +78,30 @@ export async function GET(
       );
     }
 
-    // スキャン目的一覧を取得
-    const scanPurposes = await prisma.scanPurpose.findMany({
-      where: {
-        organizationId: organizationId
-      },
-      orderBy: [
-        { order: 'asc' },
-        { createdAt: 'desc' }
-      ]
+    let scanPurposes = await prisma.scanPurpose.findMany({
+      where: { organizationId: organizationId },
+      orderBy: [ { order: 'asc' }, { createdAt: 'desc' } ]
     });
-
+    // デフォルト目的がなければ自動登録
+    if (scanPurposes.length === 0) {
+      await prisma.$transaction(
+        DEFAULT_SCAN_PURPOSES.map((purpose) =>
+          prisma.scanPurpose.create({
+            data: {
+              organizationId,
+              name: purpose.name,
+              description: purpose.description,
+              order: purpose.order,
+              isActive: true
+            }
+          })
+        )
+      );
+      scanPurposes = await prisma.scanPurpose.findMany({
+        where: { organizationId: organizationId },
+        orderBy: [ { order: 'asc' }, { createdAt: 'desc' } ]
+      });
+    }
     return NextResponse.json(scanPurposes);
   } catch (error) {
     console.error('スキャン目的取得エラー:', error);

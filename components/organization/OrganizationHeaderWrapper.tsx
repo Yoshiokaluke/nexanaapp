@@ -1,11 +1,12 @@
 "use client";
 import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import { OrganizationHeader } from '@/components/organization/OrganizationHeader';
 import { OrganizationNameDisplay } from '@/components/organization/OrganizationNameDisplay';
 
 export function OrganizationHeaderWrapper() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const organizationId = params.organizationId as string;
   const [organizationName, setOrganizationName] = useState('');
   const [isSystemTeam, setIsSystemTeam] = useState(false);
@@ -13,6 +14,10 @@ export function OrganizationHeaderWrapper() {
   const [clerkId, setClerkId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // オンボーディング中は何も表示しない
+  const isOnboarding = searchParams.get('from_invitation') === 'true';
+  if (isOnboarding) return null;
 
   useEffect(() => {
     const fetchRole = async () => {

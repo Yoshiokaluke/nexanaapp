@@ -60,10 +60,18 @@ const ActionButtons = ({
       size="sm"
       onClick={onSave}
       disabled={disabled}
+      className="bg-[#4BEA8A] text-[#1E1E1E] hover:bg-[#3DD879] font-semibold"
     >
       保存
     </Button>
-    <Button type="button" variant="outline" size="sm" onClick={onCancel}>
+    <Button
+      type="button"
+      variant="outline"
+      size="sm"
+      onClick={onCancel}
+      disabled={disabled}
+      className="flex-1 border-[#CCCCCC] bg-[#F5F5F5] text-black hover:bg-[#E0E0E0] hover:text-black hover:border-[#CCCCCC]"
+    >
       キャンセル
     </Button>
   </div>
@@ -132,6 +140,15 @@ export default function OrganizationProfileEditPage() {
   const token = searchParams.get('token');
 
   useEffect(() => {
+    console.log('=== ページ初期化 ===');
+    console.log('現在のユーザー:', clerkUser);
+    console.log('URLパラメータ:', params);
+    console.log('ユーザーID比較:', {
+      currentUserId: clerkUser?.id,
+      targetUserId: params.clerkId,
+      isMatch: clerkUser?.id === params.clerkId
+    });
+    
     checkAccessAndFetchData();
   }, [params.organizationId, params.clerkId]);
 
@@ -166,28 +183,44 @@ export default function OrganizationProfileEditPage() {
 
   const checkAccessAndFetchData = async () => {
     try {
+      console.log('=== アクセスチェック開始 ===');
+      console.log('現在のユーザーID:', clerkUser?.id);
+      console.log('対象ユーザーID:', params.clerkId);
+      
       // 権限チェック: 現在のユーザーと編集対象のユーザーが一致する場合のみ
       if (clerkUser?.id !== params.clerkId) {
+        console.log('❌ 権限エラー: 自分のプロフィールのみ編集できます');
         toast.error('自分のプロフィールのみ編集できます');
         router.push(`/organization/${params.organizationId}/OrganizationProfile/${params.clerkId}`);
         return;
       }
 
+      console.log('✅ 権限チェック通過');
+
       // 組織メンバーシップの確認
+      console.log('組織メンバーシップ確認開始');
       const accessResponse = await fetch(`/api/auth/check-access`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           organizationId: params.organizationId,
-          clerkId: params.clerkId,
+          targetClerkId: params.clerkId,
         }),
       });
 
+      console.log('アクセス確認レスポンス:', {
+        status: accessResponse.status,
+        ok: accessResponse.ok
+      });
+
       if (!accessResponse.ok) {
+        console.log('❌ アクセス権限がありません');
         toast.error('アクセス権限がありません');
         router.push(`/organization/${params.organizationId}/OrganizationProfile`);
         return;
       }
+      
+      console.log('✅ アクセス権限確認完了');
       setHasAccess(true);
 
       // 組織情報の取得
@@ -198,44 +231,64 @@ export default function OrganizationProfileEditPage() {
       }
 
       // 組織プロフィールの取得
+      console.log('組織プロフィール取得開始:', {
+        organizationId: params.organizationId,
+        clerkId: params.clerkId
+      });
+      
       const profileResponse = await fetch(
         `/api/organizations/${params.organizationId}/members/${params.clerkId}/organization-profile`
       );
-      if (!profileResponse.ok)
-        throw new Error('プロフィールの取得に失敗しました');
-      const profileData = await profileResponse.json();
-      setOrganizationProfile(profileData);
+      
+      console.log('組織プロフィールレスポンス:', {
+        status: profileResponse.status,
+        ok: profileResponse.ok
+      });
+      
+      if (profileResponse.ok) {
+        const profileData = await profileResponse.json();
+        console.log('組織プロフィールデータ:', profileData);
+        setOrganizationProfile(profileData);
+        setEditingDisplayName(profileData.displayName || '');
+        if (!profileData.id) {
+          setEditingOrganizationDepartmentId('');
+        } else {
+          setEditingOrganizationDepartmentId(profileData.organizationDepartmentId || '');
+        }
+        setEditingIntroduction(profileData.introduction || '');
+      } else {
+        console.error('組織プロフィール取得エラー:', profileResponse.status, await profileResponse.text());
+      }
 
       // ユーザー情報の取得
-      const userResponse = await fetch(
-        `/api/users/${params.clerkId}/profile?organizationId=${params.organizationId}`
-      );
-      if (!userResponse.ok) throw new Error('ユーザー情報の取得に失敗しました');
-      const userData = await userResponse.json();
-      setUser(userData);
-
-      // 編集用の状態を設定
-      setEditingDisplayName(profileData.displayName || '');
-      setEditingOrganizationDepartmentId(
-        profileData.organizationDepartmentId || ''
-      );
-      setEditingIntroduction(profileData.introduction || '');
+      console.log('ユーザー情報取得開始');
+      const userResponse = await fetch(`/api/users/${params.clerkId}/profile?organizationId=${params.organizationId}`);
+      console.log('ユーザー情報レスポンス:', {
+        status: userResponse.status,
+        ok: userResponse.ok
+      });
+      
+      if (userResponse.ok) {
+        const userData = await userResponse.json();
+        console.log('ユーザー情報データ:', userData);
+        setUser(userData);
+      } else {
+        console.error('ユーザー情報取得エラー:', userResponse.status, await userResponse.text());
+      }
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error fetching data:', error);
       toast.error('データの取得に失敗しました');
     } finally {
       setIsLoading(false);
     }
   };
 
-  // 必須項目の完了状況をチェック
   const checkRequiredFields = () => {
-    const missingFields: string[] = [];
-    if (!organizationProfile?.displayName) missingFields.push('displayName');
-    // DBに保存されている部署ID、または現在編集中に選択された部署IDのいずれかがない場合
-    if (!organizationProfile?.organizationDepartmentId && !editingOrganizationDepartmentId) {
-      missingFields.push('department');
-    }
+    if (!organizationProfile) return { isComplete: false, missingFields: [] };
+    
+    const missingFields = [];
+    if (!organizationProfile.displayName) missingFields.push('表示名');
+    if (!organizationProfile.organizationDepartmentId) missingFields.push('部署');
     
     return {
       isComplete: missingFields.length === 0,
@@ -243,88 +296,82 @@ export default function OrganizationProfileEditPage() {
     };
   };
 
-  // 必須項目が完了した時の処理
   const handleRequiredFieldsComplete = async () => {
-    if (!isFromInvitation) return;
-
-    // 招待を受け入れる
+    if (!invitationId || !token) return;
+    
     const success = await acceptInvitation();
     if (success) {
-      // 組織ページに遷移
       router.push(`/organization/${params.organizationId}`);
     }
   };
 
   const handleSaveDisplayName = async () => {
+    if (!organizationProfile) return;
+
+    setIsSaving(true);
     try {
-      setIsSaving(true);
-      const response = await fetch(
-        `/api/organizations/${params.organizationId}/members/${params.clerkId}/organization-profile`,
-        {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ displayName: editingDisplayName }),
-        }
-      );
-      if (!response.ok) throw new Error('更新に失敗しました');
+      const response = await fetch(`/api/organizations/${params.organizationId}/members/${params.clerkId}/organization-profile`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ displayName: editingDisplayName }),
+      });
+
+      if (!response.ok) throw new Error('表示名の保存に失敗しました');
+
       const updatedProfile = await response.json();
       setOrganizationProfile(updatedProfile);
       setIsEditingDisplayName(false);
-      toast.success('表示名を更新しました');
+      toast.success('表示名を保存しました');
     } catch (error) {
-      toast.error('更新に失敗しました');
+      toast.error(error instanceof Error ? error.message : '表示名の保存に失敗しました');
     } finally {
       setIsSaving(false);
     }
   };
 
   const handleSaveDepartment = async () => {
-    if (!editingOrganizationDepartmentId) {
-      toast.error('部署を選択してください');
-      return;
-    }
+    if (!organizationProfile) return;
+
+    setIsSaving(true);
     try {
-      setIsSaving(true);
-      const response = await fetch(
-        `/api/organizations/${params.organizationId}/members/${params.clerkId}/organization-profile`,
-        {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            organizationDepartmentId: editingOrganizationDepartmentId,
-          }),
-        }
-      );
-      if (!response.ok) throw new Error('更新に失敗しました');
+      const response = await fetch(`/api/organizations/${params.organizationId}/members/${params.clerkId}/organization-profile`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ organizationDepartmentId: editingOrganizationDepartmentId }),
+      });
+
+      if (!response.ok) throw new Error('部署の保存に失敗しました');
+
       const updatedProfile = await response.json();
       setOrganizationProfile(updatedProfile);
       setIsEditingDepartment(false);
-      toast.success('部署を更新しました');
+      toast.success('部署を保存しました');
     } catch (error) {
-      toast.error('更新に失敗しました');
+      toast.error(error instanceof Error ? error.message : '部署の保存に失敗しました');
     } finally {
       setIsSaving(false);
     }
   };
 
   const handleSaveIntroduction = async () => {
+    if (!organizationProfile) return;
+
+    setIsSaving(true);
     try {
-      setIsSaving(true);
-      const response = await fetch(
-        `/api/organizations/${params.organizationId}/members/${params.clerkId}/organization-profile`,
-        {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ introduction: editingIntroduction }),
-        }
-      );
-      if (!response.ok) throw new Error('更新に失敗しました');
+      const response = await fetch(`/api/organizations/${params.organizationId}/members/${params.clerkId}/organization-profile`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ introduction: editingIntroduction }),
+      });
+
+      if (!response.ok) throw new Error('自己紹介の保存に失敗しました');
+
       const updatedProfile = await response.json();
       setOrganizationProfile(updatedProfile);
       setIsEditingIntroduction(false);
-      toast.success('自己紹介を更新しました');
+      toast.success('自己紹介を保存しました');
     } catch (error) {
-      toast.error('更新に失敗しました');
+      toast.error(error instanceof Error ? error.message : '自己紹介の保存に失敗しました');
     } finally {
       setIsSaving(false);
     }
@@ -334,48 +381,56 @@ export default function OrganizationProfileEditPage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error('ファイルサイズは5MB以下にしてください');
-      return;
-    }
-    if (!file.type.startsWith('image/')) {
-      toast.error('画像ファイルのみアップロード可能です');
-      return;
-    }
-
-    setPreviewImage(URL.createObjectURL(file));
-    setIsEditingImage(true); // プレビュー表示のために編集モードを維持
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setPreviewImage(e.target?.result as string);
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleSaveImage = async () => {
     if (!previewImage) return;
-    // Base64からFileオブジェクトに変換
-    const res = await fetch(previewImage);
-    const blob = await res.blob();
-    const file = new File([blob], "profile-image.jpg", { type: "image/jpeg" });
 
-    const formData = new FormData();
-    formData.append('file', file);
-
+    setIsUploading(true);
     try {
-      setIsUploading(true);
-      const response = await fetch(
-        `/api/organizations/${params.organizationId}/members/${params.clerkId}/organization-profile/image`,
-        {
-          method: 'POST',
-          body: formData,
-        }
-      );
-      if (!response.ok) {
-        throw new Error(await response.text());
+      // Base64データをBlobに変換
+      const response = await fetch(previewImage);
+      const blob = await response.blob();
+
+      const formData = new FormData();
+      formData.append('file', blob, 'profile-image.jpg');
+
+      console.log('画像アップロード開始');
+      const uploadResponse = await fetch(`/api/organizations/${params.organizationId}/members/${params.clerkId}/organization-profile/image`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      console.log('画像アップロードレスポンス:', {
+        status: uploadResponse.status,
+        ok: uploadResponse.ok
+      });
+
+      if (!uploadResponse.ok) {
+        const errorText = await uploadResponse.text();
+        console.error('画像アップロードエラー:', {
+          status: uploadResponse.status,
+          statusText: uploadResponse.statusText,
+          errorText: errorText
+        });
+        throw new Error(`画像のアップロードに失敗しました: ${errorText}`);
       }
-      const updatedProfile = await response.json();
-      setOrganizationProfile(updatedProfile); // ここでStateを更新
-      toast.success('画像を更新しました');
-      handleCancelImage(); // プレビューと編集モードをリセット
+
+      const updatedProfile = await uploadResponse.json();
+      console.log('更新後のプロフィール:', updatedProfile);
+      
+      setOrganizationProfile(updatedProfile);
+      setPreviewImage(null);
+      setIsEditingImage(false);
+      toast.success('プロフィール画像を保存しました');
     } catch (error) {
-      console.error(error);
-      toast.error(error instanceof Error ? error.message : '画像のアップロードに失敗しました');
+      console.error('画像保存エラー:', error);
+      toast.error(error instanceof Error ? error.message : '画像の保存に失敗しました');
     } finally {
       setIsUploading(false);
     }
@@ -387,17 +442,17 @@ export default function OrganizationProfileEditPage() {
   };
 
   const handleImageDelete = async () => {
+    if (!organizationProfile?.profileImage) return;
+
+    setIsUploading(true);
     try {
-      setIsUploading(true);
-      const response = await fetch(
-        `/api/organizations/${params.organizationId}/members/${params.clerkId}/organization-profile/image`,
-        {
-          method: 'DELETE',
-        }
-      );
-      if (!response.ok) {
-        throw new Error(await response.text());
-      }
+      const response = await fetch(`/api/organizations/${params.organizationId}/members/${params.clerkId}/organization-profile`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ profileImage: null }),
+      });
+
+      if (!response.ok) throw new Error('画像の削除に失敗しました');
       const updatedProfile = await response.json();
       setOrganizationProfile(updatedProfile); // ここでStateを更新
       toast.success('画像を削除しました');
@@ -411,32 +466,26 @@ export default function OrganizationProfileEditPage() {
 
   if (isLoading) {
     return (
-      <div className="p-4 md:p-8 max-w-4xl mx-auto animate-pulse">
-        <div className="h-8 bg-gray-200 rounded w-1/3 mb-6"></div>
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex flex-col md:flex-row items-center gap-6">
-              <div className="w-32 h-32 rounded-full bg-gray-200"></div>
-              <div className="flex-1 w-full">
-                <div className="h-6 bg-gray-200 rounded w-1/2 mb-4"></div>
-                <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
-                <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="min-h-screen bg-[#1E1E1E] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-[#4BEA8A]"></div>
+          <p className="text-lg text-[#FFFFFF]">プロフィール情報を読み込み中...</p>
+        </div>
       </div>
     );
   }
 
   if (!hasAccess || !organizationProfile || !user) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="min-h-screen bg-[#1E1E1E] flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold mb-4">
+          <h2 className="text-2xl font-bold mb-4 text-[#FFFFFF]">
             プロフィールが見つかりません
           </h2>
-          <Button onClick={() => router.push(`/organization/${params.organizationId}/OrganizationProfile`)}>
+          <Button 
+            onClick={() => router.push(`/organization/${params.organizationId}/OrganizationProfile`)}
+            className="bg-[#4BEA8A] text-[#1E1E1E] hover:bg-[#3DD879] font-semibold"
+          >
             メンバー一覧に戻る
           </Button>
         </div>
@@ -457,29 +506,46 @@ export default function OrganizationProfileEditPage() {
   const canProceed = requiredFieldsStatus.isComplete;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#1E1E1E]">
       <div className="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8">
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2">
-          {organizationName}
-        </h1>
-        <p className="text-gray-500 mb-6">プロフィール設定</p>
+        {/* ヘッダー */}
+        <div className="mb-8">
+          <div className="flex items-center gap-4 mb-4">
+            {!isFromInvitation && (
+              <Link 
+                href={`/organization/${params.organizationId}/OrganizationProfile/${params.clerkId}`}
+                className="text-[#4BEA8A] hover:text-[#3DD879] transition-colors"
+              >
+                <ArrowLeft className="w-5 h-5" />
+              </Link>
+            )}
+            <h1 className="text-2xl md:text-3xl font-bold text-[#FFFFFF]">
+              {organizationName}
+            </h1>
+          </div>
+          <p className="text-[#CCCCCC] text-lg">プロフィール設定</p>
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* 左側: プロフィール画像 */}
           <div className="md:col-span-1">
-            <Card className="p-6">
+            <Card className="bg-[#2A2A2A] border-[#444444] shadow-xl">
+              <CardContent className="p-6">
                 <div className="text-center mb-6">
                   <div className="relative inline-block">
                     <Avatar
                       key={organizationProfile.updatedAt}
-                      className="w-32 h-32 mx-auto mb-4"
+                      className="w-32 h-32 mx-auto mb-4 ring-4 ring-[#4BEA8A]/30"
                     >
                       <AvatarImage src={imageUrl} alt="プロフィール画像" />
-                      <AvatarFallback />
+                      <AvatarFallback className="bg-gradient-to-br from-[#4BEA8A] to-[#3DD879] text-[#1E1E1E]">
+                        <User className="w-12 h-12" />
+                      </AvatarFallback>
                     </Avatar>
                     <div className="mt-4 space-y-2">
                       {previewImage ? (
                         <div className="space-y-2">
-                          <div className="text-sm text-gray-600 mb-2">
+                          <div className="text-sm text-[#4BEA8A] mb-2 font-medium">
                             プレビュー
                           </div>
                           <div className="flex gap-2">
@@ -487,7 +553,7 @@ export default function OrganizationProfileEditPage() {
                               onClick={handleSaveImage}
                               disabled={isUploading}
                               size="sm"
-                              className="flex-1"
+                              className="flex-1 bg-[#4BEA8A] text-[#1E1E1E] hover:bg-[#3DD879] font-semibold"
                             >
                               {isUploading ? '保存中...' : '保存'}
                             </Button>
@@ -496,7 +562,7 @@ export default function OrganizationProfileEditPage() {
                               onClick={handleCancelImage}
                               disabled={isUploading}
                               size="sm"
-                              className="flex-1"
+                              className="flex-1 border-[#CCCCCC] bg-[#F5F5F5] text-black hover:bg-[#E0E0E0] hover:text-black hover:border-[#CCCCCC]"
                             >
                               キャンセル
                             </Button>
@@ -504,7 +570,7 @@ export default function OrganizationProfileEditPage() {
                         </div>
                       ) : isEditingImage ? (
                         <div className="space-y-2">
-                          <label className="cursor-pointer w-full inline-flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+                          <label className="cursor-pointer w-full inline-flex items-center justify-center px-4 py-2 bg-[#4BEA8A] text-[#1E1E1E] rounded-md hover:bg-[#3DD879] transition-colors font-semibold">
                             <Upload className="w-4 h-4 mr-2" />
                             画像を変更
                             <input
@@ -520,9 +586,9 @@ export default function OrganizationProfileEditPage() {
                             size="sm"
                             onClick={handleImageDelete}
                             disabled={isUploading}
-                            className="w-full"
+                            className="w-full border-[#555555] bg-[#fff] text-[#222] hover:bg-[#f0f0f0] hover:text-[#111] font-semibold"
                           >
-                            <X className="w-4 h-4 mr-2" />
+                            <X className="w-4 h-4 mr-2 text-[#222]" />
                             画像を削除
                           </Button>
                           <Button
@@ -530,7 +596,7 @@ export default function OrganizationProfileEditPage() {
                             size="sm"
                             onClick={() => setIsEditingImage(false)}
                             disabled={isUploading}
-                            className="w-full"
+                            className="w-full text-[#CCCCCC] hover:text-[#FFFFFF] hover:bg-[#333333]"
                           >
                             キャンセル
                           </Button>
@@ -540,13 +606,13 @@ export default function OrganizationProfileEditPage() {
                           variant="outline"
                           size="sm"
                           onClick={() => setIsEditingImage(true)}
-                          className="w-full"
+                          className="w-full border-[#555555] bg-[#fff] text-[#222] hover:bg-[#f0f0f0] hover:text-[#111] font-semibold"
                         >
-                          <Pencil className="w-4 h-4 mr-2" />
+                          <Pencil className="w-4 h-4 mr-2 text-[#222]" />
                           画像を編集
                         </Button>
                       ) : (
-                        <label className="cursor-pointer inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+                        <label className="cursor-pointer inline-flex items-center px-4 py-2 bg-[#4BEA8A] text-[#1E1E1E] rounded-md hover:bg-[#3DD879] transition-colors font-semibold">
                           <Upload className="w-4 h-4 mr-2" />
                           画像をアップロード
                           <input
@@ -562,12 +628,12 @@ export default function OrganizationProfileEditPage() {
                   </div>
                 </div>
                 <div className="space-y-4">
-                  <div className="flex items-center space-x-2 text-gray-600">
-                    <Mail className="w-4 h-4" />
+                  <div className="flex items-center space-x-2 text-[#CCCCCC]">
+                    <Mail className="w-4 h-4 text-[#4BEA8A]" />
                     <span className="text-sm">{user.email}</span>
                   </div>
-                  <div className="flex items-center space-x-2 text-gray-600">
-                    <User className="w-4 h-4" />
+                  <div className="flex items-center space-x-2 text-[#CCCCCC]">
+                    <User className="w-4 h-4 text-[#4BEA8A]" />
                     <span className="text-sm">
                       {user.firstName && user.lastName
                         ? `${user.firstName} ${user.lastName}`
@@ -575,17 +641,19 @@ export default function OrganizationProfileEditPage() {
                     </span>
                   </div>
                 </div>
+              </CardContent>
             </Card>
           </div>
 
+          {/* 右側: プロフィール情報 */}
           <div className="md:col-span-2 space-y-6">
-            <Card>
+            <Card className="bg-[#2A2A2A] border-[#444444] shadow-xl">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <Label className="text-lg font-semibold">
+                  <Label className="text-lg font-semibold text-[#FFFFFF]">
                     表示名
                     {isFromInvitation && !organizationProfile.displayName && (
-                      <span className="text-red-500 ml-1">*必須</span>
+                      <span className="text-red-400 ml-1">*必須</span>
                     )}
                   </Label>
                   {!isEditingDisplayName && (
@@ -593,6 +661,7 @@ export default function OrganizationProfileEditPage() {
                       variant="ghost"
                       size="sm"
                       onClick={() => setIsEditingDisplayName(true)}
+                      className="text-[#4BEA8A] hover:text-[#3DD879] hover:bg-[#333333]"
                     >
                       <Pencil className="w-4 h-4 mr-2" />
                       編集
@@ -605,7 +674,7 @@ export default function OrganizationProfileEditPage() {
                       value={editingDisplayName}
                       onChange={(e) => setEditingDisplayName(e.target.value)}
                       placeholder="表示名を入力"
-                      className="w-full"
+                      className="w-full bg-[#333333] border-[#555555] text-[#FFFFFF] placeholder-[#888888] focus:border-[#4BEA8A] focus:ring-[#4BEA8A]"
                     />
                     <ActionButtons
                       onSave={handleSaveDisplayName}
@@ -617,20 +686,20 @@ export default function OrganizationProfileEditPage() {
                     />
                   </div>
                 ) : (
-                  <div className="text-gray-700">
+                  <div className="text-[#FFFFFF]">
                     {organizationProfile.displayName || '未設定'}
                   </div>
                 )}
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="bg-[#2A2A2A] border-[#444444] shadow-xl">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <Label className="text-lg font-semibold">
+                  <Label className="text-lg font-semibold text-[#FFFFFF]">
                     部署
                     {(isFromInvitation && !organizationProfile.organizationDepartmentId) && (
-                      <span className="text-red-500 ml-1">*必須</span>
+                      <span className="text-red-400 ml-1">*必須</span>
                     )}
                   </Label>
                   {!isEditingDepartment && (
@@ -638,6 +707,7 @@ export default function OrganizationProfileEditPage() {
                       variant="ghost"
                       size="sm"
                       onClick={() => setIsEditingDepartment(true)}
+                      className="text-[#4BEA8A] hover:text-[#3DD879] hover:bg-[#333333]"
                     >
                       <Pencil className="w-4 h-4 mr-2" />
                       編集
@@ -663,17 +733,17 @@ export default function OrganizationProfileEditPage() {
                     />
                   </div>
                 ) : (
-                  <div className="text-gray-700">
+                  <div className="text-[#FFFFFF]">
                     {organizationProfile.organizationDepartment?.name || '未設定'}
                   </div>
                 )}
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="bg-[#2A2A2A] border-[#444444] shadow-xl">
               <CardContent className="p-6">
                 <div className="flex justify-between items-center">
-                  <Label htmlFor="introduction" className="font-semibold">
+                  <Label htmlFor="introduction" className="font-semibold text-[#FFFFFF]">
                     自己紹介
                   </Label>
                   {!isEditingIntroduction && (
@@ -681,6 +751,7 @@ export default function OrganizationProfileEditPage() {
                       variant="ghost"
                       size="sm"
                       onClick={() => setIsEditingIntroduction(true)}
+                      className="text-[#4BEA8A] hover:text-[#3DD879] hover:bg-[#333333]"
                     >
                       <Pencil className="w-4 h-4 mr-2" />
                       編集
@@ -694,7 +765,7 @@ export default function OrganizationProfileEditPage() {
                       value={editingIntroduction}
                       onChange={(e) => setEditingIntroduction(e.target.value)}
                       placeholder="自己紹介を入力してください"
-                      className="mt-2"
+                      className="mt-2 bg-[#333333] border-[#555555] text-[#FFFFFF] placeholder-[#888888] focus:border-[#4BEA8A] focus:ring-[#4BEA8A]"
                       rows={5}
                     />
                     <ActionButtons
@@ -704,7 +775,7 @@ export default function OrganizationProfileEditPage() {
                     />
                   </>
                 ) : (
-                  <p className="text-gray-600 mt-2 whitespace-pre-wrap">
+                  <p className="text-[#CCCCCC] mt-2 whitespace-pre-wrap">
                     {organizationProfile.introduction || '未設定'}
                   </p>
                 )}
@@ -713,18 +784,22 @@ export default function OrganizationProfileEditPage() {
           </div>
         </div>
 
+        {/* 招待フロー用の通知 */}
         <div>
           {isFromInvitation && !canProceed && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
-              className="mt-8 p-6 bg-gradient-to-br from-yellow-50 to-amber-50 border-t-4 border-amber-400 rounded-lg text-center shadow-lg"
+              className="mt-8 p-6 bg-gradient-to-br from-[#2A2A2A] to-[#1E1E1E] border-t-4 border-[#4BEA8A] rounded-lg text-center shadow-xl"
             >
-              <AlertCircle className="w-10 h-10 text-amber-500 mx-auto mb-2" />
-              <h3 className="text-base font-bold text-gray-800">
+              <AlertCircle className="w-10 h-10 text-[#4BEA8A] mx-auto mb-2" />
+              <h3 className="text-base font-bold text-[#FFFFFF]">
                 必須項目が完了していません
               </h3>
+              <p className="text-[#CCCCCC] mt-2">
+                表示名と部署を設定してください。
+              </p>
             </motion.div>
           )}
           {isFromInvitation && canProceed && (
@@ -732,14 +807,14 @@ export default function OrganizationProfileEditPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
-              className="mt-8 p-6 bg-gradient-to-br from-green-50 to-teal-50 border-t-4 border-green-400 rounded-lg text-center shadow-lg"
+              className="mt-8 p-6 bg-gradient-to-br from-[#2A2A2A] to-[#1E1E1E] border-t-4 border-[#4BEA8A] rounded-lg text-center shadow-xl"
             >
-              <CheckCircle className="w-10 h-10 text-green-500 mx-auto mb-2" />
-              <h3 className="text-base font-bold text-gray-800">すべての必須項目が登録されました</h3>
-              <p className="text-sm text-gray-700 mt-2 mb-4">下のボタンから組織ページに進んでください。</p>
+              <CheckCircle className="w-10 h-10 text-[#4BEA8A] mx-auto mb-2" />
+              <h3 className="text-base font-bold text-[#FFFFFF]">すべての必須項目が登録されました</h3>
+              <p className="text-[#CCCCCC] mt-2 mb-4">下のボタンから組織ページに進んでください。</p>
               <Button
                 onClick={() => router.push(`/organization/${params.organizationId}`)}
-                className="bg-green-600 hover:bg-green-700 text-white"
+                className="bg-[#4BEA8A] hover:bg-[#3DD879] text-[#1E1E1E] font-semibold"
               >
                 組織ページへ
               </Button>
@@ -763,23 +838,23 @@ function DepartmentSelect({
   const { departments, loading } = useDepartments(organizationId);
 
   if (loading) {
-    return <div className="text-gray-500">部署を読み込み中...</div>;
+    return <div className="text-[#CCCCCC]">部署を読み込み中...</div>;
   }
 
   // departmentsが配列でない場合のエラーハンドリング
   if (!Array.isArray(departments)) {
     console.error('departments is not an array:', departments);
-    return <div className="text-red-500">部署データの読み込みに失敗しました</div>;
+    return <div className="text-red-400">部署データの読み込みに失敗しました</div>;
   }
 
   return (
     <Select value={organizationDepartmentId} onValueChange={onChange}>
-      <SelectTrigger className="w-full">
-        <SelectValue placeholder="部署を選択" />
+      <SelectTrigger className="w-full bg-[#333333] border-[#555555] text-[#FFFFFF] focus:border-[#4BEA8A] focus:ring-[#4BEA8A]">
+        <SelectValue placeholder="部署を選択" className="text-[#888888]" />
       </SelectTrigger>
-      <SelectContent>
+      <SelectContent className="bg-[#333333] border-[#555555]">
         {departments.map((department) => (
-          <SelectItem key={department.id} value={department.id}>
+          <SelectItem key={department.id} value={department.id} className="text-[#FFFFFF] hover:bg-[#444444]">
             {department.name}
           </SelectItem>
         ))}

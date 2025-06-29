@@ -84,7 +84,7 @@ const checkOrganizationAccess = async (userId: string | null, req: NextRequest) 
     // 2. 次に: 組織メンバーシップをチェック
     const membership = await prisma.organizationMembership.findFirst({
       where: {
-        user: { clerkId: userId },
+        clerkId: userId,
         organizationId,
         role: { in: ['admin', 'member'] }
       }

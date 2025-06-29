@@ -45,7 +45,7 @@ export const checkOrganizationRole = async (
 ): Promise<boolean> => {
   const membership = await prisma.organizationMembership.findFirst({
     where: {
-      user: { clerkId: clerkUserId },
+      clerkId: clerkUserId,
       organizationId,
     },
     select: { role: true }

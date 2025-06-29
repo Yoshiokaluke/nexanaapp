@@ -9,9 +9,16 @@ export async function GET(
   { params }: { params: Promise<{ organizationId: string; clerkId: string }> }
 ) {
   const { organizationId, clerkId } = await params;
+  
+  console.log('=== GET リクエスト開始 ===');
+  console.log('パラメータ:', { organizationId, clerkId });
+  
   try {
     const { userId } = await auth();
+    console.log('認証ユーザーID:', userId);
+    
     if (!userId) {
+      console.log('認証エラー: userIdが存在しません');
       return new NextResponse('Unauthorized', { status: 401 });
     }
 
@@ -25,7 +32,10 @@ export async function GET(
       },
     });
 
+    console.log('メンバーシップ確認結果:', membership);
+
     if (!membership) {
+      console.log('メンバーシップが見つかりません');
       return new NextResponse('Forbidden', { status: 403 });
     }
 
@@ -42,10 +52,14 @@ export async function GET(
       },
     });
 
+    console.log('組織プロフィール取得結果:', organizationProfile);
+
     if (!organizationProfile) {
+      console.log('組織プロフィールが見つかりません');
       return new NextResponse('Profile not found', { status: 404 });
     }
 
+    console.log('=== GET リクエスト完了 ===');
     return NextResponse.json(organizationProfile);
   } catch (error) {
     console.error('Error in GET /api/organizations/[organizationId]/members/[clerkId]/organization-profile:', error);
@@ -74,8 +88,8 @@ export async function PATCH(
     const requestBody = await req.json();
     console.log('リクエストボディ:', requestBody);
 
-    const { introduction, displayName, organizationDepartmentId } = requestBody;
-    console.log('抽出されたフィールド:', { introduction, displayName, organizationDepartmentId });
+    const { introduction, displayName, organizationDepartmentId, profileImage } = requestBody;
+    console.log('抽出されたフィールド:', { introduction, displayName, organizationDepartmentId, profileImage });
 
     // 既存のプロフィールを確認
     const existingProfile = await prisma.organizationProfile.findUnique({
@@ -103,6 +117,7 @@ export async function PATCH(
           ...(introduction !== undefined && { introduction: introduction || null }),
           ...(displayName !== undefined && { displayName: displayName || null }),
           ...(organizationDepartmentId !== undefined && { organizationDepartmentId }),
+          ...(profileImage !== undefined && { profileImage: profileImage || null }),
         },
         include: {
           organizationDepartment: true,
@@ -119,6 +134,7 @@ export async function PATCH(
           organizationDepartmentId: organizationDepartmentId || null,
           introduction: introduction || null,
           displayName: displayName || null,
+          profileImage: profileImage || null,
         },
         include: {
           organizationDepartment: true,

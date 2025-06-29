@@ -58,12 +58,12 @@ export function AdminMenu() {
   };
 
   return (
-    <section className="w-full flex flex-col items-center bg-gradient-to-r from-indigo-50 to-white py-6 mb-6">
+    <section className="w-full flex flex-col items-center bg-[#1E1E1E] py-6 mb-6 border-b border-[#4BEA8A]/30">
       <div className="max-w-3xl w-full flex flex-col items-center gap-4 px-2">
-        <h2 className="text-xl font-extrabold text-indigo-700 tracking-tight mb-1 text-center drop-shadow-sm">
+        <h2 className="text-xl font-extrabold text-[#4BEA8A] tracking-tight mb-1 text-center drop-shadow-sm">
           管理メニュー
         </h2>
-        <nav className="w-full flex flex-col md:flex-row gap-3 justify-center items-stretch">
+        <nav className="w-full grid grid-cols-2 md:grid-cols-4 gap-3 justify-center items-stretch max-w-6xl">
           {menu.map((item) => {
             const href = item.href(organizationId);
             const isActive = pathname === href;
@@ -72,45 +72,46 @@ export function AdminMenu() {
               <Link
                 key={href}
                 href={href}
-                className={`group flex-1 min-w-[140px] max-w-xs flex flex-col items-center justify-center px-3 py-3 rounded-xl transition-all duration-200 border-2 shadow-md
-                  bg-white text-indigo-800 border-indigo-100
-                  hover:bg-indigo-100 hover:text-indigo-700 hover:border-indigo-400 hover:shadow-lg
+                className={`group flex-1 min-w-[140px] flex flex-col items-center justify-center px-3 py-3 rounded-xl transition-all duration-200 border-2 shadow-md
+                  bg-[#232323] text-[#4BEA8A] border-[#4BEA8A]/30
+                  hover:bg-[#2A2A2A] hover:text-[#FFFFFF] hover:border-[#4BEA8A] hover:shadow-lg
+                  ${isActive ? 'ring-2 ring-[#4BEA8A]' : ''}
                 `}
                 style={{ textDecoration: "none" }}
               >
                 <div className={`flex items-center justify-center w-9 h-9 rounded-full mb-2 transition-all duration-200
-                  bg-indigo-50 group-hover:bg-indigo-200
+                  bg-[#1E1E1E] group-hover:bg-[#4BEA8A]/20
                 `}>
-                  <Icon className={`w-5 h-5 text-indigo-500 group-hover:text-indigo-700`} />
+                  <Icon className={`w-5 h-5 text-[#4BEA8A] group-hover:text-[#FFFFFF]`} />
                 </div>
                 <div className="text-base font-bold mb-0.5 tracking-wide text-center">
                   {item.label}
                 </div>
-                <div className="text-xs text-center text-indigo-500 group-hover:text-indigo-700">{item.desc}</div>
+                <div className="text-xs text-center text-[#CCCCCC] group-hover:text-[#4BEA8A]">{item.desc}</div>
               </Link>
             );
           })}
           {/* ログアウトカード */}
           <div
-            className="group flex-1 min-w-[140px] max-w-xs flex flex-col items-center justify-center px-3 py-3 rounded-xl transition-all duration-200 border-2 shadow-md
-              bg-white text-indigo-800 border-indigo-100 hover:bg-red-50 hover:text-red-700 hover:border-red-400 hover:shadow-lg cursor-pointer"
+            className="group flex-1 min-w-[140px] flex flex-col items-center justify-center px-3 py-3 rounded-xl transition-all duration-200 border-2 shadow-md
+              bg-[#232323] text-[#4BEA8A] border-[#4BEA8A]/30 hover:bg-[#2A2A2A] hover:text-[#FFFFFF] hover:border-[#4BEA8A] hover:shadow-lg cursor-pointer"
             onClick={handleSignOut}
           >
-            <div className="flex items-center justify-center w-9 h-9 rounded-full mb-2 transition-all duration-200 bg-red-50 group-hover:bg-red-100">
-              <LogOut className="w-5 h-5 text-red-500 group-hover:text-red-700" />
+            <div className="flex items-center justify-center w-9 h-9 rounded-full mb-2 transition-all duration-200 bg-[#1E1E1E] group-hover:bg-[#4BEA8A]/20">
+              <LogOut className="w-5 h-5 text-[#4BEA8A] group-hover:text-[#FFFFFF]" />
             </div>
             <div className="text-base font-bold mb-0.5 tracking-wide text-center">
               ログアウト
             </div>
-            <div className="text-xs text-center text-red-500 group-hover:text-red-700">サインアウト</div>
-              <button
-              className="mt-2 px-4 py-1 rounded bg-red-500 text-white text-xs font-semibold hover:bg-red-600 transition-colors disabled:opacity-50"
-                aria-label="ログアウト"
-                type="button"
+            <div className="text-xs text-center text-[#CCCCCC] group-hover:text-[#4BEA8A]">サインアウト</div>
+            <button
+              className="mt-2 px-4 py-1 rounded bg-[#4BEA8A] text-[#1E1E1E] text-xs font-semibold hover:bg-[#3DD879] transition-colors disabled:opacity-50"
+              aria-label="ログアウト"
+              type="button"
               disabled={isSigningOut}
-              >
+            >
               {isSigningOut ? 'ログアウト中...' : 'サインアウト'}
-              </button>
+            </button>
           </div>
         </nav>
       </div>

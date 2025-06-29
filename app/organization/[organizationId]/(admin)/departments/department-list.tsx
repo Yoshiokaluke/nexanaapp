@@ -23,14 +23,12 @@ export function DepartmentList({ departments, onDelete, onEdit }: DepartmentList
       {departments.map((department) => (
         <div
           key={department.id}
-          className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors"
+          className="flex items-center justify-between p-4 border border-[#4BEA8A]/20 rounded-lg bg-[#2A2A2A] hover:bg-[#232323] transition-colors"
         >
           <div className="flex items-center space-x-3">
-            <span className="font-medium">{department.name}</span>
+            <span className="font-medium text-[#FFFFFF]">{department.name}</span>
             {department.isDefault && (
-              <Badge variant="secondary" className="text-xs">
-                デフォルト
-              </Badge>
+              <Badge className="text-xs bg-[#4BEA8A]/20 text-[#4BEA8A] border border-[#4BEA8A]">デフォルト</Badge>
             )}
           </div>
           <div className="flex items-center space-x-2">
@@ -39,7 +37,7 @@ export function DepartmentList({ departments, onDelete, onEdit }: DepartmentList
                 variant="ghost"
                 size="sm"
                 onClick={() => onEdit(department)}
-                className="text-blue-600 hover:text-blue-800"
+                className="text-[#4BEA8A] hover:bg-[#333333] hover:text-[#FFFFFF]"
                 title="編集"
               >
                 <Edit className="w-4 h-4" />
@@ -49,14 +47,20 @@ export function DepartmentList({ departments, onDelete, onEdit }: DepartmentList
               variant="ghost"
               size="sm"
               onClick={() => onDelete(department.id)}
-              className="text-red-600 hover:text-red-800"
+              className={`hover:bg-[#333333] ${department.isDefault ? 'text-[#888888] cursor-not-allowed' : 'text-[#FFFFFF] hover:text-[#4BEA8A]'}`}
               title={department.isDefault ? "デフォルト部署を削除" : "削除"}
+              disabled={department.isDefault}
             >
               <Trash2 className="w-4 h-4" />
             </Button>
           </div>
         </div>
       ))}
+      {departments.length === 0 && (
+        <div className="text-center py-8 text-[#CCCCCC]">
+          部署がありません。新しい部署を追加してください。
+        </div>
+      )}
     </div>
   );
 } 

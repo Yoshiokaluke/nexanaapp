@@ -33,7 +33,7 @@ export async function DELETE(
     // 削除対象のメンバーシップを取得
     const targetMembership = await prisma.organizationMembership.findFirst({
       where: { 
-        user: { clerkId },
+        clerkId,
         organizationId
       },
       include: {
@@ -59,9 +59,50 @@ export async function DELETE(
       }
     }
 
-    // メンバーシップの削除
-    await prisma.organizationMembership.delete({
-      where: { id: targetMembership.id }
+    // メンバーシップとプロフィールの削除をトランザクションで実行
+    await prisma.$transaction(async (tx) => {
+      // メンバーシップの削除
+      await tx.organizationMembership.delete({
+        where: { id: targetMembership.id }
+      });
+
+      // OrganizationProfileとその関連データを削除
+      const profile = await tx.organizationProfile.findFirst({
+        where: {
+          clerkId,
+          organizationId
+        }
+      });
+
+      if (profile) {
+        // QRコードの使用履歴を削除
+        await tx.qrCodeUsageHistory.deleteMany({
+          where: {
+            qrCode: {
+              organizationProfileId: profile.id
+            }
+          }
+        });
+
+        // QRコードを削除
+        await tx.organizationProfileQrCode.deleteMany({
+          where: {
+            organizationProfileId: profile.id
+          }
+        });
+
+        // スキャン記録を削除
+        await tx.scanTogetherRecord.deleteMany({
+          where: {
+            organizationProfileId: profile.id
+          }
+        });
+
+        // OrganizationProfileを削除
+        await tx.organizationProfile.delete({
+          where: { id: profile.id }
+        });
+      }
     });
 
     return new NextResponse(null, { status: 204 });
@@ -95,7 +136,7 @@ export async function GET(
 
     const member = await prisma.organizationMembership.findFirst({
       where: {
-        user: { clerkId },
+        clerkId,
         organizationId
       },
       include: {
@@ -168,6 +209,7 @@ export async function PATCH(
             email: true,
             firstName: true,
             lastName: true,
+            systemRole: true,
           }
         }
       }

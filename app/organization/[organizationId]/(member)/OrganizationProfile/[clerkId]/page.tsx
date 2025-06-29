@@ -307,18 +307,14 @@ function ProfileDisplay({
                           </div>
                         )}
                         {(!snsLinks.facebook && !snsLinks.linkedin && !snsLinks.instagram) && (
-                          <p className="text-gray-400 italic text-sm lg:text-base">未設定</p>
+                          <div>
+                            <p className="text-gray-400 italic text-sm lg:text-base">未設定</p>
+                          </div>
                         )}
                       </>
                     ) : (
                       <div>
                         <p className="text-gray-400 italic text-sm lg:text-base">未設定</p>
-                        <details className="mt-2">
-                          <summary className="text-xs text-gray-500 cursor-pointer">デバッグ情報</summary>
-                          <pre className="text-xs text-gray-400 mt-1 bg-[#1E1E1E] p-2 rounded overflow-auto">
-                            {JSON.stringify(snsLinks, null, 2)}
-                          </pre>
-                        </details>
                       </div>
                     )}
                   </div>

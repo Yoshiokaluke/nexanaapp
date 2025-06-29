@@ -59,34 +59,34 @@ export default function ScannerLoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 relative overflow-hidden flex items-center justify-center p-6">
+    <div className="min-h-screen bg-[#1E1E1E] relative overflow-hidden flex items-center justify-center p-6">
       {/* 装飾的な背景要素 */}
       <div className="absolute inset-0">
-        <div className="absolute top-20 left-20 w-72 h-72 bg-gradient-to-br from-blue-200/30 to-purple-200/30 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-20 right-20 w-96 h-96 bg-gradient-to-br from-indigo-200/20 to-pink-200/20 rounded-full blur-3xl"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-gradient-to-br from-cyan-200/20 to-blue-200/20 rounded-full blur-3xl"></div>
+        <div className="absolute top-20 left-20 w-72 h-72 bg-[#4BEA8A]/10 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-20 right-20 w-96 h-96 bg-[#4BEA8A]/5 rounded-full blur-3xl"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-[#4BEA8A]/8 rounded-full blur-3xl"></div>
       </div>
 
       {/* 中央上部のロゴ */}
       <div className="absolute top-8 left-1/2 transform -translate-x-1/2 z-20 pointer-events-none">
-        <Image src="/blacklogo.svg" alt="ロゴ" width={240} height={240} priority />
+        <Image src="/White.w.logo.svg" alt="ロゴ" width={240} height={240} priority />
       </div>
 
       {/* メインコンテンツ（ロゴ分の余白を上部に追加） */}
       <div className="relative z-10 w-full max-w-md pt-32">
-        <Card className="w-full bg-white/80 backdrop-blur-sm border-0 shadow-2xl">
+        <Card className="w-full bg-[#232323]/90 backdrop-blur-sm border border-[#4BEA8A]/20 shadow-2xl">
           <CardHeader className="text-center pb-6">
-            <CardTitle className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            <CardTitle className="text-3xl font-bold text-[#FFFFFF]">
               QRスキャナー ログイン
             </CardTitle>
-            <p className="text-gray-600 mt-3 text-lg">
+            <p className="text-[#CCCCCC] mt-3 text-lg">
               スキャナーIDとパスワードを入力してください
             </p>
           </CardHeader>
           <CardContent className="space-y-6">
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="scannerId" className="text-sm font-semibold text-gray-700">
+                <Label htmlFor="scannerId" className="text-sm font-semibold text-[#FFFFFF]">
                   スキャナーID
                 </Label>
                 <Input
@@ -95,14 +95,14 @@ export default function ScannerLoginPage() {
                   value={scannerId}
                   onChange={(e) => setScannerId(e.target.value)}
                   placeholder="例: SCN-ABC12345"
-                  className="h-12 text-lg border-2 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
+                  className="h-12 text-lg bg-[#1E1E1E] border-2 border-[#333333] focus:border-[#4BEA8A] focus:ring-2 focus:ring-[#4BEA8A]/20 text-[#FFFFFF] placeholder-[#666666] transition-all duration-200"
                   disabled={isLoading}
                   required
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-sm font-semibold text-gray-700">
+                <Label htmlFor="password" className="text-sm font-semibold text-[#FFFFFF]">
                   パスワード
                 </Label>
                 <Input
@@ -111,26 +111,26 @@ export default function ScannerLoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="パスワードを入力"
-                  className="h-12 text-lg border-2 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
+                  className="h-12 text-lg bg-[#1E1E1E] border-2 border-[#333333] focus:border-[#4BEA8A] focus:ring-2 focus:ring-[#4BEA8A]/20 text-[#FFFFFF] placeholder-[#666666] transition-all duration-200"
                   disabled={isLoading}
                   required
                 />
               </div>
 
               {error && (
-                <div className="text-red-600 text-sm bg-red-50/80 backdrop-blur-sm p-4 rounded-xl border border-red-200">
+                <div className="text-[#FF6B6B] text-sm bg-[#FF6B6B]/10 backdrop-blur-sm p-4 rounded-xl border border-[#FF6B6B]/20">
                   {error}
                 </div>
               )}
 
               <Button
                 type="submit"
-                className="w-full h-14 text-xl font-bold rounded-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white shadow-xl transition-all duration-300"
+                className="w-full h-14 text-xl font-bold rounded-full bg-[#4BEA8A] hover:bg-[#3DD879] text-[#1E1E1E] shadow-xl transition-all duration-300"
                 disabled={isLoading}
               >
                 {isLoading ? (
                   <div className="flex items-center gap-2">
-                    <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+                    <div className="animate-spin rounded-full h-5 w-5 border-2 border-[#1E1E1E] border-t-transparent"></div>
                     ログイン中...
                   </div>
                 ) : (
@@ -140,7 +140,7 @@ export default function ScannerLoginPage() {
             </form>
 
             <div className="text-center pt-4">
-              <p className="text-sm text-gray-500 bg-white/50 backdrop-blur-sm p-3 rounded-xl">
+              <p className="text-sm text-[#999999] bg-[#1E1E1E]/50 backdrop-blur-sm p-3 rounded-xl border border-[#333333]">
                 スキャナーIDとパスワードは管理者にお問い合わせください
               </p>
             </div>

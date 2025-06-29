@@ -41,9 +41,6 @@ export default function MembersClient({ organizationId }: { organizationId: stri
   const [invitationUrls, setInvitationUrls] = useState<InvitationUrl[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [updatingMember, setUpdatingMember] = useState<string | null>(null);
-  const [deletingMember, setDeletingMember] = useState<string | null>(null);
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [memberToDelete, setMemberToDelete] = useState<Member | null>(null);
   const [activeTab, setActiveTab] = useState<'members' | 'invitation-urls'>('members');
   
   // 招待URL生成用の状態
@@ -126,36 +123,6 @@ export default function MembersClient({ organizationId }: { organizationId: stri
       toast.error(error instanceof Error ? error.message : '役割の変更に失敗しました');
     } finally {
       setUpdatingMember(null);
-    }
-  };
-
-  const handleDeleteClick = (member: Member) => {
-    setMemberToDelete(member);
-    setShowDeleteDialog(true);
-  };
-
-  const handleDeleteConfirm = async () => {
-    if (!memberToDelete) return;
-
-    setDeletingMember(memberToDelete.clerkId);
-    try {
-      const response = await fetch(`/api/organizations/${organizationId}/members/${memberToDelete.clerkId}`, {
-        method: 'DELETE',
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(errorText || 'メンバーの削除に失敗しました');
-      }
-
-      setMembers(prev => prev.filter(member => member.clerkId !== memberToDelete.clerkId));
-      toast.success('メンバーを削除しました');
-      setShowDeleteDialog(false);
-      setMemberToDelete(null);
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'メンバーの削除に失敗しました');
-    } finally {
-      setDeletingMember(null);
     }
   };
 
@@ -247,40 +214,45 @@ export default function MembersClient({ organizationId }: { organizationId: stri
   };
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="min-h-[40vh] flex items-center justify-center bg-[#1E1E1E]">
+        <div className="h-10 w-10 animate-spin rounded-full border-b-2 border-[#4BEA8A]"></div>
+        <span className="ml-4 text-[#FFFFFF] text-lg">読み込み中...</span>
+      </div>
+    );
   }
 
   return (
-    <div className="max-w-6xl mx-auto p-4">
+    <div className="max-w-6xl mx-auto p-4 bg-[#1E1E1E] min-h-screen">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">メンバー管理</h1>
+        <h1 className="text-2xl font-bold text-[#4BEA8A]">メンバー管理</h1>
         <div className="flex gap-2">
           {activeTab === 'members' && (
-            <Button onClick={handleInvite}>メンバーを招待</Button>
+            <Button className="bg-[#4BEA8A] text-[#1E1E1E] hover:bg-[#3DD879] font-semibold" onClick={handleInvite}>メンバーを招待</Button>
           )}
           {activeTab === 'invitation-urls' && (
-            <Button onClick={() => setShowCreateUrlDialog(true)}>招待URLを生成</Button>
+            <Button className="bg-[#4BEA8A] text-[#1E1E1E] hover:bg-[#3DD879] font-semibold" onClick={() => setShowCreateUrlDialog(true)}>招待URLを生成</Button>
           )}
         </div>
       </div>
 
       {/* タブ */}
-      <div className="flex border-b mb-6">
+      <div className="flex border-b border-[#4BEA8A]/30 mb-6">
         <button
-          className={`px-4 py-2 font-medium ${
+          className={`px-4 py-2 font-medium transition-colors duration-200 ${
             activeTab === 'members'
-              ? 'border-b-2 border-blue-500 text-blue-600'
-              : 'text-gray-500 hover:text-gray-700'
+              ? 'border-b-2 border-[#4BEA8A] text-[#4BEA8A]'
+              : 'text-[#CCCCCC] hover:text-[#4BEA8A]/80'
           }`}
           onClick={() => setActiveTab('members')}
         >
           メンバー一覧 ({members.length})
         </button>
         <button
-          className={`px-4 py-2 font-medium ${
+          className={`px-4 py-2 font-medium transition-colors duration-200 ${
             activeTab === 'invitation-urls'
-              ? 'border-b-2 border-blue-500 text-blue-600'
-              : 'text-gray-500 hover:text-gray-700'
+              ? 'border-b-2 border-[#4BEA8A] text-[#4BEA8A]'
+              : 'text-[#CCCCCC] hover:text-[#4BEA8A]/80'
           }`}
           onClick={() => setActiveTab('invitation-urls')}
         >
@@ -292,18 +264,16 @@ export default function MembersClient({ organizationId }: { organizationId: stri
       {activeTab === 'members' && (
         <div className="grid gap-4">
           {members.map((member) => (
-            <Card key={member.id} className="p-4">
+            <Card key={member.id} className="p-4 bg-[#232323] border border-[#4BEA8A]/20 shadow-md">
               <div className="flex justify-between items-center">
                 <div>
-                  <div className="font-medium">
+                  <div className="font-medium text-[#FFFFFF]">
                     {member.user.firstName} {member.user.lastName}
                     {member.user.systemRole && (
-                      <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
-                        システムチーム
-                      </span>
+                      <span className="ml-2 text-xs bg-[#4BEA8A]/20 text-[#4BEA8A] px-2 py-1 rounded">システムチーム</span>
                     )}
                   </div>
-                  <div className="text-sm text-gray-500">{member.user.email}</div>
+                  <div className="text-sm text-[#CCCCCC]">{member.user.email}</div>
                 </div>
                 <div className="flex items-center gap-2">
                   <Select
@@ -311,25 +281,23 @@ export default function MembersClient({ organizationId }: { organizationId: stri
                     onValueChange={(value: 'admin' | 'member') => handleRoleChange(member.clerkId, value)}
                     disabled={updatingMember === member.clerkId}
                   >
-                    <SelectTrigger className="w-32">
+                    <SelectTrigger className="w-32 bg-[#2A2A2A] border-[#4BEA8A]/30 text-[#FFFFFF] focus:border-[#4BEA8A] focus:ring-[#4BEA8A]">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="member">メンバー</SelectItem>
-                      <SelectItem value="admin">管理者</SelectItem>
+                    <SelectContent className="bg-[#2A2A2A] border-[#4BEA8A]/30">
+                      <SelectItem value="member" className="text-[#FFFFFF] hover:bg-[#333333]">メンバー</SelectItem>
+                      <SelectItem value="admin" className="text-[#FFFFFF] hover:bg-[#333333]">管理者</SelectItem>
                     </SelectContent>
                   </Select>
-                  <Button
-                    variant="destructive"
-                    onClick={() => handleDeleteClick(member)}
-                    disabled={deletingMember === member.clerkId}
-                  >
-                    {deletingMember === member.clerkId ? '削除中...' : '削除'}
-                  </Button>
                 </div>
               </div>
             </Card>
           ))}
+          {members.length === 0 && (
+            <div className="text-center py-8 text-[#CCCCCC]">
+              メンバーがいません。新しいメンバーを招待してください。
+            </div>
+          )}
         </div>
       )}
 
@@ -339,38 +307,38 @@ export default function MembersClient({ organizationId }: { organizationId: stri
           {invitationUrls.map((url) => {
             const inviteUrl = `${window.location.origin}/organization/${organizationId}/invitation/${url.id}/accept?token=${url.token}`;
             const isExpired = new Date(url.expiresAt) < new Date();
-            
             return (
-              <Card key={url.id} className="p-4">
+              <Card key={url.id} className="p-4 bg-[#232323] border border-[#4BEA8A]/20 shadow-md">
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
-                      <span className="font-medium">
+                      <span className="font-medium text-[#4BEA8A]">
                         {url.role === 'admin' ? '管理者' : 'メンバー'}招待URL
                       </span>
-                      <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">一時的</span>
+                      <span className="text-xs bg-[#4BEA8A]/20 text-[#4BEA8A] px-2 py-1 rounded">一時的</span>
                       {isExpired && (
-                        <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">期限切れ</span>
+                        <span className="text-xs bg-[#333333] text-[#888888] px-2 py-1 rounded">期限切れ</span>
                       )}
                     </div>
-                    <div className="text-sm text-gray-500 mb-2">
+                    <div className="text-sm text-[#CCCCCC] mb-2">
                       作成者: {url.inviter?.firstName || 'Unknown'} {url.inviter?.lastName || ''}
                     </div>
-                    <div className="text-sm text-gray-500 mb-2">
+                    <div className="text-sm text-[#CCCCCC] mb-2">
                       作成日: {new Date(url.createdAt).toLocaleString('ja-JP')}
                     </div>
-                    <div className="text-sm text-gray-500 mb-2">
+                    <div className="text-sm text-[#CCCCCC] mb-2">
                       有効期限: {new Date(url.expiresAt).toLocaleString('ja-JP')} (7日間)
                     </div>
-                    <div className="text-xs text-blue-600 mb-2">
+                    <div className="text-xs text-[#4BEA8A] mb-2">
                       ※ このURLは7日間有効で、複数の人が使用できます
                     </div>
-                    <div className="bg-gray-50 p-2 rounded text-sm font-mono break-all">
+                    <div className="bg-[#2A2A2A] p-2 rounded text-sm font-mono break-all text-[#FFFFFF] border border-[#4BEA8A]/10">
                       {inviteUrl}
                     </div>
                   </div>
                   <div className="flex flex-col gap-2 ml-4">
                     <Button
+                      className="bg-[#4BEA8A] text-[#1E1E1E] hover:bg-[#3DD879] font-semibold"
                       onClick={() => copyToClipboard(inviteUrl)}
                       disabled={isExpired}
                     >
@@ -378,6 +346,7 @@ export default function MembersClient({ organizationId }: { organizationId: stri
                     </Button>
                     <Button
                       variant="destructive"
+                      className="bg-[#333333] text-[#FFFFFF] hover:bg-[#4BEA8A] hover:text-[#1E1E1E] border border-[#4BEA8A]/30"
                       onClick={() => handleDeleteUrlClick(url)}
                       disabled={deletingUrl === url.id}
                     >
@@ -388,51 +357,13 @@ export default function MembersClient({ organizationId }: { organizationId: stri
               </Card>
             );
           })}
-          
           {invitationUrls.length === 0 && (
-            <div className="text-center py-8 text-gray-500">
+            <div className="text-center py-8 text-[#CCCCCC]">
               招待URLがありません。新しい招待URLを生成してください。
             </div>
           )}
         </div>
       )}
-
-      {/* メンバー削除確認ダイアログ */}
-      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>メンバーの削除</DialogTitle>
-            <DialogDescription>
-              {memberToDelete && (
-                <>
-                  <strong>{memberToDelete.user.firstName} {memberToDelete.user.lastName}</strong>
-                  ({memberToDelete.user.email}) を組織から削除しますか？
-                </>
-              )}
-              <br />
-              この操作は取り消すことができません。
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button
-              variant="default"
-              onClick={() => {
-                setShowDeleteDialog(false);
-                setMemberToDelete(null);
-              }}
-            >
-              キャンセル
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={handleDeleteConfirm}
-              disabled={deletingMember === memberToDelete?.clerkId}
-            >
-              {deletingMember === memberToDelete?.clerkId ? '削除中...' : '削除'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
 
       {/* 招待URL生成ダイアログ */}
       <Dialog open={showCreateUrlDialog} onOpenChange={setShowCreateUrlDialog}>

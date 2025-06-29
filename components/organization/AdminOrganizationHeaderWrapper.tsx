@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { AdminOrganizationHeader } from '@/components/organization/AdminOrganizationHeader';
+import Link from 'next/link';
 
 export function AdminOrganizationHeaderWrapper() {
   const params = useParams();

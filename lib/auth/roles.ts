@@ -91,7 +91,7 @@ export const getOrganizationRoles = async (clerkId: string, organizationId: stri
   try {
     const memberships = await prisma.organizationMembership.findMany({
       where: {
-        user: { clerkId },
+        clerkId,
         organizationId
       },
       select: { role: true }
@@ -139,7 +139,7 @@ export async function checkOrganizationAdmin(clerkId: string, organizationId: st
     // 次に組織の管理者権限をチェック
     const membership = await prisma.organizationMembership.findFirst({
       where: {
-        user: { clerkId },
+        clerkId,
         organizationId,
         role: 'admin'
       },
@@ -166,7 +166,7 @@ export async function checkOrganizationAdmin(clerkId: string, organizationId: st
 export async function isOrganizationMember(clerkId: string, organizationId: string): Promise<boolean> {
   const membership = await prisma.organizationMembership.findFirst({
     where: {
-      user: { clerkId },
+      clerkId,
       organizationId,
       role: { in: ['admin', 'member'] }
     }
@@ -194,7 +194,7 @@ export async function checkOrganizationMembership(clerkId: string, organizationI
     // 2. 次に: 組織メンバーシップをチェック
     const membership = await prisma.organizationMembership.findFirst({
       where: {
-        user: { clerkId },
+        clerkId,
         organizationId,
         role: { in: ['admin', 'member'] }
       },
@@ -334,7 +334,7 @@ export async function checkOrganizationRole(userId: string, organizationId: stri
 
   const membership = await prisma.organizationMembership.findFirst({
     where: {
-      user: { clerkId: userId },
+      clerkId: userId,
       organizationId,
       role: requiredRole
     }
