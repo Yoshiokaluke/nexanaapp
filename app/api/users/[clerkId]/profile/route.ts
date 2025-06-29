@@ -1,6 +1,7 @@
 import { auth, clerkClient } from "@clerk/nextjs";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { checkOrganizationMembership } from "@/lib/auth/roles";
 
 export async function GET(
   req: Request,
@@ -21,17 +22,10 @@ export async function GET(
       return new NextResponse('Organization ID is required', { status: 400 });
     }
 
-    // ユーザーがその組織のメンバーかどうかを確認
-    const membership = await prisma.organizationMembership.findUnique({
-      where: {
-        clerkId_organizationId: {
-          clerkId: userId,
-          organizationId,
-        },
-      },
-    });
-
-    if (!membership) {
+    // checkOrganizationMembership関数を使用して権限チェック
+    const hasAccess = await checkOrganizationMembership(userId, organizationId);
+    
+    if (!hasAccess) {
       return new NextResponse('Forbidden', { status: 403 });
     }
 

@@ -22,20 +22,12 @@ export async function GET(
       return new NextResponse('Unauthorized', { status: 401 });
     }
 
-    // ユーザーがその組織のメンバーかどうかを確認
-    const membership = await prisma.organizationMembership.findUnique({
-      where: {
-        clerkId_organizationId: {
-          clerkId: userId,
-          organizationId,
-        },
-      },
-    });
+    // checkOrganizationMembership関数を使用して権限チェック
+    const hasAccess = await checkOrganizationMembership(userId, organizationId);
+    console.log('アクセス権限チェック結果:', hasAccess);
 
-    console.log('メンバーシップ確認結果:', membership);
-
-    if (!membership) {
-      console.log('メンバーシップが見つかりません');
+    if (!hasAccess) {
+      console.log('アクセス権限がありません');
       return new NextResponse('Forbidden', { status: 403 });
     }
 
