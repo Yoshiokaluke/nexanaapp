@@ -78,35 +78,58 @@ const ActionButtons = ({
 );
 
 // 部署リスト取得用フック
-function useDepartments(organizationId: string) {
+function useDepartments(organizationId: string, isFromInvitation: boolean = false) {
   const [departments, setDepartments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   useEffect(() => {
     if (!organizationId) return;
-    fetch(`/api/organizations/${organizationId}/departments`)
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error(`HTTP error! status: ${res.status}`);
+
+    // オンボーディング中の場合は少し遅延させる
+    const delay = isFromInvitation ? 1000 : 0;
+    
+    const timer = setTimeout(async () => {
+      try {
+        console.log('部署一覧取得開始:', { organizationId, isFromInvitation });
+        const response = await fetch(`/api/organizations/${organizationId}/departments`);
+        
+        if (!response.ok) {
+          if (response.status === 403) {
+            console.log('部署取得権限エラー（オンボーディング中かもしれません）');
+            setError('部署の読み込みに失敗しました。しばらく待ってから再試行してください。');
+          } else {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          setLoading(false);
+          return;
         }
-        return res.json();
-      })
-      .then((data) => {
+
+        const data = await response.json();
+        console.log('部署一覧取得結果:', data);
+        
         // データが配列であることを確認
         if (Array.isArray(data)) {
           setDepartments(data);
+          setError(null);
         } else {
           console.error('API response is not an array:', data);
           setDepartments([]);
+          setError('部署データの形式が正しくありません');
         }
-        setLoading(false);
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error('部署取得エラー:', error);
         setDepartments([]);
+        setError('部署の読み込みに失敗しました');
+      } finally {
         setLoading(false);
-      });
-  }, [organizationId]);
-  return { departments, loading };
+      }
+    }, delay);
+
+    return () => clearTimeout(timer);
+  }, [organizationId, isFromInvitation]);
+
+  return { departments, loading, error };
 }
 
 export default function OrganizationProfileEditPage() {
@@ -720,6 +743,7 @@ export default function OrganizationProfileEditPage() {
                       organizationId={params.organizationId as string}
                       organizationDepartmentId={editingOrganizationDepartmentId}
                       onChange={setEditingOrganizationDepartmentId}
+                      isFromInvitation={isFromInvitation}
                     />
                     <ActionButtons
                       onSave={handleSaveDepartment}
@@ -830,15 +854,21 @@ function DepartmentSelect({
   organizationId,
   organizationDepartmentId,
   onChange,
+  isFromInvitation = false,
 }: {
   organizationId: string;
   organizationDepartmentId: string;
   onChange: (id: string) => void;
+  isFromInvitation?: boolean;
 }) {
-  const { departments, loading } = useDepartments(organizationId);
+  const { departments, loading, error } = useDepartments(organizationId, isFromInvitation);
 
   if (loading) {
     return <div className="text-[#CCCCCC]">部署を読み込み中...</div>;
+  }
+
+  if (error) {
+    return <div className="text-red-400">{error}</div>;
   }
 
   // departmentsが配列でない場合のエラーハンドリング

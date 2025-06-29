@@ -236,7 +236,12 @@ export default function ScanPurposesPage() {
     
     console.log('削除対象のスキャン目的:', purpose);
     
-    if (!confirm('このスキャン目的を削除してもよろしいですか？')) {
+    const isDefault = (purpose?.order ?? 0) >= 1 && (purpose?.order ?? 0) <= 5;
+    const confirmMessage = isDefault 
+      ? 'このデフォルト目的を削除してもよろしいですか？'
+      : 'このスキャン目的を削除してもよろしいですか？';
+    
+    if (!confirm(confirmMessage)) {
       return;
     }
 

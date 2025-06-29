@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { systemTeamAuth } from '@/app/lib/middleware/systemTeamAuth';
 import { createDefaultDepartments } from '@/lib/utils';
 import { auth } from '@clerk/nextjs/server';
+import { checkSystemTeamRole } from '@/lib/auth/roles';
 
 export const dynamic = 'force-dynamic';
 
@@ -45,6 +46,9 @@ export async function POST(req: Request) {
       return new NextResponse('組織名は必須です', { status: 400 });
     }
 
+    // 作成者がsystem_teamかどうかをチェック
+    const isSystemTeam = await checkSystemTeamRole(userId!);
+
     // トランザクションで組織の作成、メンバーシップの作成、デフォルト部署の作成を行う
     const organization = await prisma.$transaction(async (tx) => {
       // 組織の作成
@@ -56,14 +60,16 @@ export async function POST(req: Request) {
         }
       });
 
-      // 作成者を管理者として追加
-      await tx.organizationMembership.create({
-        data: {
-          clerkId: userId!,
-          organizationId: org.id,
-          role: 'admin'
-        }
-      });
+      // system_teamでない場合のみ、作成者を管理者として追加
+      if (!isSystemTeam) {
+        await tx.organizationMembership.create({
+          data: {
+            clerkId: userId!,
+            organizationId: org.id,
+            role: 'admin'
+          }
+        });
+      }
 
       // デフォルト部署を作成
       await Promise.all(

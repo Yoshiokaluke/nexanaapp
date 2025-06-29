@@ -47,9 +47,8 @@ export function DepartmentList({ departments, onDelete, onEdit }: DepartmentList
               variant="ghost"
               size="sm"
               onClick={() => onDelete(department.id)}
-              className={`hover:bg-[#333333] ${department.isDefault ? 'text-[#888888] cursor-not-allowed' : 'text-[#FFFFFF] hover:text-[#4BEA8A]'}`}
-              title={department.isDefault ? "デフォルト部署を削除" : "削除"}
-              disabled={department.isDefault}
+              className="text-[#FFFFFF] hover:text-[#4BEA8A] hover:bg-[#333333]"
+              title="削除"
             >
               <Trash2 className="w-4 h-4" />
             </Button>

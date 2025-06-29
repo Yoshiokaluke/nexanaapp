@@ -10,14 +10,22 @@ export async function GET(
 ) {
   const { organizationId } = await params;
   try {
+    console.log('組織情報取得リクエスト:', { organizationId });
+    
     const { userId: clerkId } = await auth();
     if (!clerkId) {
+      console.log('認証されていません');
       return new NextResponse('Unauthorized', { status: 401 });
     }
 
+    console.log('認証済みユーザー:', { clerkId });
+
     // 統一された権限チェック
     const hasAccess = await checkOrganizationMembership(clerkId, organizationId);
+    console.log('権限チェック結果:', { hasAccess });
+    
     if (!hasAccess) {
+      console.log('アクセス権限がありません');
       return new NextResponse('この組織へのアクセス権限がありません', { status: 403 });
     }
 
@@ -36,12 +44,14 @@ export async function GET(
     });
 
     if (!organization) {
+      console.log('組織が見つかりません:', { organizationId });
       return NextResponse.json({ error: 'Organization not found' }, { status: 404 });
     }
 
+    console.log('組織情報取得成功:', { organizationId, name: organization.name });
     return NextResponse.json({ organization });
   } catch (error) {
-    console.error('Error in GET /api/organizations/[organizationId]:', error);
+    console.error('組織情報取得エラー:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 } 

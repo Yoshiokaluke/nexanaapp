@@ -205,7 +205,7 @@ export async function GET(
           create: {
             clerkId: user.clerkId,
             organizationId: organizationId,
-            organizationDepartmentId: defaultDepartment.id,
+            organizationDepartmentId: null,
           },
         });
 

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { getAuthenticatedUser, checkOrganizationAdmin } from '@/lib/auth/roles';
+import { getAuthenticatedUser, checkOrganizationMembership, checkOrganizationAdmin } from '@/lib/auth/roles';
 
 // GET: 部署一覧取得
 export async function GET(req: NextRequest, { params }: { params: Promise<{ organizationId: string }> }) {
@@ -16,11 +16,12 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ orga
       return new NextResponse('Unauthorized', { status: 401 });
     }
 
-    const isAdmin = await checkOrganizationAdmin(user.clerkId, organizationId);
-    console.log('管理者権限:', isAdmin);
+    // 組織メンバーシップ権限をチェック（管理者権限ではなく）
+    const hasAccess = await checkOrganizationMembership(user.clerkId, organizationId);
+    console.log('組織メンバーシップ権限:', hasAccess);
 
-    if (!isAdmin) {
-      console.log('管理者権限がありません');
+    if (!hasAccess) {
+      console.log('組織メンバーシップ権限がありません');
       return NextResponse.json({ error: '権限がありません' }, { status: 403 });
     }
 
@@ -41,6 +42,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ org
   try {
     const { organizationId } = await params;
     console.log('部署追加リクエスト - 組織ID:', organizationId);
+    console.log('リクエストヘッダー:', Object.fromEntries(req.headers.entries()));
 
     const user = await getAuthenticatedUser();
     console.log('認証ユーザー:', JSON.stringify(user, null, 2));
@@ -58,8 +60,14 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ org
       return NextResponse.json({ error: '権限がありません' }, { status: 403 });
     }
 
-    const body = await req.json();
-    console.log('リクエストボディ:', body);
+    let body;
+    try {
+      body = await req.json();
+      console.log('リクエストボディ:', body);
+    } catch (parseError) {
+      console.error('JSONパースエラー:', parseError);
+      return NextResponse.json({ error: 'リクエストボディの解析に失敗しました' }, { status: 400 });
+    }
     
     const { name } = body;
     console.log('部署名:', name);
@@ -102,6 +110,19 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ org
     return NextResponse.json(department, { status: 201 });
   } catch (error) {
     console.error('部署追加エラー:', error);
-    return NextResponse.json({ error: 'サーバーエラーが発生しました' }, { status: 500 });
+    
+    // より詳細なエラー情報を返す
+    if (error instanceof Error) {
+      return NextResponse.json({ 
+        error: 'サーバーエラーが発生しました',
+        details: error.message,
+        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      }, { status: 500 });
+    }
+    
+    return NextResponse.json({ 
+      error: 'サーバーエラーが発生しました',
+      details: String(error)
+    }, { status: 500 });
   }
 } 

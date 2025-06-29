@@ -188,49 +188,55 @@ function OnboardingPageContent() {
       const invitationId = searchParams.get('invitation_id');
       const token = searchParams.get('token');
 
+      // 組織への招待がある場合の処理
       if (organizationId && invitationId && !invitationAccepted) {
-        const acceptResponse = await fetch(
-          `/api/organizations/${organizationId}/invitation/${invitationId}/accept?token=${
-            token || ''
-          }`,
-          { method: 'GET' }
-        );
-        if (!acceptResponse.ok) {
-          const errorText = await acceptResponse.text();
-          if (errorText.includes('既にこの組織のメンバーです')) {
-            console.log('User is already a member, proceeding...');
-            setInvitationAccepted(true);
-          } else {
-            throw new Error(errorText || '招待の受け入れに失敗しました');
-          }
-        } else {
-          setInvitationAccepted(true);
-          toast.success('組織への参加が完了しました！');
-        }
-      }
-
-      // 組織に参加した場合、OrganizationProfileを初期化（部署はnullに設定）
-      if (organizationId) {
-        const organizationProfileData = {
-          organizationDepartmentId: null, // 明示的にnullに設定
-          displayName: null,
-          introduction: null,
-        };
+        console.log('Processing organization invitation...');
         
-        const organizationProfileResponse = await fetch(
-          `/api/organizations/${organizationId}/members/${userId}/organization-profile`,
-          {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(organizationProfileData),
+        try {
+          const acceptResponse = await fetch(
+            `/api/organizations/${organizationId}/invitation/${invitationId}/accept?token=${
+              token || ''
+            }`,
+            { method: 'GET' }
+          );
+          
+          if (!acceptResponse.ok) {
+            const errorText = await acceptResponse.text();
+            if (errorText.includes('既にこの組織のメンバーです')) {
+              console.log('User is already a member, proceeding...');
+              setInvitationAccepted(true);
+            } else {
+              throw new Error(errorText || '招待の受け入れに失敗しました');
+            }
+          } else {
+            setInvitationAccepted(true);
+            toast.success('組織への参加が完了しました！');
+            
+            // 招待の受け入れが成功した後、メンバーシップの確認を行う
+            console.log('Verifying membership after invitation acceptance...');
+            try {
+              // 少し待機してからメンバーシップを確認
+              await new Promise(resolve => setTimeout(resolve, 1000));
+              
+              const membershipCheckResponse = await fetch(`/api/organizations/${organizationId}/members/me`);
+              if (membershipCheckResponse.ok) {
+                console.log('Membership verification successful');
+              } else {
+                console.warn('Membership verification failed, but proceeding with redirect');
+              }
+            } catch (verificationError) {
+              console.warn('Membership verification error:', verificationError);
+              // 検証に失敗してもリダイレクトは続行
+            }
           }
-        );
-
-        if (!organizationProfileResponse.ok) {
-          console.error('OrganizationProfileの初期化に失敗しましたが、処理を続行します');
+        } catch (invitationError) {
+          console.error('Invitation acceptance error:', invitationError);
+          // 招待の受け入れに失敗した場合でも、オンボーディングは続行
+          toast.warning('招待の受け入れに問題がありましたが、プロフィールの保存は完了しました。');
         }
       }
 
+      // リダイレクト処理
       if (organizationId) {
         const queryParams = new URLSearchParams({ from_invitation: 'true' });
         const profileEditUrl = `/organization/${organizationId}/OrganizationProfile/${userId}/edit?${queryParams.toString()}`;

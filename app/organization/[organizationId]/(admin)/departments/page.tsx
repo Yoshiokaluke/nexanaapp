@@ -78,11 +78,27 @@ export default function DepartmentsPage() {
       });
 
       console.log('レスポンス:', response.status, response.statusText);
+      console.log('レスポンスヘッダー:', Object.fromEntries(response.headers.entries()));
 
       if (!response.ok) {
-        const errorData = await response.json();
+        let errorData;
+        try {
+          errorData = await response.json();
+        } catch (parseError) {
+          console.error('エラーレスポンスのJSONパースに失敗:', parseError);
+          const errorText = await response.text();
+          console.error('エラーレスポンスのテキスト:', errorText);
+          throw new Error('サーバーエラーが発生しました');
+        }
+        
         console.error('部署追加エラー:', errorData);
-        throw new Error(errorData.error || '部署の追加に失敗しました');
+        
+        // より詳細なエラーメッセージを表示
+        const errorMessage = errorData.details 
+          ? `${errorData.error}: ${errorData.details}`
+          : errorData.error || '部署の追加に失敗しました';
+        
+        throw new Error(errorMessage);
       }
 
       const newDepartment = await response.json();

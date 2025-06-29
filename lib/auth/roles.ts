@@ -122,7 +122,7 @@ export const checkSystemTeamRole = async (clerkId: string): Promise<boolean> => 
 // 組織管理者のチェック
 export async function checkOrganizationAdmin(clerkId: string, organizationId: string) {
   try {
-    console.log('管理者権限チェック - ユーザーID:', clerkId, '組織ID:', organizationId);
+    console.log('管理者権限チェック開始 - ユーザーID:', clerkId, '組織ID:', organizationId);
 
     // まずシステムチーム権限をチェック
     const user = await prisma.user.findUnique({ 
@@ -191,25 +191,57 @@ export async function checkOrganizationMembership(clerkId: string, organizationI
       return true;
     }
 
-    // 2. 次に: 組織メンバーシップをチェック
-    const membership = await prisma.organizationMembership.findFirst({
-      where: {
-        clerkId,
-        organizationId,
-        role: { in: ['admin', 'member'] }
-      },
-      include: {
-        user: true
+    // 2. 次に: 組織メンバーシップをチェック（リトライ機能付き）
+    let membership = null;
+    let retryCount = 0;
+    const maxRetries = 3;
+    
+    while (retryCount < maxRetries) {
+      console.log(`メンバーシップ検索試行 ${retryCount + 1}/${maxRetries}`);
+      
+      membership = await prisma.organizationMembership.findFirst({
+        where: {
+          clerkId,
+          organizationId,
+          role: { in: ['admin', 'member'] }
+        },
+        include: {
+          user: true
+        }
+      });
+      
+      console.log(`試行 ${retryCount + 1} の結果:`, {
+        found: !!membership,
+        membership: membership ? {
+          id: membership.id,
+          role: membership.role,
+          clerkId: membership.clerkId,
+          organizationId: membership.organizationId,
+          createdAt: membership.createdAt
+        } : null
+      });
+      
+      if (membership) {
+        console.log('メンバーシップが見つかりました:', membership.role);
+        break;
       }
-    });
-    console.log('メンバーシップ:', membership);
+      
+      retryCount++;
+      if (retryCount < maxRetries) {
+        console.log(`メンバーシップが見つかりません。リトライ ${retryCount}/${maxRetries}...`);
+        // 少し待機してからリトライ
+        await new Promise(resolve => setTimeout(resolve, 500 * retryCount));
+      }
+    }
+    
+    console.log('最終的なメンバーシップ:', membership);
 
     if (membership) {
       console.log('アクセス権限あり（組織メンバー）:', membership.role);
       return true;
     }
 
-    console.log('アクセス権限なし');
+    console.log('アクセス権限なし - メンバーシップが見つかりません');
     return false;
   } catch (error) {
     console.error('組織メンバーシップ権限チェックエラー:', error);
@@ -295,7 +327,7 @@ export const organizationAdminAuth = async (organizationId: string): Promise<Aut
       }
     }
 
-    const isAdmin = await checkOrganizationMembership(clerkId, organizationId)
+    const isAdmin = await checkOrganizationAdmin(clerkId, organizationId)
     if (!isAdmin) {
       return {
         success: false,
@@ -308,7 +340,7 @@ export const organizationAdminAuth = async (organizationId: string): Promise<Aut
     console.error('Error in organization admin auth:', error)
     return {
       success: false,
-      error: AuthError.UNAUTHORIZED
+      error: AuthError.INTERNAL_ERROR
     }
   }
 }
@@ -345,8 +377,14 @@ export async function checkOrganizationRole(userId: string, organizationId: stri
 // 認証済みユーザーの取得
 export const getAuthenticatedUser = async (): Promise<AuthenticatedUser | null> => {
   try {
+    console.log('getAuthenticatedUser開始');
     const { userId } = auth()
-    if (!userId) return null
+    console.log('Clerk認証結果 - userId:', userId);
+    
+    if (!userId) {
+      console.log('userIdが取得できませんでした');
+      return null
+    }
 
     const user = await prisma.user.findUnique({
       where: { clerkId: userId },
@@ -363,9 +401,14 @@ export const getAuthenticatedUser = async (): Promise<AuthenticatedUser | null> 
       }
     })
 
-    if (!user) return null
+    console.log('データベースから取得したユーザー:', JSON.stringify(user, null, 2));
 
-    return {
+    if (!user) {
+      console.log('ユーザーがデータベースに見つかりません');
+      return null
+    }
+
+    const result = {
       id: user.id,
       clerkId: user.clerkId,
       systemRole: user.systemRole,
@@ -373,7 +416,10 @@ export const getAuthenticatedUser = async (): Promise<AuthenticatedUser | null> 
         organizationId: m.organizationId,
         role: m.role
       }))
-    }
+    };
+
+    console.log('返却するユーザー情報:', JSON.stringify(result, null, 2));
+    return result;
   } catch (error) {
     console.error('Error getting authenticated user:', error)
     return null

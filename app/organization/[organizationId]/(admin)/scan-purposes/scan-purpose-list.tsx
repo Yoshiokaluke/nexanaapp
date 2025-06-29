@@ -33,11 +33,9 @@ export function ScanPurposeList({ scanPurposes, onDelete, onEdit }: ScanPurposeL
             <div className="flex-1">
               <div className="flex items-center space-x-3">
                 <span className="font-medium text-[#FFFFFF]">{purpose.name}</span>
-                <Badge className={`text-xs ${purpose.isActive ? 'bg-[#4BEA8A]/20 text-[#4BEA8A] border border-[#4BEA8A]' : 'bg-[#333333] text-[#888888] border border-[#444444]'}`}>{purpose.isActive ? '有効' : '無効'}</Badge>
                 {isDefault && (
                   <Badge className="text-xs bg-[#4BEA8A]/20 text-[#4BEA8A] border border-[#4BEA8A]">デフォルト</Badge>
                 )}
-                <span className="text-sm text-[#CCCCCC]">順序: {purpose.order}</span>
               </div>
               {purpose.description && (
                 <p className="text-[#CCCCCC] mt-1 text-sm">{purpose.description}</p>
@@ -59,9 +57,8 @@ export function ScanPurposeList({ scanPurposes, onDelete, onEdit }: ScanPurposeL
                 variant="ghost"
                 size="sm"
                 onClick={() => onDelete(purpose.id)}
-                className={`hover:bg-[#333333] ${isDefault ? 'text-[#888888] cursor-not-allowed' : 'text-[#FFFFFF] hover:text-[#4BEA8A]'}`}
-                title={isDefault ? "デフォルト目的を削除" : "削除"}
-                disabled={isDefault}
+                className="text-[#FFFFFF] hover:text-[#4BEA8A] hover:bg-[#333333]"
+                title="削除"
               >
                 <Trash2 className="w-4 h-4" />
               </Button>
