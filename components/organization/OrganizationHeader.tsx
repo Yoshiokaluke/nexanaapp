@@ -26,6 +26,7 @@ export const OrganizationHeader: React.FC<OrganizationHeaderProps> = ({
   const [isSigningOut, setIsSigningOut] = useState(false);
   const { signOut } = useClerk();
   const router = useRouter();
+  const [isPWA, setIsPWA] = useState(false);
 
   useEffect(() => {
     console.log('OrganizationHeader: useEffect triggered with clerkId:', clerkId, 'organizationId:', organizationId);
@@ -47,6 +48,13 @@ export const OrganizationHeader: React.FC<OrganizationHeaderProps> = ({
       console.log('OrganizationHeader: Missing clerkId or organizationId, skipping profile image fetch');
     }
   }, [clerkId, organizationId]);
+
+  useEffect(() => {
+    // PWA（スタンドアロン）モードか判定
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+      setIsPWA(true);
+    }
+  }, []);
 
   const handleSignOut = async () => {
     if (isSigningOut) return;
@@ -70,6 +78,16 @@ export const OrganizationHeader: React.FC<OrganizationHeaderProps> = ({
     { href: `/organization/${organizationId}/my-qr`, label: "MY-QR" },
     { href: `/organization/${organizationId}/OrganizationProfile`, label: "Member" },
   ].filter(Boolean) as { href: string; label: string }[];
+
+  if (isPWA) {
+    return (
+      <div style={{ padding: 32, textAlign: 'center', color: '#d32f2f', background: '#fff' }}>
+        <h2>カメラ機能をご利用の場合はSafariから直接アクセスしてください</h2>
+        <p>ホーム画面からの起動（PWA）ではカメラがご利用いただけません。</p>
+        <p>Safariで <b>https://nexanahq.com/scanner/login</b> を開いてご利用ください。</p>
+      </div>
+    );
+  }
 
   return (
     <header className="bg-[#1E1E1E] shadow-sm sticky top-0 z-30" data-regular-header>
