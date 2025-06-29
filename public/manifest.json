@@ -10,6 +10,7 @@
   "scope": "/scanner",
   "lang": "ja",
   "categories": ["business", "productivity"],
+  "permissions": ["camera"],
   "icons": [
     {
       "src": "/icon-192x192.png",
