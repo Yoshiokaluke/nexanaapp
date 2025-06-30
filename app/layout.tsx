@@ -56,8 +56,20 @@ export const metadata: Metadata = {
     },
   },
   icons: {
-    icon: '/48.png',
-    apple: '/180.png',
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/48.png', sizes: '48x48', type: 'image/png' },
+      { url: '/180.png', sizes: '180x180', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/180.png', sizes: '180x180', type: 'image/png' },
+    ],
+    shortcut: '/favicon.ico',
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'Nexana App',
   },
 };
 
@@ -73,6 +85,20 @@ export default function RootLayout({
       afterSignUpUrl="/organization-list"
     >
       <html lang="ja" className={inter.className}>
+        <head>
+          {/* Safari用のfavicon設定 */}
+          <link rel="icon" href="/favicon.ico" sizes="any" />
+          <link rel="icon" href="/48.png" type="image/png" sizes="48x48" />
+          <link rel="icon" href="/180.png" type="image/png" sizes="180x180" />
+          <link rel="apple-touch-icon" href="/180.png" />
+          <link rel="apple-touch-icon-precomposed" href="/180.png" />
+          <link rel="shortcut icon" href="/favicon.ico" />
+          {/* Safari用の追加設定 */}
+          <meta name="apple-mobile-web-app-capable" content="yes" />
+          <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+          <meta name="apple-mobile-web-app-title" content="Nexana App" />
+          <link rel="apple-touch-startup-image" href="/180.png" />
+        </head>
         <body suppressHydrationWarning={true} className="bg-[#1E1E1E]">
           <AuthSync />
           {children}
