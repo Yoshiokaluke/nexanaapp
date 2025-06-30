@@ -104,8 +104,11 @@ export default function RootLayout({
           <meta name="theme-color" content="#1E1E1E" />
           <meta name="color-scheme" content="dark" />
           
-          {/* Google Search Console 検証用（必要に応じて追加） */}
-          {/* Google Search Consoleで取得したHTMLタグを以下に追加してください */}
+          {/* Google Search Console 検証用 */}
+          {/* 1. https://search.google.com/search-console にアクセス */}
+          {/* 2. 「プロパティを追加」→ ドメインプロパティ: nexanahq.com */}
+          {/* 3. 「HTMLタグ」を選択 */}
+          {/* 4. 下の行のコメントアウトを外して、YOUR_VERIFICATION_CODEを実際のコードに置き換え */}
           {/* <meta name="google-site-verification" content="YOUR_VERIFICATION_CODE" /> */}
           
           {/* Google Analytics（必要に応じて追加） */}
