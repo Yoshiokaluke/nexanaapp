@@ -7,7 +7,7 @@ const ongoingRequests = new Map<string, Promise<any>>();
 
 export async function POST(request: NextRequest) {
   try {
-    const { userId } = auth();
+    const { userId } = await auth();
     
     if (!userId) {
       console.error('QRコード生成API: 認証エラー - userIdが見つかりません');

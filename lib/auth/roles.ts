@@ -252,7 +252,7 @@ export async function checkOrganizationMembership(clerkId: string, organizationI
 // 組織メンバーシップ認証
 export const organizationMembershipAuth = async (organizationId: string): Promise<AuthResult> => {
   try {
-    const { userId: clerkId } = auth()
+    const { userId: clerkId } = await auth()
     if (!clerkId) {
       return {
         success: false,
@@ -280,7 +280,7 @@ export const organizationMembershipAuth = async (organizationId: string): Promis
 
 // 認証の要求
 export async function requireAuth() {
-  const { userId: clerkId } = auth()
+  const { userId: clerkId } = await auth()
   if (!clerkId) {
     throw new Error('認証が必要です')
   }
@@ -290,7 +290,7 @@ export async function requireAuth() {
 // システムチーム認証
 export const systemTeamAuth = async (): Promise<AuthResult> => {
   try {
-    const { userId: clerkId } = auth()
+    const { userId: clerkId } = await auth()
     if (!clerkId) {
       return {
         success: false,
@@ -319,7 +319,7 @@ export const systemTeamAuth = async (): Promise<AuthResult> => {
 // 組織管理者認証
 export const organizationAdminAuth = async (organizationId: string): Promise<AuthResult> => {
   try {
-    const { userId: clerkId } = auth()
+    const { userId: clerkId } = await auth()
     if (!clerkId) {
       return {
         success: false,
@@ -378,7 +378,7 @@ export async function checkOrganizationRole(userId: string, organizationId: stri
 export const getAuthenticatedUser = async (): Promise<AuthenticatedUser | null> => {
   try {
     console.log('getAuthenticatedUser開始');
-    const { userId } = auth()
+    const { userId } = await auth()
     console.log('Clerk認証結果 - userId:', userId);
     
     if (!userId) {
@@ -436,7 +436,7 @@ export const createAuthErrorResponse = (error: typeof AuthError[keyof typeof Aut
 
 // 認証ミドルウェア
 export const withAuth = async (handler: () => Promise<Response>) => {
-  const { userId } = auth()
+  const { userId } = await auth()
   if (!userId) {
     return createAuthErrorResponse(AuthError.UNAUTHORIZED)
   }

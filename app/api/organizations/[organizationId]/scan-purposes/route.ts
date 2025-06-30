@@ -18,7 +18,7 @@ export async function GET(
 ) {
   const { organizationId } = await params;
   try {
-    const { userId } = auth();
+    const { userId } = await auth();
     
     if (!userId) {
       return NextResponse.json(
@@ -119,7 +119,7 @@ export async function POST(
 ) {
   const { organizationId } = await params;
   try {
-    const { userId } = auth();
+    const { userId } = await auth();
     
     if (!userId) {
       return NextResponse.json(
@@ -211,7 +211,7 @@ export async function PATCH(
 ) {
   const { organizationId } = await params;
   try {
-    const { userId } = auth();
+    const { userId } = await auth();
     
     if (!userId) {
       return NextResponse.json(

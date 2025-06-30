@@ -53,7 +53,7 @@ export async function PATCH(
 ) {
   const { clerkId } = await params;
   try {
-    const { userId } = auth();
+    const { userId } = await auth();
     if (!userId || userId !== clerkId) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
@@ -129,7 +129,7 @@ export async function POST(
 ) {
   const { clerkId } = await params;
   try {
-    const { userId } = auth();
+    const { userId } = await auth();
     if (!userId || userId !== clerkId) {
       return new NextResponse("Unauthorized", { status: 401 });
     }

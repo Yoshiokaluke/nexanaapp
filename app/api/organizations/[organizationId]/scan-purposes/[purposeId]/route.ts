@@ -9,7 +9,7 @@ export async function PATCH(
 ) {
   const { organizationId, purposeId } = await params;
   try {
-    const { userId } = auth();
+    const { userId } = await auth();
     
     if (!userId) {
       return NextResponse.json(
@@ -120,7 +120,7 @@ export async function DELETE(
 ) {
   const { organizationId, purposeId } = await params;
   try {
-    const { userId } = auth();
+    const { userId } = await auth();
     
     if (!userId) {
       return NextResponse.json(
