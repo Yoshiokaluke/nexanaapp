@@ -18,14 +18,14 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
-  metadataBase: new URL('https://nexanaapp.vercel.app'),
+  metadataBase: new URL('https://nexanahq.com'),
   alternates: {
     canonical: '/',
   },
   openGraph: {
     title: "Nexana App - 組織管理とQRコードスキャン",
     description: "組織管理とQRコードスキャン機能を提供するWebアプリケーション。イベント管理、メンバー招待、QRコード生成・スキャンを簡単に行えます。",
-    url: 'https://nexanaapp.vercel.app',
+    url: 'https://nexanahq.com',
     siteName: 'Nexana App',
     images: [
       {
@@ -98,6 +98,28 @@ export default function RootLayout({
           <meta name="apple-mobile-web-app-status-bar-style" content="default" />
           <meta name="apple-mobile-web-app-title" content="Nexana App" />
           <link rel="apple-touch-startup-image" href="/180.png" />
+          
+          {/* SEO設定 */}
+          <meta name="viewport" content="width=device-width, initial-scale=1" />
+          <meta name="theme-color" content="#1E1E1E" />
+          <meta name="color-scheme" content="dark" />
+          
+          {/* Google Search Console 検証用（必要に応じて追加） */}
+          {/* Google Search Consoleで取得したHTMLタグを以下に追加してください */}
+          {/* <meta name="google-site-verification" content="YOUR_VERIFICATION_CODE" /> */}
+          
+          {/* Google Analytics（必要に応じて追加） */}
+          {/* <script async src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"></script>
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', 'GA_MEASUREMENT_ID');
+              `,
+            }}
+          /> */}
         </head>
         <body suppressHydrationWarning={true} className="bg-[#1E1E1E]">
           <AuthSync />

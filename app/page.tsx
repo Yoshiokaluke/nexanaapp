@@ -3,6 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { redirect } from "next/navigation";
 import MobileMenu from "./components/MobileMenu";
+import Script from "next/script";
 
 export default async function Home() {
   const { userId } = await auth();
@@ -14,6 +15,36 @@ export default async function Home() {
   
   return (
     <div className="min-h-screen bg-[#1E1E1E] text-white">
+      {/* 構造化データ */}
+      <Script
+        id="structured-data"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "SoftwareApplication",
+            "name": "Nexana App",
+            "description": "組織管理とQRコードスキャン機能を提供するWebアプリケーション",
+            "url": "https://nexanahq.com",
+            "applicationCategory": "BusinessApplication",
+            "operatingSystem": "Web",
+            "offers": {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "JPY"
+            },
+            "author": {
+              "@type": "Organization",
+              "name": "Nexana Team"
+            },
+            "publisher": {
+              "@type": "Organization",
+              "name": "Nexana"
+            }
+          })
+        }}
+      />
+      
       {/* Header */}
       <header className="absolute top-0 left-0 right-0 z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

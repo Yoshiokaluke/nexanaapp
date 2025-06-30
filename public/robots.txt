@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://nexanahq.com/sitemap.xml
+
+# クロール遅延（オプション）
+Crawl-delay: 1 
